@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "job-placement-platform",
   "private": true,
   "scripts": {
     "build": "turbo run build",
