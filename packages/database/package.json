@@ -1,0 +1,31 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "main": "./dist/src/prismaClient.js",
+  "types": "./dist/src/prismaClient.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "db:generate": "prisma generate",
+    "postdb:generate": "pnpm run seed",
+    "db:migrate": "prisma migrate dev --skip-generate",
+    "db:deploy": "prisma migrate deploy",
+    "seed": "ts-node --project tsconfig.json prisma/seed.ts"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/prismaClient.d.ts",
+      "require": "./dist/src/prismaClient.js",
+      "import": "./dist/src/prismaClient.js",
+      "default": "./dist/src/prismaClient.js"
+    }
+  }
+}

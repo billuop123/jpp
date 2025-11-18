@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Roles{
+  id String @id @default(uuid())
+  name String
+  code String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  users Users[]
+}
+
+model Users {
+  id    String     @id @default(uuid())
+  email String  @unique
+  name  String? 
+  password String
+  deletedAt DateTime?
+  company Companies[]
+  userDetails UserDetails?
+  applications applications?
+  roleId String?
+  role Roles? @relation(fields: [roleId], references: [id],onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model UserDetails{
+  id String @id @default(uuid())
+  userId String @unique
+  experience Int?
+  phone String?
+  resumeLink String?
+  skills String[]
+  location String?
+  bio String?
+  linkedin String?
+  portfolio String?
+  github String?
+  expectedSalary Int?
+  availability String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  user Users? @relation(fields: [userId], references: [id],onDelete: Cascade)
+}
+model CompanyTypes{
+id String @id @default(uuid())
+name String
+description String?
+companies Companies[]
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+deletedAt DateTime?
+}
+model Companies{
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  website String?
+  logo String?
+  postlimit Int @default(5)
+  companytypeId String
+  companytype CompanyTypes @relation(fields: [companytypeId], references: [id],onDelete: Cascade)
+  jobs jobs[]
+  companySettings CompanySettings[]
+  userId String
+  user Users @relation(fields: [userId], references: [id],onDelete: Cascade)
+  blacklisted Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+model CompanySettings{
+  id String @id @default(uuid())
+  companyId String
+  key String 
+  value Boolean @default(false)
+  isSystemSetting Boolean @default(false)
+  companies Companies @relation(fields: [companyId], references: [id],onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+model logs{
+  id Int @id @default(autoincrement())
+  message String
+  level String 
+  userId String?
+  timestamp DateTime @default(now())
+  modified DateTime?
+  deletedAt DateTime?
+}
+model jobtypes{
+  id String @id @default(uuid())
+  name String 
+  description String?
+  jobs jobs[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+model jobs{
+  id String @id @default(uuid())
+  title String 
+  description String?
+  companyId String
+  jobtypeId String
+  location String?
+  isRemote Boolean @default(false)
+  salaryMin Decimal?
+  salaryMax Decimal?
+  salaryCurrency String  @default("USD")
+  requirements String?
+  responsibilities String?
+  benefits String?
+  applicationurl String?
+  contactEmail String?
+  experienceLevel Int?
+  skills String[]
+  isactive Boolean @default(true)
+  views Int @default(0)
+  applicationCount Int @default(0)
+  isfeatured Boolean @default(false)
+  postedBy Int?
+  applications applications? 
+  deadline DateTime?
+  company Companies @relation(fields: [companyId], references: [id],onDelete: Cascade)
+  jobtype jobtypes @relation(fields: [jobtypeId], references: [id],onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model applicationstatus{
+  id String @id @default(uuid())
+  name String @unique
+  code String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  applications applications[]
+}
+model applications{
+  id String @id @default(uuid())
+  jobId String @unique
+  userId String @unique
+  applicationstatusId String
+  coverletter String?
+  relevanceScore Int?
+  relevancecomment String?
+  notes String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  job jobs @relation(fields: [jobId], references: [id],onDelete: Cascade)
+  user Users @relation(fields: [userId], references: [id],onDelete: Cascade)
+  applicationstatus applicationstatus @relation(fields: [applicationstatusId], references: [id],onDelete: Cascade)
+}
+model emailTemplates{
+  id String @id @default(uuid())
+  name String @unique
+  subject String
+  body String
+  code String @unique
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+enum EmailStatus{
+  SENT
+  FAILED
+}
+model EmailTracking{
+  id String @id @default(uuid())
+  recipientId String
+  templateId String
+  emailStatus EmailStatus@default(SENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
