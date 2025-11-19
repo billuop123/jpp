@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -11,9 +16,25 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { RolesModule } from './roles/roles.module';
 import { CompanyModule } from './company/company.module';
 import { JobsModule } from './jobs/jobs.module';
+import { QdrantModule } from './qdrant/qdrant.module';
+import { ApplicationsModule } from './applications/applications.module';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UsersModule, LoggerModule, UserDetailsModule, CloudinaryModule, RolesModule, CompanyModule, JobsModule],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    UsersModule,
+    LoggerModule,
+    UserDetailsModule,
+    CloudinaryModule,
+    RolesModule,
+    CompanyModule,
+    JobsModule,
+    QdrantModule,
+    ApplicationsModule,
+    OpenaiModule,
+  ],
   controllers: [AppController],
   providers: [AppService, AuthMiddleware],
 })
@@ -25,8 +46,8 @@ export class AppModule implements NestModule {
       .forRoutes(
         { path: 'user-details', method: RequestMethod.ALL },
         { path: 'upload-pdf', method: RequestMethod.ALL },
-        {path: 'company', method: RequestMethod.ALL},
+        { path: 'company', method: RequestMethod.ALL },
+        { path: 'applications', method: RequestMethod.ALL },
       );
   }
 }
-

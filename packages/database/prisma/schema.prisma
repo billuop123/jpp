@@ -169,6 +169,7 @@ model applications{
   job jobs @relation(fields: [jobId], references: [id],onDelete: Cascade)
   user Users @relation(fields: [userId], references: [id],onDelete: Cascade)
   applicationstatus applicationstatus @relation(fields: [applicationstatusId], references: [id],onDelete: Cascade)
+  @@unique([jobId,userId])
 }
 model emailTemplates{
   id String @id @default(uuid())
