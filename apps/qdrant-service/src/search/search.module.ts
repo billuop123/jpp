@@ -5,7 +5,7 @@ import { EmbedService } from 'src/embed/embed.service';
 import { SearchController } from './search.controller';
 
 @Module({
-  providers: [SearchService,QdrantService,EmbedService],
-  controllers: [SearchController]
+  providers: [SearchService, QdrantService, EmbedService],
+  controllers: [SearchController],
 })
 export class SearchModule {}

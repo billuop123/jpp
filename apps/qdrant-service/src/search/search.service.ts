@@ -10,13 +10,13 @@ export class SearchService {
   ) {}
 
   async search(query: string) {
-    const queryEmbedding = await this.embedService.embed(query) as number[];
+    const queryEmbedding = (await this.embedService.embed(query)) as number[];
     const results = await this.qdrantService.search(queryEmbedding, 1000);
     const payload = {};
 
     results.forEach((r) => {
-      if(!r)return
-      if(!r.payload) return
+      if (!r) return;
+      if (!r.payload) return;
       const title = r.payload.job_title as string;
       const score = r.score;
 
@@ -26,5 +26,10 @@ export class SearchService {
     });
 
     return payload;
+  }
+  async searchJobs(query:string){
+    const queryEmbedding = (await this.embedService.embed(query)) as number[];
+    const results = await this.qdrantService.searchJobs(queryEmbedding, 5);
+    return results;
   }
 }

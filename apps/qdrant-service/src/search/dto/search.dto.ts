@@ -5,4 +5,3 @@ export class SearchDto {
   @IsNotEmpty()
   query: string;
 }
-

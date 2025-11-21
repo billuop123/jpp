@@ -20,6 +20,7 @@ export class UserDetailsService {
                 userId: userId,
                 ...userDetails,
             },
+            
         });
     }
 }

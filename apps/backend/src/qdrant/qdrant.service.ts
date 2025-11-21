@@ -13,5 +13,15 @@ export class QdrantService {
       this.client.send('search', { query }),
     );
   }
+  async insert(data:any){
+    return await firstValueFrom(
+      this.client.send('insert', { data }),
+    );
+  }
+async searchJobs(query:string){
+  return await firstValueFrom(
+    this.client.send('search-jobs', { query }),
+  );
+}
 }
 
