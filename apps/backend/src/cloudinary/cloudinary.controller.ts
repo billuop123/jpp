@@ -17,7 +17,7 @@ export class CloudinaryController {
         FileInterceptor('file', {
           storage: memoryStorage(),
           fileFilter: pdfFileFilter,
-          limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB limit (adjust)
+          limits: { fileSize: 20 * 1024 * 1024 }, 
         }),
       )
     async uploadPdf(@Req() req: Request,@UploadedFile() file: any) {

@@ -8,6 +8,10 @@ import { LoggerService } from './logger/logger.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const loggerService = app.get(LoggerService);
+  app.enableCors({
+    origin: "*",
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

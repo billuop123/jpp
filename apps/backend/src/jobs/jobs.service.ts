@@ -88,24 +88,44 @@ export class JobsService {
             },
         });
     }
-    async searchJobs(query:string){
-        if(!query){
+    async searchJobs(query: string) {
+        if (!query) {
             throw new BadRequestException('Search query is required');
         }
-        const results = JSON.stringify(await this.qdrantService.searchJobs(query))
-        const jobs=JSON.parse(results)
-        const jobIds=jobs.map((job:any)=>job.id)
-        const jobsData=await this.databaseService.jobs.findMany({
-            where:{
-                id:{
-                    in:jobIds,
-                },
+        const jobs = await this.qdrantService.searchJobs(query);
+        const orderedIds = jobs.map((job: any) => job.id);
+        const jobsData = await this.databaseService.jobs.findMany({
+            where: {
+                id: { in: orderedIds },
             },
-            include:{
-                company:true,
-                jobtype:true,
+            select: {
+                company: {
+                    select: { name: true, logo: true }
+                },
+                jobtype: {
+                    select: { name: true }
+                },
+                id: true,
+                title: true,
+                location: true,
+                isRemote: true,
+                isfeatured: true,
+                createdAt: true,
+                deadline:true,
+                updatedAt: true,
+                deletedAt: true,
+            },
+        });
+        const jobsInOrder=orderedIds.map((id:string)=>{
+            return jobsData.find((job:any)=>job.id===id)
+        })
+        return { jobs: jobsInOrder };
+    }
+    async findOneJob(jobId:string){
+        return await this.databaseService.jobs.findUnique({
+            where:{
+                id:jobId,
             },
         })
-        return jobsData
     }
 }

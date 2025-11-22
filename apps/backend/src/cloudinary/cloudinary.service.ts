@@ -16,11 +16,15 @@ export class CloudinaryService {
     if (!userId) {
       throw new BadRequestException('Authenticated user context not found');
     }
-    const existingUserDetails = await this.databaseService.userDetails.findUnique({
+    let existingUserDetails = await this.databaseService.userDetails.findUnique({
       where: { userId },
     });
     if (!existingUserDetails) {
-      throw new BadRequestException('User details not found for this user');
+      existingUserDetails = await this.databaseService.userDetails.create({
+        data:{
+          userId,
+        }
+      })
     }
     if (existingUserDetails.resumeLink) {
       throw new BadRequestException('Resume already uploaded');

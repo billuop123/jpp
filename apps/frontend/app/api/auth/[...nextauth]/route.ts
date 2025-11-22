@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 
@@ -33,8 +33,7 @@ declare module "next-auth/jwt" {
     role?: string;
   }
 }
-
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -140,6 +139,7 @@ const handler = NextAuth({
   },
 
   secret: process.env.NEXTAUTH_SECRET!,
-});
+}
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

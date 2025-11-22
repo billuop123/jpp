@@ -48,6 +48,7 @@ export class AppModule implements NestModule {
         { path: 'upload-pdf', method: RequestMethod.ALL },
         { path: 'company', method: RequestMethod.ALL },
         { path: 'applications', method: RequestMethod.ALL },
+        { path: 'user-details/parse-pdf', method: RequestMethod.ALL },
       );
   }
 }

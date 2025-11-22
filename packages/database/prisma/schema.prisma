@@ -55,6 +55,7 @@ model UserDetails{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+  finished Boolean @default(false)
   user Users? @relation(fields: [userId], references: [id],onDelete: Cascade)
 }
 model CompanyTypes{
