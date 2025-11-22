@@ -1,6 +1,6 @@
 "use client"
 import LoadingStep from "@/components/LoadingStep"
-import { BACKEND_URL } from "@/config"
+import { BACKEND_URL } from "@/lib/config"
 import { useUser } from "@/store/user"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"

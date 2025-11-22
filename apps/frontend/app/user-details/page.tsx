@@ -1,6 +1,6 @@
 "use client";
 
-import { BACKEND_URL } from "@/config";
+import { BACKEND_URL } from "@/lib/config";
 import { useUser } from "@/store/user";
 import { useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";

@@ -1,5 +1,5 @@
 "use client";
-import { BACKEND_URL } from "@/config";
+import { BACKEND_URL } from "@/lib/config";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import {
