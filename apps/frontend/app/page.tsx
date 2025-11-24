@@ -10,13 +10,12 @@ import { ArrowRight, Sparkles, Target, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import { toast } from "sonner";
-
+import Link from "next/link";
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const isAuthenticated = !!session;
-
   useEffect(() => {
     const unauthorized = searchParams?.get("unauthorized");
     if (unauthorized === "admin") {
@@ -37,7 +36,8 @@ export default function Home() {
         repeatDelay={1}
         className="[mask-image:radial-gradient(300px_circle_at_center,white,transparent)]"
       />
-      
+    {session?.user?.role==="CANDIDATE" && <Link href="/candidatedashboard">Candidate Dashboard</Link>}
+    {session?.user?.role==="RECRUITER" && <Link href="/recruiterdashboard">Recruiter Dashboard</Link>}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-8">
           <FloatingHeader />

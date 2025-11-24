@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { JobDto } from './dto/jobs.dto';
 import { Prisma } from '@repo/db';
@@ -127,5 +127,27 @@ export class JobsService {
                 id:jobId,
             },
         })
+    }
+    async applicationExists(jobId: {jobId:string},req:Request){
+        const jobIdData=jobId.jobId
+        const userId=(req as any).userId
+        const user=await this.databaseService.users.findUnique({
+            where:{
+                id:userId,
+            },
+        })
+        if(!user){
+            throw new UnauthorizedException('User not found');
+        }
+        const application=await this.databaseService.applications.findFirst({
+            where:{
+                jobId:jobIdData,
+                userId:userId,
+            }
+        })
+        return {
+            status: application ? true : false,
+            applicationId: application?.id || null
+        }
     }
 }

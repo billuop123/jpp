@@ -28,4 +28,8 @@ export class JobsController {
     async findOneJob(@Param('jobId') jobId: string) {
         return await this.jobsService.findOneJob(jobId);
     }
+    @Post('application-exists')
+    async applicationExists(@Body()jobId: {jobId:string},@Req() req:Request){
+        return await this.jobsService.applicationExists(jobId,req as any);
+    }
 }

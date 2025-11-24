@@ -2,6 +2,12 @@ import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/commo
 import { ConfigService } from '@nestjs/config';
 import { NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+
+interface JwtPayload {
+  id: string;
+  role: string;
+}
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(private readonly configService: ConfigService) {}
@@ -11,9 +17,12 @@ export class AuthMiddleware implements NestMiddleware {
       throw new UnauthorizedException('Authorization header is required');
     }
     try{
-    const decodedToken = jwt.verify(authorization, this.configService.get<string>('JWT_SECRET'));
+    const decodedToken = jwt.verify(authorization, this.configService.get<string>('JWT_SECRET')) as JwtPayload;
     if(!decodedToken){
       throw new UnauthorizedException('Invalid token');
+    }
+    if(!decodedToken.id){
+      throw new UnauthorizedException('User ID not found in token');
     }
     const userId = decodedToken.id;
     (req as any).userId = userId;
@@ -21,6 +30,9 @@ export class AuthMiddleware implements NestMiddleware {
     (req as any).role = role;
     next();
     }catch(error){
+      if(error instanceof UnauthorizedException){
+        throw error;
+      }
       throw new UnauthorizedException('Invalid token');
     }
 

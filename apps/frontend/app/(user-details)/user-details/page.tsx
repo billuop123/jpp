@@ -37,7 +37,6 @@ export default function UserDetailsPage() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
-
       const response = await fetch(`${BACKEND_URL}/upload-pdf`, {
         method: "PUT",
         body: formData,
@@ -104,7 +103,6 @@ export default function UserDetailsPage() {
 
   const saveMutation = useMutation({
     mutationFn: async (data: ExtractedData) => {
-      // Transform data to match backend DTO
       const skillsArray = data.Skills
         ? data.Skills.split(",").map((s) => s.trim()).filter(Boolean)
         : [];
@@ -138,13 +136,11 @@ export default function UserDetailsPage() {
       setCurrentStep("success");
     },
   });
-
-  // Redirect to /jobs after success
   useEffect(() => {
     if (currentStep === "success") {
       const timer = setTimeout(() => {
         router.push("/jobs");
-      }, 2000); // Show success message for 2 seconds before redirecting
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [currentStep, router]);

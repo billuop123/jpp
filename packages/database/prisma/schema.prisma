@@ -32,7 +32,7 @@ model Users {
   deletedAt DateTime?
   company Companies[]
   userDetails UserDetails?
-  applications applications?
+  applications applications[]
   roleId String?
   role Roles? @relation(fields: [roleId], references: [id],onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -137,7 +137,7 @@ model jobs{
   applicationCount Int @default(0)
   isfeatured Boolean @default(false)
   postedBy Int?
-  applications applications? 
+  applications applications[]
   deadline DateTime?
   company Companies @relation(fields: [companyId], references: [id],onDelete: Cascade)
   jobtype jobtypes @relation(fields: [jobtypeId], references: [id],onDelete: Cascade)
@@ -157,8 +157,8 @@ model applicationstatus{
 }
 model applications{
   id String @id @default(uuid())
-  jobId String @unique
-  userId String @unique
+  jobId String 
+  userId String 
   applicationstatusId String
   coverletter String?
   relevanceScore Int?
