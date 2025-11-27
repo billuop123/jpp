@@ -1,8 +1,8 @@
 "use client";
 import { BACKEND_URL } from "@/lib/config";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
 import { Button } from "@/components/ui/button";
 import LoadingStep from "@/components/LoadingStep";
@@ -11,6 +11,7 @@ import { JobContent } from "@/components/jobs/JobContent";
 import { JobSidebar } from "@/components/jobs/JobSidebar";
 import { Job } from "@/components/jobs/types";
 import { useUser } from "@/store/user";
+import { toast } from "sonner";
 
 export default function JobDetailsPage() {
   const { jobid } = useParams<{ jobid: string }>();
@@ -19,7 +20,18 @@ export default function JobDetailsPage() {
   const [applicationExists, setApplicationExists] = useState(false);
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const {token}=useUser()
-  const jobQuery = useQuery({
+  const { mutate: updateViews } = useMutation({
+    mutationFn: (jobId: string) => fetch(`${BACKEND_URL}/jobs/update-views/${jobId}`, {
+        method: 'PATCH',
+    }).then(res => res.json()),
+    // onSuccess: () => {
+    //     toast.success("Views updated successfully")
+    // },
+    onError: (error: Error) => {
+        toast.error(error.message || "Failed to update views")
+    },
+})
+  const jobQuery = useQuery<Job>({
     queryKey: ["job", jobid],
     enabled: !!jobid,
     queryFn: async () => {
@@ -29,6 +41,11 @@ export default function JobDetailsPage() {
       return res;
     },
   });
+  useEffect(() => {
+    if (jobQuery.data?.id) {
+      updateViews(jobQuery.data.id);
+    }
+  }, [jobQuery.data?.id, updateViews]);
   const applicationExistsQuery=useQuery({
     queryKey: ["application-exists", jobid],
     enabled: !!jobid && !!token,
@@ -82,7 +99,7 @@ export default function JobDetailsPage() {
       </div>
     );
   }
-  const job: Job = jobQuery.data;
+  const job = jobQuery.data as Job;
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden">

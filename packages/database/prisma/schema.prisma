@@ -57,7 +57,7 @@ model UserDetails{
   deletedAt DateTime?
   finished Boolean @default(false)
   user Users? @relation(fields: [userId], references: [id],onDelete: Cascade)
-}
+} 
 model CompanyTypes{
 id String @id @default(uuid())
 name String

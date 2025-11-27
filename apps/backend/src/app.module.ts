@@ -19,6 +19,7 @@ import { JobsModule } from './jobs/jobs.module';
 import { QdrantModule } from './qdrant/qdrant.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { OpenaiModule } from './openai/openai.module';
+import { IsCandidate } from './roles/roles.middleware';
 
 @Module({
   imports: [
@@ -50,6 +51,14 @@ export class AppModule implements NestModule {
         { path: 'applications', method: RequestMethod.ALL },
         { path: 'user-details/parse-pdf', method: RequestMethod.ALL },
         { path: 'jobs/application-exists', method: RequestMethod.ALL },
+        { path: 'company/my-companies', method: RequestMethod.ALL },
+      );
+      
+  consumer
+      .apply(IsCandidate)
+      .forRoutes(
+        { path: 'applications', method: RequestMethod.ALL },
       );
   }
+
 }

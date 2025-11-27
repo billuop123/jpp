@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { CompanyTypeDropdown } from "../ui/company-type-dropdown";
 
 interface ExtractedData {
   Name?: string;
@@ -21,6 +22,15 @@ interface ReviewStepProps {
   onSave: (data: ExtractedData) => void;
   isSaving: boolean;
 }
+
+const availabilityOptions = [
+  { id: "immediate", label: "Immediate", value: "Immediate" },
+  { id: "one-week", label: "Within 1 week", value: "Within 1 week" },
+  { id: "two-weeks", label: "Within 2 weeks", value: "Within 2 weeks" },
+  { id: "one-month", label: "Within 1 month", value: "Within 1 month" },
+  { id: "three-months", label: "Within 3 months", value: "Within 3 months" },
+  { id: "negotiable", label: "Negotiable", value: "Negotiable" },
+];
 
 export default function ReviewStep({
   extractedData,
@@ -99,11 +109,11 @@ export default function ReviewStep({
 
         <div>
           <label className="block text-sm font-medium mb-1">Availability</label>
-          <input
-            type="text"
+          <CompanyTypeDropdown
+            options={availabilityOptions}
             value={formData.Availability || ""}
-            onChange={(e) => handleChange("Availability", e.target.value)}
-            className="w-full rounded border px-3 py-2 dark:bg-gray-800 dark:border-gray-700"
+            onValueChange={(value) => handleChange("Availability", value)}
+            placeholder="Select availability"
           />
         </div>
 

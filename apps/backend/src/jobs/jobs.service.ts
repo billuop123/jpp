@@ -122,11 +122,15 @@ export class JobsService {
         return { jobs: jobsInOrder };
     }
     async findOneJob(jobId:string){
-        return await this.databaseService.jobs.findUnique({
+        const job=await this.databaseService.jobs.findUnique({
             where:{
                 id:jobId,
             },
         })
+        if(!job){
+            throw new NotFoundException('Job not found');
+        }
+        return job;
     }
     async applicationExists(jobId: {jobId:string},req:Request){
         const jobIdData=jobId.jobId
@@ -150,4 +154,58 @@ export class JobsService {
             applicationId: application?.id || null
         }
     }
+async getTopViewedJobs()  {
+    const jobs=await this.databaseService.jobs.findMany({
+        where:{
+            isactive:true,
+        },
+        orderBy:{
+            views:'desc',
+        },
+        take:5,
+        select:{
+            id:true,
+            title:true,
+            location:true,
+            isRemote:true,
+            isfeatured:true,
+            deadline:true,
+            createdAt:true,
+            company:{
+                select:{
+                    name:true,
+                    logo:true,
+                }
+            },
+            jobtype:{
+                select:{
+                    name:true,
+                }
+            }
+        }
+    })
+    return {
+        jobs:jobs,
+    }
 }
+async updateViews(jobId:string){
+    const job=await this.databaseService.jobs.findUnique({
+        where:{
+            id:jobId,
+        },
+    })
+    if(!job){
+        throw new NotFoundException('Job not found');
+    }
+    await this.databaseService.jobs.update({
+        where:{
+            id:jobId,
+        },
+        data:{
+            views:job.views+1,
+        },
+    })
+    return {
+        status:true,
+    }
+}}

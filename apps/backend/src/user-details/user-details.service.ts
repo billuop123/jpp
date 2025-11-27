@@ -29,6 +29,25 @@ export class UserDetailsService {
             where: {
                 userId: userId,
             },
+            select:{
+                resumeLink: true,
+                experience: true,
+                location: true,
+                linkedin: true,
+                portfolio: true,
+                github: true,
+                expectedSalary: true,
+                availability: true,
+                skills: true,
+                finished: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    }
+                }
+            }
         });
         if(!userDetails){
             throw new NotFoundException('User details not found');

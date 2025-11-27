@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import { Request } from 'express';
 import { DatabaseService } from 'src/database/database.service';
@@ -51,6 +51,27 @@ export class CloudinaryService {
         },
       );
       uploadStream.end(file.buffer);
+    });
+  }
+
+  async removeUploadedResume(req: Request) {
+    const userId = (req as any).userId;
+    if (!userId) {
+      throw new BadRequestException('Authenticated user context not found');
+    }
+
+    const existingUserDetails = await this.databaseService.userDetails.findUnique({
+      where: { userId },
+      select: { resumeLink: true },
+    });
+
+    if (!existingUserDetails || !existingUserDetails.resumeLink) {
+      throw new NotFoundException('No resume found to remove');
+    }
+
+    return this.databaseService.userDetails.update({
+      where: { userId },
+      data: { resumeLink: null },
     });
   }
 }

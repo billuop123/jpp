@@ -1,0 +1,179 @@
+"use client";
+
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CompanyTypeDropdown } from "@/components/ui/company-type-dropdown";
+import { BACKEND_URL } from "@/lib/config";
+import { useUser } from "@/store/user";
+import { toast } from "sonner";
+
+const companyTypes = [
+  { id: "1", label: "Intern", value: "Intern" },
+  { id: "2", label: "Full-time", value: "Full-time" },
+  { id: "3", label: "Part-time", value: "Part-time" },
+  { id: "4", label: "Freelance", value: "Freelance" },
+  { id: "5", label: "Remote", value: "Remote" },
+  { id: "6", label: "On-site", value: "On-site" },
+  { id: "7", label: "Hybrid", value: "Hybrid" },
+  { id: "8", label: "Contract", value: "Contract" },
+  { id: "9", label: "Temporary", value: "Temporary" },
+];
+
+interface CreateCompanyDialogProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+}
+
+export function CreateCompanyDialog({
+  isOpen,
+  onOpenChange,
+  onSuccess,
+}: CreateCompanyDialogProps) {
+  const [companyName, setCompanyName] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [companyWebsite, setCompanyWebsite] = useState("");
+  const [companyLogo, setCompanyLogo] = useState("");
+  const [companyType, setCompanyType] = useState<string>("");
+  const { token } = useUser();
+
+  const createCompanyMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`${BACKEND_URL}/company`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
+        body: JSON.stringify({
+          name: companyName,
+          email: companyEmail,
+          website: companyWebsite || undefined,
+          logo: companyLogo || undefined,
+          companyType: companyType,
+        }),
+      });
+      const res = await response.json();
+      if (!response.ok) throw new Error(res.message || "Failed to create company");
+      return res;
+    },
+    onSuccess: () => {
+      toast.success("Company created successfully!");
+      onOpenChange(false);
+      // Reset form
+      setCompanyName("");
+      setCompanyEmail("");
+      setCompanyWebsite("");
+      setCompanyLogo("");
+      setCompanyType("");
+      onSuccess?.();
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create company");
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!companyName || !companyEmail || !companyType) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    createCompanyMutation.mutate();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl">Create New Company</DialogTitle>
+          <DialogDescription>
+            Fill in the details below to create a new company.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="companyName">Company Name *</Label>
+            <Input
+              id="companyName"
+              type="text"
+              placeholder="Enter company name"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="companyType">Company Type *</Label>
+            <CompanyTypeDropdown
+              options={companyTypes}
+              value={companyType}
+              onValueChange={setCompanyType}
+              placeholder="Select company type"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="companyEmail">Company Email *</Label>
+            <Input
+              id="companyEmail"
+              type="email"
+              placeholder="Enter company email"
+              value={companyEmail}
+              onChange={(e) => setCompanyEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="companyWebsite">Company Website</Label>
+            <Input
+              id="companyWebsite"
+              type="url"
+              placeholder="Enter company website"
+              value={companyWebsite}
+              onChange={(e) => setCompanyWebsite(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="companyLogo">Company Logo</Label>
+            <Input
+              id="companyLogo"
+              type="text"
+              placeholder="Enter company logo link"
+              value={companyLogo}
+              onChange={(e) => setCompanyLogo(e.target.value)}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={createCompanyMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={
+              createCompanyMutation.isPending ||
+              !companyName ||
+              !companyEmail ||
+              !companyType
+            }
+          >
+            {createCompanyMutation.isPending ? "Creating..." : "Create Company"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Query, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Query, Param, Patch } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { JobDto, SearchDto } from './dto/jobs.dto';
 import { Prisma } from '@repo/db';
@@ -23,6 +23,14 @@ export class JobsController {
     @Post('search-jobs')
     async searchJobs(@Body() searchDto: SearchDto) {
         return await this.jobsService.searchJobs(searchDto.query);
+    }
+    @Get('top-viewed-jobs')
+    async getTopViewedJobs() {
+        return await this.jobsService.getTopViewedJobs();
+    }
+    @Patch('update-views/:jobId')
+    async updateViews(@Param('jobId') jobId: string) {
+        return await this.jobsService.updateViews(jobId);
     }
     @Get(':jobId')
     async findOneJob(@Param('jobId') jobId: string) {

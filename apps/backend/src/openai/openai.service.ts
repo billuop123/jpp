@@ -35,6 +35,7 @@ STRICT RULES:
 - If unsure, return empty string "".
 - Never return null or undefined. Use "" if missing.
 - No comments. No explanations. JSON only.
+- But if the pdf uploaded is not a resume, return the message "not a resume" in the message field.
 `,
         },
         {

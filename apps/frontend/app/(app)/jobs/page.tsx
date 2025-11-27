@@ -1,10 +1,10 @@
 "use client"
-import { fetchJobs, fetchResumeText, fetchUserDetails } from "@/app/lib/queryfunctions/jobsqueryfunctions"
+import { fetchJobs, fetchResumeText, fetchTopViewedJobs, fetchUserDetails } from "@/app/lib/queryfunctions/jobsqueryfunctions"
 import LoadingStep from "@/components/LoadingStep"
 import { useUser } from "@/store/user"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern"
 import { motion } from "framer-motion"
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Briefcase, Calendar, Building2, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { BACKEND_URL } from "@/lib/config"
 
 interface Job {
     id: string
@@ -30,44 +31,68 @@ interface Job {
     }
 }
 
+interface JobsResponse {
+    jobs?: Job[];
+}
+
 export default function JobsPage() {
-    const { token } = useUser()
+    const { token,role } = useUser()
     const router = useRouter()
+    const [jobSource, setJobSource] = useState<"top" | "semantic">("top")
+    const canFetchUser = !!token && role==="CANDIDATE"
+
+    
     const userQuery = useQuery({
         queryKey: ['user-details'],
-        enabled: !!token,
+        enabled: canFetchUser,
         retry:false,
-        queryFn: () => fetchUserDetails(token as string)
+        queryFn: () => fetchUserDetails(token as string),
     })
     useEffect(() => {
         if (userQuery.isError) {
-            console.log(userQuery.error.message)
             if(userQuery.error.message === "Invalid token") {
                 toast.error("Invalid token, please sign in again")
                 router.replace("/api/auth/signin")
             }
-            if(userQuery.error.message==="User details not found"){
+            if(userQuery.error.message==="User details not found"&&role==="CANDIDATE"){
                 toast.error(userQuery.error.message || "Failed to fetch user details")
                 router.replace("/user-details")
             }
         }
     }, [userQuery.isError, router])
+    useEffect(() => {
+        if (userQuery.data && !userQuery.data.resumeLink && role==="CANDIDATE") {
+            toast.error("Please upload your resume to view jobs")
+            router.replace("/user-details")
+        }
+    }, [userQuery.data, router])
+    const topViewedJobsQuery=useQuery({
+        queryKey: ['top-viewed-jobs'],
+        retry:false,
+        queryFn: () => fetchTopViewedJobs(),
+    })
+    useEffect(() => {
+        if (topViewedJobsQuery.isError) {
+            toast.error(topViewedJobsQuery.error.message || "Failed to fetch top viewed jobs")
+        }
+    }, [topViewedJobsQuery.isError])
+    const canFetchResume = canFetchUser && !!userQuery.data?.resumeLink
     const resumeQuery = useQuery({
         queryKey: ['resume-text'],
-        enabled: !!token && !!userQuery.data?.resumeLink,
+        enabled: canFetchResume,
         retry:false,
         queryFn: () => fetchResumeText(token as string)
     })
     useEffect(() => {
         if (resumeQuery.isError) {
             toast.error(resumeQuery.error.message || "Failed to fetch resume text")
-            router.replace("/")
+            router.replace("/user-details")
         }
     }, [resumeQuery.isError, router])
-    const jobsQuery = useQuery({
+    const jobsQuery = useQuery<JobsResponse>({
         queryKey: ['jobs'],
         retry:false,
-        enabled: !!token && !!resumeQuery.data,
+        enabled: canFetchResume && !!resumeQuery.data,
         queryFn: () => fetchJobs(token as string, resumeQuery.data.text as any)
     })
     useEffect(() => {
@@ -76,6 +101,23 @@ export default function JobsPage() {
             router.replace("/")
         }
     }, [jobsQuery.isError, router])
+    const topViewedJobs: Job[] = topViewedJobsQuery.data?.jobs || []
+    const canUseSemantic = !!resumeQuery.data && role==="CANDIDATE" && !!userQuery.data?.resumeLink
+    useEffect(() => {
+        if (canUseSemantic) {
+            setJobSource("semantic")
+        } else {
+            setJobSource("top")
+        }
+    }, [canUseSemantic])
+
+    if (topViewedJobsQuery.isPending) {
+        return (
+            <div className="min-h-[calc(100vh-8rem)] flex flex-col">
+                <LoadingStep message="Loading top viewed jobs..." />
+            </div>
+        )
+    }
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString)
@@ -86,7 +128,7 @@ export default function JobsPage() {
         })
     }
 
-    if (userQuery.isPending) {
+    if (canFetchUser && userQuery.isPending) {
         return (
             <div className="min-h-[calc(100vh-8rem)] flex flex-col">
                 <LoadingStep message="Checking user profile..." />
@@ -94,7 +136,15 @@ export default function JobsPage() {
         )
     }
 
-    if (resumeQuery.isPending) {
+    if (userQuery.data && !userQuery.data.resumeLink) {
+        return (
+            <div className="min-h-[calc(100vh-8rem)] flex flex-col">
+                <LoadingStep message="Redirecting to resume upload..." />
+            </div>
+        )
+    }
+
+    if (canFetchResume && resumeQuery.isPending) {
         return (
             <div className="min-h-[calc(100vh-8rem)] flex flex-col">
                 <LoadingStep message="Extracting resume text..." />
@@ -102,7 +152,7 @@ export default function JobsPage() {
         )
     }
 
-    if (jobsQuery.isPending) {
+    if (jobSource === "semantic" && jobsQuery.isPending) {
         return (
             <div className="min-h-[calc(100vh-8rem)] flex flex-col">
                 <LoadingStep message="Loading jobs..." />
@@ -110,7 +160,7 @@ export default function JobsPage() {
         )
     }
 
-    if (!resumeQuery.data) {
+    if (jobSource === "semantic" && !resumeQuery.data) {
         return (
             <div className="min-h-[calc(100vh-8rem)] flex flex-col">
                 <LoadingStep message="No resume data available..." />
@@ -118,7 +168,9 @@ export default function JobsPage() {
         )
     }
 
-    const jobs: Job[] = jobsQuery.data?.jobs || []
+    const semanticJobs: Job[] = jobsQuery.data?.jobs || []
+    const displayJobs = jobSource === "semantic" ? semanticJobs : topViewedJobs
+    const showSourceSelector = canUseSemantic && topViewedJobs.length > 0
     
     return (
         <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
@@ -159,15 +211,34 @@ export default function JobsPage() {
                             Your Job Matches
                         </motion.h1>
                         
+                        {showSourceSelector && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                                className="flex items-center justify-center gap-3 text-sm text-muted-foreground"
+                            >
+                                <span>View:</span>
+                                <select
+                                    value={jobSource}
+                                    onChange={(e) => setJobSource(e.target.value as "top" | "semantic")}
+                                    className="rounded-md border border-input bg-background px-3 py-1 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                >
+                                    <option value="semantic">AI Matched Jobs</option>
+                                    <option value="top">Top Viewed Jobs</option>
+                                </select>
+                            </motion.div>
+                        )}
+
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="text-lg text-muted-foreground max-w-2xl mx-auto"
                         >
-                            {jobs.length > 0 
-                                ? `Found ${jobs.length} job${jobs.length !== 1 ? 's' : ''} matching your profile`
-                                : "No jobs found at the moment"}
+                            {displayJobs.length > 0 
+                                ? `Showing ${jobSource === "semantic" ? "AI-matched" : "top viewed"} jobs (${displayJobs.length})`
+                                : `No ${jobSource === "semantic" ? "AI-matched" : "top viewed"} jobs available`}
                         </motion.p>
                     </div>
                 </section>
@@ -182,7 +253,7 @@ export default function JobsPage() {
                         className="absolute inset-0 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
                     />
                     <div className="relative">
-                        {jobs.length === 0 ? (
+                        {displayJobs.length === 0 ? (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -194,7 +265,7 @@ export default function JobsPage() {
                             </motion.div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {jobs.map((job, index) => (
+                                {displayJobs.map((job, index) => (
                                     <motion.div
                                         key={job.id}
                                         initial={{ opacity: 0, y: 20 }}

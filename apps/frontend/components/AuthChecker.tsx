@@ -9,15 +9,18 @@ interface AuthCheckerProps {
   children: ReactNode;
 }
 
-const PUBLIC_ROUTES = ["/", "/api/auth/signin", "/api/auth/signout"];
+const PUBLIC_ROUTES = ["/", "/api/auth/signin", "/api/auth/signout", "/jobs"];
 
 export default function AuthChecker({ children }: AuthCheckerProps) {
   const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  const isPublicRoute = PUBLIC_ROUTES.some(route => {
+  const isPublicRoute = PUBLIC_ROUTES.some((route) => {
     if (route === "/") {
       return pathname === "/";
+    }
+    if (route === "/jobs") {
+      return pathname === "/jobs";
     }
     return pathname?.startsWith(route);
   });

@@ -10,17 +10,12 @@ export const fetchUserDetails = async (token: string) => {
     })
 
     const res = await response.json()
-
-    // if (response.status === 404 || !res.finished) {
-    //     toast.error("Please complete your profile to view jobs")
-    //     router.replace("/user-details")
-    //     return null
-    // }
-
+    if(res.message==="Invalid token"){
+        throw new Error("Invalid token")
+    }
     if (!response.ok) {
         throw new Error(res.message || "Failed to fetch user details")
     }
-
     return res
 }
 
@@ -57,4 +52,10 @@ export const fetchJobs=async (token:string,resumeQuery:any) => {
     if (!response.ok) throw new Error("Failed to fetch jobs")
 
     return res
+}
+export const fetchTopViewedJobs = async () => {
+    const response = await fetch(`${BACKEND_URL}/jobs/top-viewed-jobs`);
+    const res = await response.json();
+    if (!response.ok) throw new Error("Failed to fetch top viewed jobs");
+    return res;
 }
