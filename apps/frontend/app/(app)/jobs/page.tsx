@@ -40,7 +40,7 @@ export default function JobsPage() {
     const router = useRouter()
     const [jobSource, setJobSource] = useState<"top" | "semantic">("top")
     const canFetchUser = !!token && role==="CANDIDATE"
-
+    
     
     const userQuery = useQuery({
         queryKey: ['user-details'],

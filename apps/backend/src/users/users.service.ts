@@ -98,7 +98,7 @@ export class UsersService {
                 }
             });
             if(existingUser){
-                const token=jwt.sign({id: existingUser.id,role: existingUser.role?.code}, this.jwtSecret, {expiresIn: '1h'});
+                const token=jwt.sign({id: existingUser.id,role: existingUser.role?.code}, this.jwtSecret, {expiresIn: '1d'});
                 return {
                     access_token: token,
                     user: existingUser,
@@ -133,7 +133,7 @@ export class UsersService {
                     }
                 },
             });
-            const token=jwt.sign({id: newUser.id,role: newUser.role?.code}, this.jwtSecret, {expiresIn: '1h'});
+            const token=jwt.sign({id: newUser.id,role: newUser.role?.code}, this.jwtSecret, {expiresIn: '1d'});
             return {
                 access_token: token,
                 user: newUser,

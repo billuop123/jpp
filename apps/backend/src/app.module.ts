@@ -20,6 +20,7 @@ import { QdrantModule } from './qdrant/qdrant.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { OpenaiModule } from './openai/openai.module';
 import { IsCandidate } from './roles/roles.middleware';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { IsCandidate } from './roles/roles.middleware';
     QdrantModule,
     ApplicationsModule,
     OpenaiModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthMiddleware],
@@ -52,6 +54,8 @@ export class AppModule implements NestModule {
         { path: 'user-details/parse-pdf', method: RequestMethod.ALL },
         { path: 'jobs/application-exists', method: RequestMethod.ALL },
         { path: 'company/my-companies', method: RequestMethod.ALL },
+        { path: 'company/company-jobs/:companyId', method: RequestMethod.ALL },
+        { path: 'stripe/check-session', method: RequestMethod.ALL },
       );
       
   consumer

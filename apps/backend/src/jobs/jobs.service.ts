@@ -7,7 +7,7 @@ import { QdrantService } from 'src/qdrant/qdrant.service';
 @Injectable()
 export class JobsService {
     constructor(private readonly databaseService:DatabaseService,private readonly qdrantService: QdrantService){}
-    async create(job:JobDto,req:Request): Promise<Prisma.jobsGetPayload<{}>>{
+    async create(job:JobDto,req:Request,companyId:string): Promise<Prisma.jobsGetPayload<{}>>{
         const userId=(req as any).userId;
         const date=new Date()
         if(job.deadline < date){
@@ -23,7 +23,7 @@ export class JobsService {
         }
         const company=await this.databaseService.companies.findUnique({
             where:{
-                id:job.companyId,
+                id:companyId,
             },
         });
         if(!company){
@@ -188,12 +188,25 @@ async getTopViewedJobs()  {
         jobs:jobs,
     }
 }
-async updateViews(jobId:string){
+async updateViews(jobId:string,req:any){
     const job=await this.databaseService.jobs.findUnique({
         where:{
             id:jobId,
         },
+        select:{
+                company:{
+                    select:{
+                        userId:true
+                    }
+                },
+                views:true,
+        }
     })
+    if(job?.company?.userId==req.userId){
+        return{
+            status:true,
+        }
+    }
     if(!job){
         throw new NotFoundException('Job not found');
     }

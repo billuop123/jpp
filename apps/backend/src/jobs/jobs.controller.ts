@@ -12,10 +12,12 @@ export class JobsController {
     //         offset ? parseInt(offset, 10) : undefined
     //     );
     // }
-    @Post()
-    async create(@Body() job:JobDto, @Req() req: Request): Promise<Prisma.jobsGetPayload<{}>> {
-        return await this.jobsService.create(job,req as any);
+    @Post('application-exists')
+    async applicationExists(@Body()jobId: {jobId:string},@Req() req:Request){
+        return await this.jobsService.applicationExists(jobId,req as any);
     }
+
+
     @Post('search')
     async search(@Body() searchDto: SearchDto) {
         return await this.jobsService.search(searchDto.query);
@@ -29,15 +31,16 @@ export class JobsController {
         return await this.jobsService.getTopViewedJobs();
     }
     @Patch('update-views/:jobId')
-    async updateViews(@Param('jobId') jobId: string) {
-        return await this.jobsService.updateViews(jobId);
+    async updateViews(@Param('jobId') jobId: string, @Req() req: Request) {
+        return await this.jobsService.updateViews(jobId,req as any);
     }
     @Get(':jobId')
     async findOneJob(@Param('jobId') jobId: string) {
         return await this.jobsService.findOneJob(jobId);
     }
-    @Post('application-exists')
-    async applicationExists(@Body()jobId: {jobId:string},@Req() req:Request){
-        return await this.jobsService.applicationExists(jobId,req as any);
+    @Post(':companyId')
+    async create(@Body() job:JobDto, @Req() req: Request,@Param('companyId') companyId: string): Promise<Prisma.jobsGetPayload<{}>> {
+        return await this.jobsService.create(job,req as any,companyId as string);
     }
+
 }

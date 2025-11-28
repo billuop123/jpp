@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CompanyDto } from './dto/create-company.dto';
 import { Request } from 'express';
@@ -66,5 +66,31 @@ export class CompanyService {
             },
         });
         return companies;
+    }
+    async getCompanyJobs(companyId:string,req:Request){
+        const company=await this.databaseService.companies.findUnique({
+            where: {
+                id: companyId,
+            },
+            select:{
+                userId:true,
+            },
+        });
+        if(!company){
+            throw new NotFoundException('Company not found');
+        }
+        if(company.userId!==(req as any).userId){
+            console.log(company.userId, (req as any).userId)
+            throw new UnauthorizedException('You are not authorized to get this company jobs');
+        }
+        const jobs=await this.databaseService.jobs.findMany({
+            where: {
+                companyId: companyId,
+            },
+            select:{
+                id:true,
+            }
+        });
+        return jobs;
     }
 }

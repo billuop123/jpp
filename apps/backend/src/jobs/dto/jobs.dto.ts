@@ -74,10 +74,6 @@ export class JobDto{
     @IsOptional()
     postedBy:number
 
-    @IsString()
-    @IsNotEmpty()
-    companyId:string
-
     @IsDate()
     @IsNotEmpty()
     @Type(() => Date)

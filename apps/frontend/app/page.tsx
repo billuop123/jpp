@@ -8,24 +8,78 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ArrowRight, Sparkles, Target, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { BACKEND_URL } from "@/lib/config";
+import PremiumSection from "@/components/home/PremiumSection";
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const isAuthenticated = !!session;
+  const [premiumStatus, setPremiumStatus] = useState<string | null>(null);
+  const [loadingPremium, setLoadingPremium] = useState(false);
+
   useEffect(() => {
     const unauthorized = searchParams?.get("unauthorized");
     if (unauthorized === "admin") {
       toast.error("Access denied. Admin privileges required to access the admin dashboard.");
-      // Clean up the URL by removing the query parameter
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.delete("unauthorized");
       router.replace(newUrl.pathname + newUrl.search, { scroll: false });
     }
   }, [searchParams, router]);
+
+  const handleBuyPremium = async () => {
+    if (!session?.user?.email) {
+      toast.error("Please sign in to upgrade to premium.");
+      router.push("/api/auth/signin");
+      return;
+    }
+
+    setLoadingPremium(true);
+    setPremiumStatus(null);
+
+    try {
+     
+      const checkoutRes = await fetch(`${BACKEND_URL}/stripe/create-checkout-session`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "payment",
+          success_url: `${window.location.origin}/premium/success`,
+          cancel_url: `${window.location.origin}/premium/canceled`,
+          line_items: [
+            {
+              price_data: {
+                currency: "usd",
+                product_data: { name: "Premium Membership" },
+                unit_amount: 1500,
+              },
+              quantity: 1,
+            },
+          ],
+          customer_email: session.user.email,
+        }),
+      });
+
+      const checkoutData = await checkoutRes.json();
+      if (!checkoutRes.ok) {
+        throw new Error(checkoutData.message || "Unable to create checkout session.");
+      }
+
+      if (checkoutData.url) {
+        window.location.href = checkoutData.url;
+      } else {
+        throw new Error("Stripe checkout URL missing in response.");
+      }
+    } catch (error: any) {
+      setPremiumStatus(error.message || "Unexpected error creating checkout session.");
+    } finally {
+      setLoadingPremium(false);
+    }
+  };
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
@@ -38,6 +92,7 @@ export default function Home() {
       />
     {session?.user?.role==="CANDIDATE" && <Link href="/candidatedashboard">Candidate Dashboard</Link>}
     {session?.user?.role==="RECRUITER" && <Link href="/recruiterdashboard">Recruiter Dashboard</Link>}
+    {session?.user?.role==="ADMIN" && <Link href="/admindashboard">Admin Dashboard</Link>}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-8">
           <FloatingHeader />
@@ -155,6 +210,16 @@ export default function Home() {
               ))}
             </motion.div>
           </div>
+        </section>
+
+        {/* Premium Upgrade Section */}
+        <section className="container mx-auto px-4 py-12">
+          <PremiumSection
+            isAuthenticated={isAuthenticated}
+            loading={loadingPremium}
+            statusMessage={premiumStatus}
+            onBuyPremium={handleBuyPremium}
+          />
         </section>
 
         {/* Features Section */}

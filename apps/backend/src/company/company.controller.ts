@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CompanyDto } from './dto/create-company.dto';
 
@@ -12,5 +12,9 @@ export class CompanyController {
     @Get('my-companies')
     async getMyCompanies(@Req() req: Request) {
         return await this.companyService.getMyCompanies(req as any);
+    }
+    @Get('company-jobs/:companyId')
+    async getCompanyJobs(@Param('companyId') companyId: string, @Req() req: Request) {
+        return await this.companyService.getCompanyJobs(companyId,req as any);
     }
 }
