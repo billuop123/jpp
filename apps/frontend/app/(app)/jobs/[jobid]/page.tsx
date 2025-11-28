@@ -20,6 +20,36 @@ export default function JobDetailsPage() {
   const [applicationExists, setApplicationExists] = useState(false);
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const {token}=useUser()
+  const [isPremium, setIsPremium] = useState(false);
+  const isPremiumQuery=useQuery({
+    queryKey: ["is-premium"],
+    enabled: !!token,
+    retry: false,
+    queryFn:  async () => {
+      const response = await fetch(`${BACKEND_URL}/users/is-premium`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token!
+        }
+      });
+      if(!response.ok) throw new Error("Failed to check if you are premium")
+      const res = await response.json();
+      return res;
+    },
+
+    
+  })
+  useEffect(() => {
+    if(isPremiumQuery.isError){
+      toast.error(isPremiumQuery.error.message || "Failed to check if you are premium")
+    }
+  }, [isPremiumQuery.isError])
+  useEffect(() => {
+    if(isPremiumQuery.data){
+      setIsPremium(isPremiumQuery.data.isPremium)
+    }
+  }, [isPremiumQuery.data])
   const { mutate: updateViews } = useMutation({
     mutationFn: (jobId: string) => fetch(`${BACKEND_URL}/jobs/update-views/${jobId}`, {
         method: 'PATCH',
@@ -65,6 +95,44 @@ export default function JobDetailsPage() {
       return res
     },
   })
+  const tailorResumeMutation = useMutation({
+    mutationFn: async () => {
+      if (!token) {
+        throw new Error("Sign in to tailor your resume");
+      }
+      const response = await fetch(`${BACKEND_URL}/resume-tailoring/${jobid}`, {
+        method: "GET",
+        headers: {
+          "Authorization": token,
+        },
+      });
+      if (!response.ok) {
+        let errorMessage = "Failed to tailor resume";
+        try {
+          const errorBody = await response.json();
+          errorMessage = errorBody.message || errorMessage;
+        } catch (error) {
+          // ignore body parse errors
+        }
+        throw new Error(errorMessage);
+      }
+      return await response.blob();
+    },
+    onSuccess: (blob) => {
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `${jobQuery.data?.title ?? "tailored"}-resume.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      toast.success("Tailored resume generated!");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to tailor resume");
+    }
+  })
   if (jobQuery.isLoading) {
     return (
       <div className="min-h-[calc(100vh-8rem)] flex flex-col">
@@ -99,6 +167,7 @@ export default function JobDetailsPage() {
       </div>
     );
   }
+  
   const job = jobQuery.data as Job;
 
   return (
@@ -110,6 +179,14 @@ export default function JobDetailsPage() {
         repeatDelay={1}
         className="[mask-image:radial-gradient(300px_circle_at_center,white,transparent)]"
       />
+      {isPremium&&(
+        <Button
+          disabled={!token || tailorResumeMutation.isPending}
+          onClick={() => tailorResumeMutation.mutate()}
+        >
+          {tailorResumeMutation.isPending ? "Generating..." : "Tailor Resume"}
+        </Button>
+      )}
       <div className="relative z-10">
         <JobHeader
           job={job}

@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DatabaseService } from 'src/database/database.service';
 import { UserDto } from './Dto/create-user.dto';
@@ -256,5 +256,17 @@ export class UsersService {
             user: newUser,
             role: newUser.role?.code,
         };
+    }
+    async isPremium(userId:string){
+
+        const user=await this.databaseService.users.findUnique({
+            where:{
+                id:userId
+            }
+        })
+        if(!user){
+            throw new NotFoundException('User not found');
+        }
+        return {isPremium: user.isPremium};
     }
 }

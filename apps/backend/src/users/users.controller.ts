@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, Req } from '@nestjs/common';
 import { LoggerService } from 'src/logger/logger.service';
 import { UserDto } from './Dto/create-user.dto';
 import { UsersService } from './users.service';
@@ -35,5 +35,10 @@ export class UsersController {
             throw new BadRequestException('Access token is required');
         }
         return await this.usersService.githubAuth(accessToken);
+    }
+    @Get('is-premium')
+    @HttpCode(200)
+    async isPremium(@Req() req: Request) {
+        return await this.usersService.isPremium((req as any).userId as string);
     }
 }

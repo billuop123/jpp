@@ -21,6 +21,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { OpenaiModule } from './openai/openai.module';
 import { IsCandidate } from './roles/roles.middleware';
 import { StripeModule } from './stripe/stripe.module';
+import { ResumeTailoringModule } from './resume-tailoring/resume-tailoring.module';
 
 @Module({
   imports: [
@@ -37,6 +38,8 @@ import { StripeModule } from './stripe/stripe.module';
     ApplicationsModule,
     OpenaiModule,
     StripeModule,
+    ResumeTailoringModule,
+
   ],
   controllers: [AppController],
   providers: [AppService, AuthMiddleware],
@@ -56,6 +59,8 @@ export class AppModule implements NestModule {
         { path: 'company/my-companies', method: RequestMethod.ALL },
         { path: 'company/company-jobs/:companyId', method: RequestMethod.ALL },
         { path: 'stripe/check-session', method: RequestMethod.ALL },
+        { path: 'users/is-premium', method: RequestMethod.ALL },
+        { path: 'resume-tailoring/:jobId', method: RequestMethod.GET },
       );
       
   consumer
