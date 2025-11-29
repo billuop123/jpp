@@ -2,12 +2,13 @@ import { BadRequestException, Injectable, UnauthorizedException, Logger } from '
 import { DatabaseService } from 'src/database/database.service';
 import { ApplicationDto } from './dto/application.dto';
 import { Request } from 'express';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ApplicationsService {
     private readonly logger = new Logger(ApplicationsService.name);
     
-    constructor(private readonly databaseService:DatabaseService){}
+    constructor(private readonly databaseService:DatabaseService,private readonly usersService:UsersService){}
     
     async create(application:ApplicationDto,req:Request){
         const userId = (req as any).userId;
@@ -31,17 +32,7 @@ export class ApplicationsService {
             this.logger.error(`Invalid UUID format for jobId: ${application.jobId}`);
             throw new BadRequestException('Invalid job ID format');
         }
-
-        const user = await this.databaseService.users.findUnique({
-            where: {
-                id: userId,
-            },
-        });
-
-        if(!user){
-            this.logger.error(`User not found with ID: ${userId}`);
-            throw new BadRequestException('User not found');
-        }
+        await this.usersService.userExistsById(userId);
 
         const job=await this.databaseService.jobs.findUnique({
             where:{

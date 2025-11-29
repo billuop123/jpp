@@ -3,13 +3,15 @@ import { DatabaseService } from 'src/database/database.service';
 import { CompanyDto } from './dto/create-company.dto';
 import { Request } from 'express';
 import { Prisma } from '@repo/db';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CompanyService {
-    constructor(private readonly databaseService: DatabaseService) {}
+    constructor(private readonly databaseService: DatabaseService,private readonly usersService: UsersService) {}
     async create(company:CompanyDto,req:Request){
         const userId=(req as any).userId;
         const companytype=company.companyType;
+        await this.usersService.userExistsById(userId);
         const companyId=await this.databaseService.companyTypes.findFirst({
             where: {
                 name: companytype,
@@ -51,15 +53,7 @@ export class CompanyService {
     }
     async getMyCompanies(req:Request){
         const userId=(req as any).userId;
-        console.log(userId)
-        const user=await this.databaseService.users.findUnique({
-            where: {
-                id: userId,
-            },
-        });
-        if(!user){
-            throw new NotFoundException('User not found');
-        }
+        await this.usersService.userExistsById(userId);
         const companies=await this.databaseService.companies.findMany({
             where: {
                 userId: userId,

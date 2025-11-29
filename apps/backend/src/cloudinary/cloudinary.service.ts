@@ -3,11 +3,13 @@ import { UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
 import { Request } from 'express';
 import { DatabaseService } from 'src/database/database.service';
 import { CloudinaryException } from 'src/common/filters/cloudinary-exception.filter';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CloudinaryService {
   constructor(
     private readonly databaseService: DatabaseService,
+    private readonly usersService: UsersService,
     @Inject('CLOUDINARY') private cloudinary: any,
   ) {}
 
@@ -16,6 +18,7 @@ export class CloudinaryService {
     if (!userId) {
       throw new BadRequestException('Authenticated user context not found');
     }
+    await this.usersService.userExistsById(userId);
     let existingUserDetails = await this.databaseService.userDetails.findUnique({
       where: { userId },
     });
@@ -59,7 +62,7 @@ export class CloudinaryService {
     if (!userId) {
       throw new BadRequestException('Authenticated user context not found');
     }
-
+    await this.usersService.userExistsById(userId);
     const existingUserDetails = await this.databaseService.userDetails.findUnique({
       where: { userId },
       select: { resumeLink: true },

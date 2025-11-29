@@ -53,6 +53,9 @@ export class StripeService {
                 data: { isPremium: true },
             });
         }
+        else{
+            throw new BadRequestException('Payment is not complete');
+        }
         return {success:session?.status==="complete",message:session?.status}
     }
 }

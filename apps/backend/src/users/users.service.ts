@@ -269,4 +269,15 @@ export class UsersService {
         }
         return {isPremium: user.isPremium};
     }
+    async userExistsById(userId:string){
+        const user=await this.databaseService.users.findUnique({
+            where:{
+                id:userId
+            }
+        })
+        if(!user){
+            throw new NotFoundException('User not found');
+        }
+        return user
+    }
 }

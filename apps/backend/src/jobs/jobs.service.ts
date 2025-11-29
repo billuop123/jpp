@@ -4,12 +4,14 @@ import { JobDto } from './dto/jobs.dto';
 import { Prisma } from '@repo/db';
 import { Request } from 'express';
 import { QdrantService } from 'src/qdrant/qdrant.service';
+import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class JobsService {
-    constructor(private readonly databaseService:DatabaseService,private readonly qdrantService: QdrantService){}
+    constructor(private readonly databaseService:DatabaseService,private readonly qdrantService: QdrantService,private readonly usersService: UsersService){}
     async create(job:JobDto,req:Request,companyId:string): Promise<Prisma.jobsGetPayload<{}>>{
         const userId=(req as any).userId;
         const date=new Date()
+        await this.usersService.userExistsById(userId);
         if(job.deadline < date){
             throw new BadRequestException('Deadline must be in the future');
         }

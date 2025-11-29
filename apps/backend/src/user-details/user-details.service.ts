@@ -2,12 +2,14 @@ import { BadRequestException, Injectable, NotFoundException, Req } from '@nestjs
 import { DatabaseService } from 'src/database/database.service';
 import { UserDetailsDto } from './dto/user-details.dto';
 import { PDFParse } from 'pdf-parse';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class UserDetailsService {
-    constructor(private readonly databaseService: DatabaseService) {}
+    constructor(private readonly databaseService: DatabaseService,private readonly usersService: UsersService) {}
     async create(userDetails: UserDetailsDto,@Req() req: Request) {  
         const userId = (req as any).userId;
+        await this.usersService.userExistsById(userId);
         const existingUserDetails = await this.databaseService.userDetails.findUnique({
             where: {
                 userId: userId,
@@ -25,6 +27,7 @@ export class UserDetailsService {
         });
     }
     async getDetails(userId:string){
+        await this.usersService.userExistsById(userId);
         const userDetails = await this.databaseService.userDetails.findUnique({
             where: {
                 userId: userId,
@@ -56,6 +59,7 @@ export class UserDetailsService {
     }
     async parsePdf(@Req()req:Request){
         const userId=(req as any).userId;
+        await this.usersService.userExistsById(userId);
         const userDetails=await this.databaseService.userDetails.findUnique({
             where: {
                 userId: userId,
@@ -81,6 +85,7 @@ export class UserDetailsService {
 
     async updateDetails(userDetails:UserDetailsDto,@Req() req:Request){
         const userId=(req as any).userId;
+        await this.usersService.userExistsById(userId);
         const existingUserDetails=await this.databaseService.userDetails.findUnique({
             where: {
                 userId: userId,

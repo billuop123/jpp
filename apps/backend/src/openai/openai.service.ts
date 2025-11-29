@@ -1,11 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import OpenAI from 'openai';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class OpenaiService {
-  constructor(@Inject('OPENAI') private readonly openai: OpenAI) {}
+  constructor(@Inject('OPENAI') private readonly openai: OpenAI,private readonly usersService: UsersService) {}
 
-  async resumeTextExtraction(text: string) {
+  async resumeTextExtraction(text: string,userId:string) {
+    await this.usersService.userExistsById(userId);
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
       response_format: { type: 'json_object' },   
@@ -51,6 +53,7 @@ STRICT RULES:
   async generateTailoredResume(
     resumeData: Record<string, any>,
     resumeText: string,
+    userId:string,
     job: {
       title: string;
       description: string | null;
@@ -60,6 +63,10 @@ STRICT RULES:
       location?: string | null;
     },
   ) {
+    const user=await this.usersService.userExistsById(userId);
+    if(!user.isPremium){
+      throw new UnauthorizedException('User is not premium,Please upgrade to premium to use this feature');
+    }
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [

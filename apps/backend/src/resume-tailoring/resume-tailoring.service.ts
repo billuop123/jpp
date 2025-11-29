@@ -81,7 +81,7 @@ export class ResumeTailoringService {
             throw new BadRequestException('Unable to read resume');
         }
 
-        const resumeExtractionRaw = await this.openaiService.resumeTextExtraction(resumePdfText);
+        const resumeExtractionRaw = await this.openaiService.resumeTextExtraction(resumePdfText,userId);
         if (!resumeExtractionRaw) {
             throw new BadRequestException('Failed to process resume');
         }
@@ -97,7 +97,7 @@ export class ResumeTailoringService {
             throw new BadRequestException('The uploaded file is not a resume');
         }
 
-        const aiResponse = await this.openaiService.generateTailoredResume(resumeExtraction, resumePdfText, job);
+        const aiResponse = await this.openaiService.generateTailoredResume(resumeExtraction, resumePdfText, userId,job);
         const structuredResume = this.parseStructuredResume(aiResponse);
         if (!structuredResume) {
             throw new BadRequestException('Unable to generate tailored resume content');
