@@ -8,6 +8,6 @@ import { DatabaseService } from 'src/database/database.service';
 @Module({
   controllers: [OpenaiController],
   providers: [OpenaiService, OpenaiProvider,UsersService,DatabaseService],
-  exports: [OpenaiService],
+  exports: [OpenaiService, OpenaiProvider],
 })
 export class OpenaiModule {}

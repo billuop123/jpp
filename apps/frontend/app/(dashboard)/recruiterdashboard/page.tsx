@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { BACKEND_URL } from "@/lib/config";
+import { BACKEND_URL } from "@/scripts/lib/config";
 import { useUser } from "@/store/user";
 import { CreateCompanyDialog } from "@/components/companies/CreateCompanyDialog";
 import { CompaniesList } from "@/components/companies/CompaniesList";

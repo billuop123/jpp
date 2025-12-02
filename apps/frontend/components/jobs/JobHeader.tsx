@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Building2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
+import AnimatedGrid from "@/components/home/AnimatedGrid";
 import { Job } from "./types";
 import { formatDate } from "./utils";
 import { ApplyDialog } from "./ApplyDialog";
@@ -22,7 +22,7 @@ export function JobHeader({ job, isDialogOpen, onDialogOpenChange, applicationEx
   const router = useRouter();
   return (
     <section className="relative container mx-auto px-4 py-8 lg:py-12">
-      <AnimatedGridPattern
+      <AnimatedGrid
         numSquares={20}
         maxOpacity={0.2}
         duration={4}

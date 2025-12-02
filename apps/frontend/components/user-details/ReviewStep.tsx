@@ -4,18 +4,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { CompanyTypeDropdown } from "../ui/company-type-dropdown";
-
-interface ExtractedData {
-  Name?: string;
-  Experience?: number | string;
-  Skills?: string;
-  Location?: string;
-  LinkedIn?: string;
-  Portfolio?: string;
-  Github?: string;
-  ExpectedSalary?: number | string;
-  Availability?: string;
-}
+import { ExtractedData } from "./types";
 
 interface ReviewStepProps {
   extractedData: ExtractedData;

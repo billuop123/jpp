@@ -104,4 +104,14 @@ export class UserDetailsService {
             },
         });
     }
+    async getResumeText(userId:string){
+        await this.usersService.userExistsById(userId);
+        const userDetails=await this.getDetails(userId);
+        if(!userDetails.resumeLink){
+            throw new NotFoundException('Resume link not found');
+        }
+        const parser=new PDFParse({url:userDetails.resumeLink});
+        const result=(await parser.getText()).text
+        return result;
+    }
 }

@@ -1,217 +1,40 @@
-"use client";
-import { BACKEND_URL } from "@/lib/config";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { AnimatedGridPattern } from "@/components/ui/animated-grid-pattern";
-import { Button } from "@/components/ui/button";
-import LoadingStep from "@/components/LoadingStep";
-import { JobHeader } from "@/components/jobs/JobHeader";
-import { JobContent } from "@/components/jobs/JobContent";
-import { JobSidebar } from "@/components/jobs/JobSidebar";
+import { BACKEND_URL } from "@/scripts/lib/config";
 import { Job } from "@/components/jobs/types";
-import { useUser } from "@/store/user";
-import { toast } from "sonner";
+import { JobDetailsClient } from "@/components/jobs/JobDetailsClient";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-export default function JobDetailsPage() {
-  const { jobid } = useParams<{ jobid: string }>();
-  const router = useRouter();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [applicationExists, setApplicationExists] = useState(false);
-  const [applicationId, setApplicationId] = useState<string | null>(null);
-  const {token}=useUser()
-  const [isPremium, setIsPremium] = useState(false);
-  const isPremiumQuery=useQuery({
-    queryKey: ["is-premium"],
-    enabled: !!token,
-    retry: false,
-    queryFn:  async () => {
-      const response = await fetch(`${BACKEND_URL}/users/is-premium`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": token!
-        }
-      });
-      if(!response.ok) throw new Error("Failed to check if you are premium")
-      const res = await response.json();
-      return res;
-    },
+interface JobDetailsPageProps {
+  params: Promise<{ jobid: string }>;
+}
 
-    
-  })
-  useEffect(() => {
-    if(isPremiumQuery.isError){
-      toast.error(isPremiumQuery.error.message || "Failed to check if you are premium")
-    }
-  }, [isPremiumQuery.isError])
-  useEffect(() => {
-    if(isPremiumQuery.data){
-      setIsPremium(isPremiumQuery.data.isPremium)
-    }
-  }, [isPremiumQuery.data])
-  const { mutate: updateViews } = useMutation({
-    mutationFn: (jobId: string) => fetch(`${BACKEND_URL}/jobs/update-views/${jobId}`, {
-        method: 'PATCH',
-    }).then(res => res.json()),
-    // onSuccess: () => {
-    //     toast.success("Views updated successfully")
-    // },
-    onError: (error: Error) => {
-        toast.error(error.message || "Failed to update views")
-    },
-})
-  const jobQuery = useQuery<Job>({
-    queryKey: ["job", jobid],
-    enabled: !!jobid,
-    queryFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/jobs/${jobid}`);
-      const res = await response.json();
-      if (!response.ok) throw new Error("Failed to fetch job");
-      return res;
-    },
+async function getJob(jobid: string): Promise<Job> {
+  const response = await fetch(`${BACKEND_URL}/jobs/${jobid}`, {
+    cache: "no-store", 
   });
-  useEffect(() => {
-    if (jobQuery.data?.id) {
-      updateViews(jobQuery.data.id);
-    }
-  }, [jobQuery.data?.id, updateViews]);
-  const applicationExistsQuery=useQuery({
-    queryKey: ["application-exists", jobid],
-    enabled: !!jobid && !!token,
-    queryFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/jobs/application-exists`, {
-        method: "POST",
-        body: JSON.stringify({ jobId: jobid }),
-        headers:{
-          "Content-Type": "application/json",
-          "Authorization": token!
-        }
-      });
-      const res = await response.json();
-      setApplicationExists(res.status)
-      setApplicationId(res.applicationId || null)
-      if (!response.ok) throw new Error(res.message || "Failed to check application exists")
-      return res
-    },
-  })
-  const tailorResumeMutation = useMutation({
-    mutationFn: async () => {
-      if (!token) {
-        throw new Error("Sign in to tailor your resume");
-      }
-      const response = await fetch(`${BACKEND_URL}/resume-tailoring/${jobid}`, {
-        method: "GET",
-        headers: {
-          "Authorization": token,
-        },
-      });
-      if (!response.ok) {
-        let errorMessage = "Failed to tailor resume";
-        try {
-          const errorBody = await response.json();
-          errorMessage = errorBody.message || errorMessage;
-        } catch (error) {
-          // ignore body parse errors
-        }
-        throw new Error(errorMessage);
-      }
-      return await response.blob();
-    },
-    onSuccess: (blob) => {
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = downloadUrl;
-      link.download = `${jobQuery.data?.title ?? "tailored"}-resume.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(downloadUrl);
-      toast.success("Tailored resume generated!");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to tailor resume");
-    }
-  })
-  if (jobQuery.isLoading) {
-    return (
-      <div className="min-h-[calc(100vh-8rem)] flex flex-col">
-        <LoadingStep message="Loading job details..." />
-      </div>
-    );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch job");
   }
-  if (applicationExistsQuery.isLoading) {
-    return (
-      <div className="min-h-[calc(100vh-8rem)] flex flex-col">
-        <LoadingStep message="Checking if you have already applied for this job..." />
-      </div>
-    );
-  }
-  if (jobQuery.isError) {
+
+  return response.json();
+}
+
+export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
+  const { jobid } = await params;
+
+  try {
+    const job = await getJob(jobid);
+
+    return <JobDetailsClient initialJob={job} jobid={jobid} />;
+  } catch (error) {
     return (
       <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
         <p className="text-muted-foreground">Failed to load job details</p>
-        <Button onClick={() => router.back()} className="mt-4">
-          Go Back
+        <Button asChild className="mt-4">
+          <Link href="/jobs">Go Back</Link>
         </Button>
       </div>
     );
   }
-  if (applicationExistsQuery.isError) {
-    return (
-      <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
-        <p className="text-muted-foreground">Failed to check if you have already applied for this job</p>
-        <Button onClick={() => router.back()} className="mt-4">
-          Go Back
-        </Button>
-      </div>
-    );
-  }
-  
-  const job = jobQuery.data as Job;
-
-  return (
-    <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
-      <AnimatedGridPattern
-        numSquares={30}
-        maxOpacity={0.4}
-        duration={3}
-        repeatDelay={1}
-        className="[mask-image:radial-gradient(300px_circle_at_center,white,transparent)]"
-      />
-      {isPremium&&(
-        <Button
-          disabled={!token || tailorResumeMutation.isPending}
-          onClick={() => tailorResumeMutation.mutate()}
-        >
-          {tailorResumeMutation.isPending ? "Generating..." : "Tailor Resume"}
-        </Button>
-      )}
-      <div className="relative z-10">
-        <JobHeader
-          job={job}
-          isDialogOpen={isDialogOpen}
-          onDialogOpenChange={setIsDialogOpen}
-          applicationExists={applicationExists}
-          applicationId={applicationId}
-        />
-
-        <section className="relative container mx-auto px-4 pb-20">
-          <AnimatedGridPattern
-            numSquares={25}
-            maxOpacity={0.15}
-            duration={5}
-            repeatDelay={0.8}
-            className="absolute inset-0 [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
-          />
-          <div className="relative max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <JobContent job={job} />
-              <JobSidebar job={job} />
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
 }

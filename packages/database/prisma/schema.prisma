@@ -168,6 +168,7 @@ model applications{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+  conversationHistory String?
   job jobs @relation(fields: [jobId], references: [id],onDelete: Cascade)
   user Users @relation(fields: [userId], references: [id],onDelete: Cascade)
   applicationstatus applicationstatus @relation(fields: [applicationstatusId], references: [id],onDelete: Cascade)

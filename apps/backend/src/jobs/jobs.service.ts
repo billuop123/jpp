@@ -127,7 +127,11 @@ export class JobsService {
         const job=await this.databaseService.jobs.findUnique({
             where:{
                 id:jobId,
+
             },
+            include:{
+                company:true
+            }
         })
         if(!job){
             throw new NotFoundException('Job not found');

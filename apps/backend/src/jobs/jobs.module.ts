@@ -8,6 +8,7 @@ import { UsersService } from 'src/users/users.service';
 @Module({
   imports:[DatabaseModule,QdrantModule],
   controllers: [JobsController],
-  providers: [JobsService,UsersService]
+  providers: [JobsService,UsersService],
+  exports: [JobsService]
 })
 export class JobsModule {}

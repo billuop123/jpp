@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CompanyTypeDropdown } from "@/components/ui/company-type-dropdown";
-import { BACKEND_URL } from "@/lib/config";
+import { BACKEND_URL } from "@/scripts/lib/config";
 import { useUser } from "@/store/user";
 import { toast } from "sonner";
 

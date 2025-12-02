@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { BriefcaseIcon, MenuIcon, LogOut, User, Settings } from 'lucide-react';
 import { Sheet, SheetContent, SheetFooter } from '@/components/ui/sheet';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/scripts/lib/utils';
 import { useUser } from '@/store/user';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';

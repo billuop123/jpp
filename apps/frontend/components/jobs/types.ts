@@ -21,3 +21,24 @@ export interface Job {
   isfeatured: boolean;
 }
 
+export interface JobListItem {
+  id: string;
+  title: string;
+  location: string;
+  isRemote: boolean;
+  isfeatured: boolean;
+  deadline: string;
+  createdAt: string;
+  company: {
+    name: string;
+    logo: string;
+  };
+  jobtype: {
+    name: string;
+  };
+}
+
+export interface JobsResponse {
+  jobs?: JobListItem[];
+}
+

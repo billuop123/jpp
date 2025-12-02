@@ -22,6 +22,7 @@ import { OpenaiModule } from './openai/openai.module';
 import { IsCandidate } from './roles/roles.middleware';
 import { StripeModule } from './stripe/stripe.module';
 import { ResumeTailoringModule } from './resume-tailoring/resume-tailoring.module';
+import { VapiModule } from './vapi/vapi.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ResumeTailoringModule } from './resume-tailoring/resume-tailoring.modul
     OpenaiModule,
     StripeModule,
     ResumeTailoringModule,
+    VapiModule,
 
   ],
   controllers: [AppController],
@@ -61,12 +63,20 @@ export class AppModule implements NestModule {
         { path: 'stripe/check-session', method: RequestMethod.ALL },
         { path: 'users/is-premium', method: RequestMethod.ALL },
         { path: 'resume-tailoring/:jobId', method: RequestMethod.GET },
+        { path: 'vapi/get-assistants', method: RequestMethod.GET },
+        { path: 'vapi/call-assistant', method: RequestMethod.POST },
+        { path: 'vapi/client-key', method: RequestMethod.GET },
+        { path: 'vapi/call-assistant/:applicationId', method: RequestMethod.POST },
+        { path: 'vapi/save-conversation/:applicationId', method: RequestMethod.POST },
+        { path: 'applications/:applicationId/analyze', method: RequestMethod.PATCH },
+        { path: 'applications/:applicationId', method: RequestMethod.GET },
       );
       
   consumer
       .apply(IsCandidate)
       .forRoutes(
-        { path: 'applications', method: RequestMethod.ALL },
+        // { path: 'applications', method: RequestMethod.ALL },
+        { path: 'resume-tailoring/:jobId', method: RequestMethod.GET },
       );
   }
 

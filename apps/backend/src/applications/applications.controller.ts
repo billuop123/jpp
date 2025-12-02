@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Post, Req, Param, Patch, Get } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { ApplicationDto } from './dto/application.dto';
 import { IsCandidate } from 'src/roles/roles.middleware';
@@ -10,5 +10,12 @@ export class ApplicationsController {
     async create(@Body() application:ApplicationDto,@Req() req: Request) {
         return await this.applicationsService.create(application,req as any);
     }
-    
+    @Get(':applicationId')
+    async getApplication(@Param('applicationId') applicationId: string, @Req() req: Request) {
+        return await this.applicationsService.getApplicationWithJob(applicationId, (req as any).userId as string);
+    }
+    @Patch(':applicationId/analyze')
+    async analyzeInterview(@Param('applicationId') applicationId: string, @Req() req: Request) {
+        return await this.applicationsService.analyzeInterview(applicationId, (req as any).userId as string);
+    }
 }

@@ -1,4 +1,4 @@
-import { BACKEND_URL } from "@/lib/config"
+import { BACKEND_URL } from "@/scripts/lib/config"
 
 export const fetchUserDetails = async (token: string) => {
     const response = await fetch(`${BACKEND_URL}/user-details`, {

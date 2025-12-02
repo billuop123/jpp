@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { BACKEND_URL } from "@/lib/config";
+import { BACKEND_URL } from "@/scripts/lib/config";
 import { Job } from "@/components/jobs/types";
 
 export function useCompanyJobs(companyId?: string, token?: string | null) {

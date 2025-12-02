@@ -7,6 +7,7 @@ import { LoggerService } from 'src/logger/logger.service';
 @Module({
   controllers: [UsersController],
   providers: [UsersService,LoggerService],
-  imports: [DatabaseModule]
+  imports: [DatabaseModule],
+  exports: [UsersService]
 })
 export class UsersModule {}

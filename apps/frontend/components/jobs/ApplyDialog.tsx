@@ -1,8 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { BACKEND_URL } from "@/lib/config";
-import { useUser } from "@/store/user";
 import { useParams } from "next/navigation";
 import {
   Dialog,
@@ -15,9 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
+import { cn } from "@/scripts/lib/utils";
 import { Job } from "./types";
+import { useApplication } from "./hooks/useApplication";
+import { useUser } from "@/store/user";
 
 interface ApplyDialogProps {
   job: Job;
@@ -31,34 +29,20 @@ export function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogProps) {
   const [coverLetter, setCoverLetter] = useState("");
   const [notes, setNotes] = useState("");
 
-  const applyMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/applications`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token!,
+  const { applyMutation } = useApplication(jobid, token);
+
+  const handleApply = () => {
+    applyMutation.mutate(
+      { coverLetter, notes },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+          setCoverLetter("");
+          setNotes("");
         },
-        body: JSON.stringify({
-          jobId: jobid,
-          coverLetter: coverLetter,
-          notes: notes,
-        }),
-      });
-      const res = await response.json();
-      if (!response.ok) throw new Error(res.message || "Failed to apply for job");
-      return res;
-    },
-    onSuccess: () => {
-      toast.success("Application submitted successfully!");
-      onOpenChange(false);
-      setCoverLetter("");
-      setNotes("");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to apply for job");
-    },
-  });
+      }
+    );
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -115,7 +99,7 @@ export function ApplyDialog({ job, isOpen, onOpenChange }: ApplyDialogProps) {
             Cancel
           </Button>
           <Button
-            onClick={() => applyMutation.mutate()}
+            onClick={handleApply}
             disabled={applyMutation.isPending || !coverLetter.trim()}
           >
             {applyMutation.isPending ? "Submitting..." : "Submit Application"}

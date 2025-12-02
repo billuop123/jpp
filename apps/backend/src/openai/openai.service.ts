@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import OpenAI from 'openai';
 import { UsersService } from 'src/users/users.service';
 
@@ -130,5 +130,21 @@ STRICT RULES:
     
 
     return response.choices[0].message.content?.trim() ?? '';
+  }
+  async getEphimeralKey(){
+    const key=await this.openai.realtime.clientSecrets.create({
+      expires_after:{
+        anchor:"created_at",
+        seconds:3600
+      },
+      session:{
+        type:"realtime",
+        model:"gpt-4o-realtime-preview-2024-12-17"
+      }
+    })
+    if(!key){
+      throw new InternalServerErrorException('Failed to get eph key');
+    }
+    return {key:key.value};
   }
 }
