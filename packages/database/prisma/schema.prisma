@@ -164,6 +164,13 @@ model applications{
   coverletter String?
   relevanceScore Int?
   relevancecomment String?
+  technicalScore Int?
+  communicationScore Int?
+  problemSolvingScore Int?
+  jobRelevanceScore Int?
+  depthOfKnowledgeScore Int?
+  strengths String?
+  weaknesses String?
   notes String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

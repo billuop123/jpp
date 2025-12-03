@@ -41,6 +41,7 @@ IMPORTANT RULES:
 4. Keep questions concise and professional
 5. After each answer, move to the next question smoothly
 6. The interview should last approximately 5 minutes
+7.Ask the question such that it becomes easier to track the technicalScore, communicationScore, problemSolvingScore, jobRelevanceScore, depthOfKnowledgeScore of the candidate.
 
 Job Information:
 - Job Title: ${job.title}
@@ -92,6 +93,7 @@ Start the interview by introducing yourself and asking the first question. Focus
       return assistantsList;
     }
     async getClientKey(userId:string){
+        await this.usersService.userExistsById(userId);
         return { key: this.config.get<string>('VAPIPUBLIC_KEY') };
     }
     async saveConversationHistory(applicationId: string, conversationHistory: string, userId: string){

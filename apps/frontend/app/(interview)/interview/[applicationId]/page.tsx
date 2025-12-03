@@ -1,7 +1,5 @@
 "use client";
-
-import React from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { BACKEND_URL } from '@/scripts/lib/config';
 import { useUser } from '@/store/user';
@@ -10,12 +8,37 @@ import LoadingStep from '@/components/LoadingStep';
 import { InterviewHeader } from '@/components/interview/InterviewHeader';
 import { InterviewControls } from '@/components/interview/InterviewControls';
 import { useInterview } from '@/components/interview/useInterview';
+import { useEffect } from 'react';
 
 export default function InterviewPage() {
   const { applicationId } = useParams<{ applicationId: string }>();
   const { token } = useUser();
-
-  // Fetch application with job details
+  const router=useRouter()
+  const interviewExistsQuery = useQuery({
+    queryKey: ['interview-exists', applicationId],
+    queryFn: async () => {
+      const response = await fetch(`${BACKEND_URL}/applications/${applicationId}/interview-exists`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to check if interview exists');
+      }
+      const status=await response.json()
+      if(status.status){
+        router.push(`/interview/analysis/${applicationId}`);
+      }
+      return status;
+    },
+    enabled: !!applicationId,
+    retry: false,
+  });
+  useEffect(()=>{
+    if(interviewExistsQuery.isSuccess){
+      if(interviewExistsQuery.data?.status){
+        router.push(`/interview/analysis/${applicationId}`);
+      }
+    }
+  },[interviewExistsQuery.isSuccess]);
   const applicationQuery = useQuery({
     queryKey: ['application', applicationId],
     queryFn: async () => {
@@ -32,8 +55,6 @@ export default function InterviewPage() {
     enabled: !!token && !!applicationId,
     retry: false,
   });
-
-  // Fetch VAPI client key
   const clientKeyQuery = useQuery({
     queryKey: ['vapi-client-key'],
     retry: false,
@@ -51,7 +72,6 @@ export default function InterviewPage() {
     },
   });
 
-  // Create/get assistant using applicationId
   const assistantQuery = useQuery({
     queryKey: ['vapi-assistant', applicationId],
     queryFn: async () => {
@@ -73,7 +93,6 @@ export default function InterviewPage() {
     retry: false,
   });
 
-  // Use interview hook
   const interview = useInterview({
     applicationId: applicationId as string,
     apiKey: clientKeyQuery.data?.key || '',

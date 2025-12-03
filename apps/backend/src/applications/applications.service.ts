@@ -4,6 +4,7 @@ import { ApplicationDto } from './dto/application.dto';
 import { Request } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { UserDetailsService } from 'src/user-details/user-details.service';
 
 @Injectable()
 export class ApplicationsService {
@@ -12,6 +13,7 @@ export class ApplicationsService {
     constructor(
         private readonly databaseService:DatabaseService,
         private readonly usersService:UsersService,
+        private readonly userDetailsService:UserDetailsService,
         @Inject('GEMINI') private readonly gemini: GoogleGenerativeAI
     ){}
     
@@ -102,6 +104,13 @@ export class ApplicationsService {
         if(!application){
             throw new BadRequestException('Application not found');
         }
+        if(application?.relevanceScore){
+            throw new BadRequestException('Interview already analyzed');
+        }
+        const resumeText=await this.userDetailsService.getResumeText(userId);
+        if(!resumeText){
+            throw new BadRequestException('Resume text not found');
+        }
         if(application.userId !== userId){
             throw new UnauthorizedException('Not authorized to analyze this application');
         }
@@ -110,7 +119,7 @@ export class ApplicationsService {
         }
 
         const job = application.job;
-        const prompt = `You are an expert recruiter analyzing an interview transcript. 
+        const prompt = `You are an expert recruiter analyzing an interview transcript and resume text matching the job requirements. 
 
 Job Details:
 - Title: ${job.title}
@@ -123,14 +132,23 @@ Interview Transcript:
 ${application.conversationHistory}
 
 Analyze this interview and provide:
-1. A relevance score from 0-100 based on how well the candidate's responses match the job requirements
-2. A detailed relevance comment explaining the score, highlighting strengths and areas for improvement
+1. A detailed relevance comment explaining the score, highlighting strengths and areas for improvement
 
 Return your response as JSON in this exact format:
 {
-  "relevanceScore": <number between 0-100>,
-  "relevancecomment": "<detailed analysis comment>"
-}`;
+  "relevancecomment": "<detailed analysis comment>",
+  "technicalScore": <Int between 0-2 this is the score for the technical skills of the candidate>,
+  "communicationScore": <int between 0-2 this is the score for the communication skills of the candidate>,
+  "problemSolvingScore": <int between 0-2 this is the score for the problem solving skills of the candidate>,
+  "jobRelevanceScore": <int between 0-2 this is the score for the job relevance of the candidate>,
+  "depthOfKnowledgeScore": <int between 0-2 this is the score for the depth of knowledge of the candidate>,
+  "strengths": "<description of strengths>",
+  "weaknesses": "<description of weaknesses>"
+}
+
+Candidate Resume Information:
+${resumeText || 'No resume provided'}
+`;
 
         try {
             const model = this.gemini.getGenerativeModel({ 
@@ -148,14 +166,26 @@ Return your response as JSON in this exact format:
             const text = response.text();
 
             const analysis = JSON.parse(text || '{}');
-            const relevanceScore = Math.max(0, Math.min(100, parseInt(analysis.relevanceScore) || 0));
             const relevancecomment = analysis.relevancecomment || 'No analysis available';
-
+            const technicalScore = Math.max(0, Math.min(2, parseInt(analysis.technicalScore) || 0));
+            const communicationScore = Math.max(0, Math.min(2, parseInt(analysis.communicationScore) || 0));
+            const problemSolvingScore = Math.max(0, Math.min(2, parseInt(analysis.problemSolvingScore) || 0));
+            const jobRelevanceScore = Math.max(0, Math.min(2, parseInt(analysis.jobRelevanceScore) || 0));
+            const depthOfKnowledgeScore = Math.max(0, Math.min(2, parseInt(analysis.depthOfKnowledgeScore) || 0));
+            const strengths = analysis.strengths || 'No strengths available';
+            const weaknesses = analysis.weaknesses || 'No weaknesses available';
             const updatedApplication = await this.databaseService.applications.update({
                 where: { id: applicationId },
                 data: {
-                    relevanceScore,
-                    relevancecomment
+                    relevanceScore:technicalScore+communicationScore+problemSolvingScore+jobRelevanceScore+depthOfKnowledgeScore,
+                    relevancecomment,
+                    technicalScore,
+                    communicationScore,
+                    problemSolvingScore,
+                    jobRelevanceScore,
+                    depthOfKnowledgeScore,
+                    strengths,
+                    weaknesses,
                 }
             });
 
@@ -184,5 +214,23 @@ Return your response as JSON in this exact format:
             throw new UnauthorizedException('Not authorized to view this application');
         }
         return application;
+    }
+    async interviewExists(applicationId:string){
+        const application=await this.databaseService.applications.findUnique({
+            where:{
+                id:applicationId,
+            }
+        })
+        if(!application){
+            throw new NotFoundException('Application not found');
+        }
+        if(application.relevanceScore){
+            return {
+                status: true,
+            };
+        }
+        return {
+            status: false,
+        };
     }
 }

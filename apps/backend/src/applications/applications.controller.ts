@@ -18,4 +18,8 @@ export class ApplicationsController {
     async analyzeInterview(@Param('applicationId') applicationId: string, @Req() req: Request) {
         return await this.applicationsService.analyzeInterview(applicationId, (req as any).userId as string);
     }
+    @Get(':applicationId/interview-exists')
+    async interviewExists(@Param('applicationId') applicationId: string) {
+        return await this.applicationsService.interviewExists(applicationId);
+    }
 }
