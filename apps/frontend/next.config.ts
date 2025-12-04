@@ -21,6 +21,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
+  reactStrictMode: true,
+  devIndicators: {
+    buildActivity: false,
+  },
 };
 
 export default nextConfig;

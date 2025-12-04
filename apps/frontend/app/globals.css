@@ -126,3 +126,22 @@
     cursor: pointer;
   }
 }
+
+[data-nextjs-dialog],
+[data-nextjs-toast],
+#__next-build-watcher,
+[id*="nextjs"],
+[class*="nextjs"],
+[class*="__nextjs"],
+iframe[src*="nextjs"],
+iframe[src*="__nextjs"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: fixed !important;
+  z-index: -9999 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}

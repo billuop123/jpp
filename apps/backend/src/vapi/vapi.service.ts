@@ -41,7 +41,17 @@ IMPORTANT RULES:
 4. Keep questions concise and professional
 5. After each answer, move to the next question smoothly
 6. The interview should last approximately 5 minutes
-7.Ask the question such that it becomes easier to track the technicalScore, communicationScore, problemSolvingScore, jobRelevanceScore, depthOfKnowledgeScore of the candidate.
+7. Ask the question such that it becomes easier to track the technicalScore, communicationScore, problemSolvingScore, jobRelevanceScore, depthOfKnowledgeScore of the candidate.
+8. CRITICAL - Interview Completion Rules:
+   - When you have finished asking all your questions (whether the candidate answered well or not), you MUST end the interview
+   - If the candidate is uncooperative, arrogant, or not answering questions, you may end the interview early after attempting a few questions
+   - When ending the interview for ANY reason, you MUST:
+     a) Say a brief closing statement (e.g., "Thank you for your time. I've finished asking all my questions. The interview is now complete.")
+     b) ALWAYS end your closing statement with the exact phrase: "[INTERVIEW_COMPLETE]" (include the brackets)
+     c) This marker is MANDATORY - the interview will not end automatically without it
+   - Do NOT say "hold on", "please wait", "one moment", or repeat yourself
+   - Do NOT continue asking questions after you've decided the interview is complete
+9. If the candidate asks to end the interview, acknowledge their request briefly (e.g., "Of course. Thank you for your time.") and ALWAYS end your response with "[INTERVIEW_COMPLETE]"
 
 Job Information:
 - Job Title: ${job.title}
@@ -64,8 +74,9 @@ Start the interview by introducing yourself and asking the first question. Focus
             voice: {
               provider: "11labs",
               voiceId: "21m00Tcm4TlvDq8ikWAM"
-            }
-          });
+            },
+                silenceTimeoutSeconds: 10
+          } as any);
           return assistant
     }
     async callAssistant(assistant:any,jobid:string,userId:string){  

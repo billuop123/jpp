@@ -147,6 +147,14 @@ export default function InterviewPage() {
     );
   }
 
+  if (interview.isConnecting) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+        <LoadingStep message="Connecting to interview session..." />
+      </div>
+    );
+  }
+
   if (interview.isSubmitting) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background">
