@@ -25,5 +25,12 @@ export interface ApplicationData {
     salaryMax: string | null;
     salaryCurrency: string | null;
   };
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
 }
 
+export type RecruiterApplicationsData=Pick<ApplicationData,'id' | 'relevanceScore' | 'relevancecomment' | 'technicalScore' | 'communicationScore' | 'problemSolvingScore' | 'jobRelevanceScore' | 'depthOfKnowledgeScore' | 'strengths' | 'weaknesses' >
+export type ScoringListData=Pick<ApplicationData,'id'|'relevanceScore'|'user'>

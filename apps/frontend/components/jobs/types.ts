@@ -19,6 +19,9 @@ export interface Job {
   views: number;
   applicationCount: number;
   isfeatured: boolean;
+  company:{
+    userId:string
+  }
 }
 
 export interface JobListItem {

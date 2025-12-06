@@ -204,7 +204,8 @@ ${resumeText || 'No resume provided'}
                         company: true,
                         jobtype: true
                     }
-                }
+                },
+
             }
         });
         if(!application){
@@ -232,5 +233,81 @@ ${resumeText || 'No resume provided'}
         return {
             status: false,
         };
+    }
+    async getRecruiterApplications(jobId:string){
+        const job=await this.databaseService.jobs.findUnique({
+            where:{
+                id:jobId,
+            },
+        })
+        if(!job){
+            throw new NotFoundException('Job not found');
+        }
+        const applications=await this.databaseService.applications.findMany({
+            where:{
+                jobId
+            },
+        })
+        if(!applications){
+            throw new NotFoundException('Applications not found');
+        }
+        return applications
+    }
+    async getScoringList(jobId:string){
+        const applications=await this.databaseService.applications.findMany({
+            where:{
+                jobId
+            },
+            select:{
+                relevanceScore:true,
+                user:{
+                    select:{
+                        id:true,
+                        name:true,
+                        email:true,
+                    }
+                }
+            }
+        })
+        if(!applications){
+            throw new NotFoundException('Applications not found');
+        }
+        return applications
+    }
+    async getUserApplicationDetails(jobId:string,userId:string){
+        await this.usersService.userExistsById(userId);
+        const application=await this.databaseService.applications.findFirst({
+            where:{
+                jobId,
+                userId
+            },
+            select:{
+                id:true,
+                relevanceScore:true,
+                relevancecomment:true,
+                technicalScore:true,
+                communicationScore:true,
+                problemSolvingScore:true,
+                jobRelevanceScore:true,
+                depthOfKnowledgeScore:true,
+                strengths:true,
+                weaknesses:true,
+                user:{
+                    select:{
+                        id:true,
+                        name:true,
+                        email:true,
+                        userDetails:{
+                            select:{
+                                resumeLink:true,
+                            }
+                        }
+                    }
+                }
+        }})
+        if(!application){
+            throw new NotFoundException('Application not found');
+        }
+        return application
     }
 }

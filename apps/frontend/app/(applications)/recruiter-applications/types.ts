@@ -1,0 +1,20 @@
+export type UserApplicationDetails={
+    id:string,
+    relevanceScore:number,
+    relevancecomment:string,
+    technicalScore:number,
+    communicationScore:number,
+    problemSolvingScore:number,
+    jobRelevanceScore:number,
+    depthOfKnowledgeScore:number,
+    strengths:string,
+    weaknesses:string,
+    user:{
+        id:string,
+        name:string,
+        email:string,
+        userDetails:{
+            resumeLink:string,
+        },
+    },
+}

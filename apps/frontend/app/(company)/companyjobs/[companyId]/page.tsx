@@ -8,15 +8,28 @@ import { useUser } from "@/store/user";
 import { useCompanyJobs } from "@/components/company-jobs/useCompanyJobs";
 import { CompanyJobsList } from "@/components/company-jobs/CompanyJobsList";
 import { PostJobDialog } from "@/components/company-jobs/PostJobDialog";
+import { useSession } from "next-auth/react";
 
 export default function CompanyJobsPage() {
   const { companyId } = useParams<{ companyId: string }>();
   const router = useRouter();
   const { token } = useUser();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const {data:session}=useSession()
+  const userId=session?.user?.id
   const jobsQuery = useCompanyJobs(companyId, token);
-
+  if(!userId){
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <p className="text-lg text-muted-foreground">
+          Please sign in to manage company jobs.
+        </p>
+        <Button className="mt-4" onClick={() => router.push("/login")}>
+          Go to Login
+        </Button>
+      </div>
+    );
+  }
   if (!companyId) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -68,6 +81,7 @@ export default function CompanyJobsPage() {
           error={jobsQuery.error as Error | null}
           isRefetching={jobsQuery.isRefetching}
           onRefresh={() => jobsQuery.refetch()}
+          userId={session?.user?.id || ""}
         />
       </div>
 

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { Job } from "@/components/jobs/types";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface CompanyJobsListProps {
   jobs: Job[] | undefined;
@@ -12,6 +13,7 @@ interface CompanyJobsListProps {
   error: Error | null;
   isRefetching: boolean;
   onRefresh: () => void;
+  userId: string;
 }
 
 export function CompanyJobsList({
@@ -21,6 +23,7 @@ export function CompanyJobsList({
   error,
   isRefetching,
   onRefresh,
+  userId,
 }: CompanyJobsListProps) {
   const router = useRouter();
 
@@ -72,6 +75,7 @@ export function CompanyJobsList({
                 <p className="text-sm text-muted-foreground">
                   {job.location || "Location TBD"} ·{" "}
                   {job.isRemote ? "Remote" : "Onsite"}
+                  {job.company.userId===userId ? <Link href={`/recruiter-applications/${job.id}`} className="text-blue-500">View applications</Link> : ""}
                 </p>
               </div>
               <Button

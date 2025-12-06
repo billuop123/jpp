@@ -130,7 +130,7 @@ export class JobsService {
 
             },
             include:{
-                company:true
+                company:true,
             }
         })
         if(!job){

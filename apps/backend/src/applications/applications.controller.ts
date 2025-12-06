@@ -22,4 +22,16 @@ export class ApplicationsController {
     async interviewExists(@Param('applicationId') applicationId: string) {
         return await this.applicationsService.interviewExists(applicationId);
     }
+    @Get('recruiter/:jobId')
+    async getRecruiterApplications(@Param('jobId') jobId: string) {
+        return await this.applicationsService.getRecruiterApplications(jobId);
+    }
+    @Get('scoring-list/:jobId')
+    async getScoringList(@Param('jobId') jobId: string) {
+        return await this.applicationsService.getScoringList(jobId);
+    }
+    @Get('user-application-details/:jobId/:userId')
+    async getUserApplicationDetails(@Param('jobId') jobId: string, @Param('userId') userId: string) {
+        return await this.applicationsService.getUserApplicationDetails(jobId, userId);
+    }
 }

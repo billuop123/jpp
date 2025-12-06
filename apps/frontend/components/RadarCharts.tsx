@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts"
+import { TrendingUp } from "lucide-react";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 
 import {
   Card,
@@ -10,39 +10,46 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
-export const description = "A radar chart with dots"
+export const description = "Radar chart of interview scoring dimensions";
 
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 273 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-]
+export type RadarScores = {
+  technicalScore: number | null;
+  communicationScore: number | null;
+  problemSolvingScore: number | null;
+  jobRelevanceScore: number | null;
+  depthOfKnowledgeScore: number | null;
+};
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  score: {
+    label: "Score",
     color: "var(--chart-1)",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function ChartRadarDots() {
+export function ChartRadarDots({ scores }: { scores: RadarScores }) {
+  const chartData = [
+    { metric: "Technical", score: scores.technicalScore ?? 0 },
+    { metric: "Communication", score: scores.communicationScore ?? 0 },
+    { metric: "Problem solving", score: scores.problemSolvingScore ?? 0 },
+    { metric: "Job relevance", score: scores.jobRelevanceScore ?? 0 },
+    { metric: "Depth of knowledge", score: scores.depthOfKnowledgeScore ?? 0 },
+  ];
+
   return (
     <Card>
       <CardHeader className="items-center">
-        <CardTitle>Radar Chart - Dots</CardTitle>
+        <CardTitle>Skill radar</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          Interview scoring across key dimensions
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-0">
@@ -52,11 +59,11 @@ export function ChartRadarDots() {
         >
           <RadarChart data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <PolarAngleAxis dataKey="month" />
+            <PolarAngleAxis dataKey="metric" />
             <PolarGrid />
             <Radar
-              dataKey="desktop"
-              fill="var(--color-desktop)"
+              dataKey="score"
+              fill="var(--color-score)"
               fillOpacity={0.6}
               dot={{
                 r: 4,
@@ -68,12 +75,14 @@ export function ChartRadarDots() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 leading-none font-medium">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          Scored 0–2 per dimension <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground flex items-center gap-2 leading-none">
-          January - June 2024
+          Higher is better across all axes.
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
+
+
