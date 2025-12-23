@@ -70,10 +70,6 @@ export class JobDto{
     @IsOptional()
     isfeatured:boolean
 
-    @IsInt()
-    @IsOptional()
-    postedBy:number
-
     @IsDate()
     @IsNotEmpty()
     @Type(() => Date)

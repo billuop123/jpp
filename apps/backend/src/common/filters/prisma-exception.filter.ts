@@ -28,6 +28,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     let message = 'Database error occurred';
 
     if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+    
       switch (exception.code) {
         case 'P2002':
           status = HttpStatus.CONFLICT;

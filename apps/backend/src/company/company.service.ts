@@ -87,4 +87,49 @@ export class CompanyService {
         });
         return jobs;
     }
+    async getCompany(companyId:string,userId:string){
+        const company=await this.databaseService.companies.findUnique({
+            where:{
+                id:companyId,
+            },
+            select:{
+                name:true,
+                email:true,
+                website:true,
+                logo:true,
+                postlimit:true,
+                companytype:true,
+                blacklisted:true,
+                userId:true
+            }
+        })
+
+        if(!company){
+            throw new NotFoundException('Company not found');
+        }
+        const isAssociated=company.userId===userId;
+        return {
+            ...company,
+            isAssociated,
+        }
+    }
+    async decrementPostlimit(companyId:string){
+        const company=await this.databaseService.companies.findUnique({
+            where:{
+                id:companyId
+            }
+        })
+        if(!company){
+            throw new NotFoundException('Company not found');
+        }
+        await this.databaseService.companies.update({
+            where:{
+                id:companyId
+            },
+            data:{
+                postlimit:company.postlimit-1
+            }
+        })
+        return company;
+    }
 }

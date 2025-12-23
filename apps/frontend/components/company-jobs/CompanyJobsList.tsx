@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { Job } from "@/components/jobs/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface CompanyJobsListProps {
   jobs: Job[] | undefined;
@@ -64,74 +72,68 @@ export function CompanyJobsList({
           </div>
         )}
 
-        {jobs?.map((job) => (
-          <article
-            key={job.id}
-            className="rounded-xl border bg-background p-4 transition hover:border-foreground/40"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold">{job.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {job.location || "Location TBD"} ·{" "}
-                  {job.isRemote ? "Remote" : "Onsite"}
-                  {job.company.userId===userId ? <Link href={`/recruiter-applications/${job.id}`} className="text-blue-500">View applications</Link> : ""}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push(`/jobs/${job.id}`)}
-              >
-                View
-              </Button>
-            </div>
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-muted-foreground">Deadline</dt>
-                <dd className="font-medium">
-                  {job.deadline
-                    ? new Date(job.deadline).toLocaleDateString()
-                    : "–"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Created</dt>
-                <dd className="font-medium">
-                  {job.createdAt
-                    ? new Date(job.createdAt).toLocaleDateString()
-                    : "–"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Salary</dt>
-                <dd className="font-medium">
-                  {job.salaryMin && job.salaryMax
-                    ? `${job.salaryMin}-${job.salaryMax} ${
-                        job.salaryCurrency ?? ""
-                      }`
-                    : "Not specified"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Views</dt>
-                <dd className="font-medium">{job.views ?? 0}</dd>
-              </div>
-            </dl>
-            {job.skills?.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {job.skills.map((skill) => (
-                  <span
-                    key={`${job.id}-${skill}`}
-                    className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
-                  >
-                    {skill}
-                  </span>
+        {!isLoading && !isError && jobs && jobs.length > 0 && (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Work Type</TableHead>
+                  <TableHead>Deadline</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Salary</TableHead>
+                  <TableHead>Views</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {jobs.map((job) => (
+                  <TableRow key={job.id}>
+                    <TableCell className="font-medium">{job.title}</TableCell>
+                    <TableCell>{job.location || "Location TBD"}</TableCell>
+                    <TableCell>{job.isRemote ? "Remote" : "Onsite"}</TableCell>
+                    <TableCell>
+                      {job.deadline
+                        ? new Date(job.deadline).toLocaleDateString()
+                        : "–"}
+                    </TableCell>
+                    <TableCell>
+                      {job.createdAt
+                        ? new Date(job.createdAt).toLocaleDateString()
+                        : "–"}
+                    </TableCell>
+                    <TableCell>
+                      {job.salaryMin && job.salaryMax
+                        ? `${job.salaryMin}-${job.salaryMax} ${
+                            job.salaryCurrency ?? ""
+                          }`
+                        : "Not specified"}
+                    </TableCell>
+                    <TableCell>{job.views ?? 0}</TableCell>
+                    <TableCell className="space-x-2 text-right">
+                      {job.company.userId === userId && (
+                        <Link
+                          href={`/recruiter-applications/${job.id}`}
+                          className="text-xs text-foreground"
+                        >
+                          View applications
+                        </Link>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/jobs/${job.id}`)}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </div>
-            )}
-          </article>
-        ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
     </section>
   );

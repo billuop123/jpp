@@ -17,4 +17,8 @@ export class CompanyController {
     async getCompanyJobs(@Param('companyId') companyId: string, @Req() req: Request) {
         return await this.companyService.getCompanyJobs(companyId,req as any);
     }
+    @Get(':companyId')
+    async getCompany(@Param('companyId') companyId: string, @Req() req: Request) {
+        return await this.companyService.getCompany(companyId, (req as any).userId);
+    }
 }

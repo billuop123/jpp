@@ -137,7 +137,7 @@ model jobs{
   views Int @default(0)
   applicationCount Int @default(0)
   isfeatured Boolean @default(false)
-  postedBy Int?
+  postedBy String?
   applications applications[]
   deadline DateTime?
   company Companies @relation(fields: [companyId], references: [id],onDelete: Cascade)

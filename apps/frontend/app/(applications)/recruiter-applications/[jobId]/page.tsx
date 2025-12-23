@@ -83,13 +83,13 @@ export default function RecruiterApplicationsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {applications.map((application) => {
+                {applications.map((application,index) => {
                   const shortId = application.id
                     ? String(application.id).slice(0, 8)
                     : "—";
 
                   return (
-                    <TableRow key={application.id ?? shortId}>
+                    <TableRow key={index}>
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-medium">

@@ -23,6 +23,8 @@ import { IsCandidate } from './roles/roles.middleware';
 import { StripeModule } from './stripe/stripe.module';
 import { ResumeTailoringModule } from './resume-tailoring/resume-tailoring.module';
 import { VapiModule } from './vapi/vapi.module';
+import { GeminiModule } from './gemini/gemini.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { VapiModule } from './vapi/vapi.module';
     StripeModule,
     ResumeTailoringModule,
     VapiModule,
+    GeminiModule,
+    AdminModule,
 
   ],
   controllers: [AppController],
@@ -60,6 +64,7 @@ export class AppModule implements NestModule {
         { path: 'jobs/application-exists', method: RequestMethod.ALL },
         { path: 'company/my-companies', method: RequestMethod.ALL },
         { path: 'company/company-jobs/:companyId', method: RequestMethod.ALL },
+        { path: 'company/:companyId', method: RequestMethod.ALL },
         { path: 'stripe/check-session', method: RequestMethod.ALL },
         { path: 'users/is-premium', method: RequestMethod.ALL },
         { path: 'resume-tailoring/:jobId', method: RequestMethod.GET },
@@ -70,6 +75,8 @@ export class AppModule implements NestModule {
         { path: 'vapi/save-conversation/:applicationId', method: RequestMethod.POST },
         { path: 'applications/:applicationId/analyze', method: RequestMethod.PATCH },
         { path: 'applications/:applicationId', method: RequestMethod.GET },
+        { path: 'jobs/:companyId', method: RequestMethod.POST },
+        { path: 'gemini/resume-text-extraction', method: RequestMethod.POST },
       );
       
   consumer

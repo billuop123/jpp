@@ -43,7 +43,7 @@ export function useResumeUpload(token: string | null, options?: UseResumeUploadO
 
         const parseData = await parseResponse.json();
         setCurrentStep("extracting");
-        const extractResponse = await fetch(`${BACKEND_URL}/openai/resume-text-extraction`, {
+        const extractResponse = await fetch(`${BACKEND_URL}/gemini/resume-text-extraction`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

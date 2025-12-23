@@ -5,23 +5,17 @@ import { Prisma } from '@repo/db';
 import { Request } from 'express';
 import { QdrantService } from 'src/qdrant/qdrant.service';
 import { UsersService } from 'src/users/users.service';
+import { CompanyService } from 'src/company/company.service';
 @Injectable()
 export class JobsService {
-    constructor(private readonly databaseService:DatabaseService,private readonly qdrantService: QdrantService,private readonly usersService: UsersService){}
+    constructor(private readonly databaseService:DatabaseService,private readonly qdrantService: QdrantService,private readonly usersService: UsersService,private readonly companyService: CompanyService){}
     async create(job:JobDto,req:Request,companyId:string): Promise<Prisma.jobsGetPayload<{}>>{
         const userId=(req as any).userId;
+        console.log(userId)
         const date=new Date()
         await this.usersService.userExistsById(userId);
         if(job.deadline < date){
             throw new BadRequestException('Deadline must be in the future');
-        }
-        const jobtype=await this.databaseService.jobtypes.findFirst({
-            where:{
-                name:job.jobtype,
-            },
-        });
-        if(!jobtype){
-            throw new NotFoundException('Job type not found');
         }
         const company=await this.databaseService.companies.findUnique({
             where:{
@@ -31,33 +25,47 @@ export class JobsService {
         if(!company){
             throw new NotFoundException('Company not found');
         }
+        if(company.postlimit===0){
+            throw new BadRequestException('You have reached the maximum number of jobs you can post');
+        }
+        const jobtype=await this.databaseService.jobtypes.findFirst({
+            where:{
+                name:job.jobtype,
+            },
+        });
+        if(!jobtype){
+            throw new NotFoundException('Job type not found');
+        }
+
+
         const jobData: Prisma.jobsCreateInput = {
-            title:job.title,
-            description:job.description,
-            location:job.location,
-            isRemote:job.isRemote,
-            salaryMin:job.salaryMin,
-            salaryMax:job.salaryMax,
-            salaryCurrency:job.salaryCurrency,
-            requirements:job.requirements,
-            responsibilities:job.responsibilities,
-            benefits:job.benefits,
-            deadline:job.deadline,
-            company:{
-                connect:{
-                    id:company.id,
+            title: job.title,
+            description: job.description,
+            location: job.location,
+            isRemote: job.isRemote,
+            salaryMin: job.salaryMin,
+            salaryMax: job.salaryMax,
+            salaryCurrency: job.salaryCurrency,
+            requirements: job.requirements,
+            responsibilities: job.responsibilities,
+            benefits: job.benefits,
+            deadline: job.deadline,
+            postedBy: userId,
+            company: {
+                connect: {
+                    id: company.id,
                 },
             },
-            jobtype:{
-                connect:{
-                    id:jobtype.id,
+            jobtype: {
+                connect: {
+                    id: jobtype.id,
                 },
             },
-            postedBy:userId,
         };
         const newJob=await this.databaseService.jobs.create({
             data:jobData,
         });
+        await this.companyService.decrementPostlimit(companyId);
         const qdrantData = {
             id: newJob.id,
             title: newJob.title,

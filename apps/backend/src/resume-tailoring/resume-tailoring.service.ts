@@ -3,7 +3,7 @@ import { Response } from 'express';
 import PDFDocument from 'pdfkit';
 import { PDFParse } from 'pdf-parse';
 import { DatabaseService } from 'src/database/database.service';
-import { OpenaiService } from 'src/openai/openai.service';
+import { GeminiService } from 'src/gemini/gemini.service';
 
 type ResumeExtractionResult = {
     Name?: string;
@@ -32,7 +32,7 @@ type TailoredResumeContent = {
 @Injectable()
 export class ResumeTailoringService {
     constructor(
-        private readonly openaiService: OpenaiService,
+        private readonly geminiService: GeminiService,
         private readonly databaseService: DatabaseService,
     ) {}
 
@@ -81,7 +81,7 @@ export class ResumeTailoringService {
             throw new BadRequestException('Unable to read resume');
         }
 
-        const resumeExtractionRaw = await this.openaiService.resumeTextExtraction(resumePdfText,userId);
+        const resumeExtractionRaw = await this.geminiService.resumeTextExtraction(resumePdfText,userId);
         if (!resumeExtractionRaw) {
             throw new BadRequestException('Failed to process resume');
         }
@@ -97,7 +97,7 @@ export class ResumeTailoringService {
             throw new BadRequestException('The uploaded file is not a resume');
         }
 
-        const aiResponse = await this.openaiService.generateTailoredResume(resumeExtraction, resumePdfText, userId,job);
+        const aiResponse = await this.geminiService.generateTailoredResume(resumeExtraction, resumePdfText, userId,job);
         const structuredResume = this.parseStructuredResume(aiResponse);
         if (!structuredResume) {
             throw new BadRequestException('Unable to generate tailored resume content');

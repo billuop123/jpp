@@ -4,7 +4,7 @@ import { ApplicationsController } from './applications.controller';
 import { DatabaseModule } from 'src/database/database.module';
 import { UsersModule } from 'src/users/users.module';
 import { ConfigModule } from '@nestjs/config';
-import { GeminiProvider } from './gemini.provider';
+import { GeminiProvider } from '../gemini/gemini.provider';
 import { UserDetailsService } from 'src/user-details/user-details.service';
 
 @Module({

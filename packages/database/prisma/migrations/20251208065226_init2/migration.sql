@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "jobs" ALTER COLUMN "postedBy" SET DATA TYPE TEXT;
