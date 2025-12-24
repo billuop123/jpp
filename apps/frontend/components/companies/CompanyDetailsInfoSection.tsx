@@ -31,6 +31,20 @@ export function CompanyDetailsInfoSection({
       <InfoTile label="Post limit">
         <span className="font-semibold">{company.postlimit}</span>
       </InfoTile>
+      <InfoTile label="Incorporation document">
+        {company.incorporationLink ? (
+          <a
+            href={company.incorporationLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2"
+          >
+            View PDF
+          </a>
+        ) : (
+          <span className="text-muted-foreground">Not uploaded</span>
+        )}
+      </InfoTile>
     </section>
   );
 }

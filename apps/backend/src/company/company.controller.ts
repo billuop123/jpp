@@ -1,10 +1,33 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseInterceptors, Req, BadRequestException, UploadedFile } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CompanyDto } from './dto/create-company.dto';
-
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+const pdfFileFilter = (req, file, cb) => {
+    if (!file.mimetype || !file.mimetype.includes('pdf')) {
+      cb(new BadRequestException('Only PDF files are allowed'), false);
+    } else {
+      cb(null, true);
+    }
+  };
 @Controller('company')
 export class CompanyController {
-    constructor(private readonly companyService: CompanyService) {}
+    constructor(private readonly companyService: CompanyService, private readonly cloudinaryService: CloudinaryService) {}
+
+    @Put('upload-incorporation-pdf/:companyId')
+    @UseInterceptors(
+      FileInterceptor('file', {
+        storage: memoryStorage(),
+        fileFilter: pdfFileFilter,
+        limits: { fileSize: 20 * 1024 * 1024 },
+      }),
+    )
+    async uploadIncorporationPdf(@Req() req: Request, @UploadedFile() file: any, @Param('companyId') companyId: string) {
+        if (!file) throw new BadRequestException('No file uploaded');
+        return await this.cloudinaryService.uploadCompanyIncorporationPdf(file, req as any, companyId);
+      }
+    
     @Post()
     async create(@Body() company:CompanyDto, @Req() req: Request) {
         return await this.companyService.create(company,req as any);

@@ -80,6 +80,9 @@ model Companies{
   jobs jobs[]
   companySettings CompanySettings[]
   userId String
+  incorporationLink String?
+  rejected Boolean @default(false)
+  isVerified Boolean @default(false)
   user Users @relation(fields: [userId], references: [id],onDelete: Cascade)
   blacklisted Boolean @default(false)
   createdAt DateTime @default(now())

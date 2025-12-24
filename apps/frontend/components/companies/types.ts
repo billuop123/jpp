@@ -7,6 +7,7 @@ export interface Company {
   postlimit: number;
   companytypeId: string;
   userId: string;
+  incorporationLink?: string | null;
   blacklisted: boolean;
   createdAt: string;
   updatedAt: string;

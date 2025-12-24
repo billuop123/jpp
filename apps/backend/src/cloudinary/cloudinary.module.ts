@@ -6,8 +6,8 @@ import { DatabaseService } from 'src/database/database.service';
 import { UsersService } from 'src/users/users.service';
 
 @Module({
-  providers: [CloudinaryProvider, CloudinaryService,DatabaseService,UsersService],
-  exports: [CloudinaryProvider],
-  controllers: [CloudinaryController]
+  providers: [CloudinaryProvider, CloudinaryService, DatabaseService, UsersService],
+  exports: [CloudinaryProvider, CloudinaryService],
+  controllers: [CloudinaryController],
 })
 export class CloudinaryModule {}

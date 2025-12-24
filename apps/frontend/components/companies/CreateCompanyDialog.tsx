@@ -46,6 +46,7 @@ export function CreateCompanyDialog({
   const [companyWebsite, setCompanyWebsite] = useState("");
   const [companyLogo, setCompanyLogo] = useState("");
   const [companyType, setCompanyType] = useState<string>("");
+  const [incorporationFile, setIncorporationFile] = useState<File | null>(null);
   const { token } = useUser();
 
   const createCompanyMutation = useMutation({
@@ -66,6 +67,32 @@ export function CreateCompanyDialog({
       });
       const res = await response.json();
       if (!response.ok) throw new Error(res.message || "Failed to create company");
+
+      // If an incorporation PDF was selected, upload it after company is created
+      if (incorporationFile) {
+        const formData = new FormData();
+        formData.append("file", incorporationFile);
+
+        const uploadResponse = await fetch(
+          `${BACKEND_URL}/company/upload-incorporation-pdf/${res.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: token!,
+              // NOTE: let the browser set the multipart boundary
+            } as HeadersInit,
+            body: formData,
+          },
+        );
+
+        if (!uploadResponse.ok) {
+          const uploadRes = await uploadResponse.json().catch(() => ({}));
+          throw new Error(
+            uploadRes.message || "Company created, but failed to upload incorporation PDF",
+          );
+        }
+      }
+
       return res;
     },
     onSuccess: () => {
@@ -77,6 +104,7 @@ export function CreateCompanyDialog({
       setCompanyWebsite("");
       setCompanyLogo("");
       setCompanyType("");
+      setIncorporationFile(null);
       onSuccess?.();
     },
     onError: (error: Error) => {
@@ -150,6 +178,24 @@ export function CreateCompanyDialog({
               value={companyLogo}
               onChange={(e) => setCompanyLogo(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="incorporationPdf">
+              Incorporation Document (PDF)
+            </Label>
+            <Input
+              id="incorporationPdf"
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setIncorporationFile(file);
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Optional: Attach a PDF proving your company incorporation. You can
+              also add it later from the company details page.
+            </p>
           </div>
         </div>
         <DialogFooter>

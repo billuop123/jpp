@@ -49,6 +49,7 @@ export class CompanyService {
                 },
             } as Prisma.CompaniesCreateInput,
         });
+
         return newCompany;
     }
     async getMyCompanies(req:Request){
@@ -100,7 +101,8 @@ export class CompanyService {
                 postlimit:true,
                 companytype:true,
                 blacklisted:true,
-                userId:true
+                userId:true,
+                incorporationLink:true,
             }
         })
 

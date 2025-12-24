@@ -11,7 +11,6 @@ export class JobsService {
     constructor(private readonly databaseService:DatabaseService,private readonly qdrantService: QdrantService,private readonly usersService: UsersService,private readonly companyService: CompanyService){}
     async create(job:JobDto,req:Request,companyId:string): Promise<Prisma.jobsGetPayload<{}>>{
         const userId=(req as any).userId;
-        console.log(userId)
         const date=new Date()
         await this.usersService.userExistsById(userId);
         if(job.deadline < date){
@@ -24,6 +23,9 @@ export class JobsService {
         });
         if(!company){
             throw new NotFoundException('Company not found');
+        }
+        if(!company.isVerified){
+            throw new BadRequestException('Company is not verified, please wait for the admin to verify your company');
         }
         if(company.postlimit===0){
             throw new BadRequestException('You have reached the maximum number of jobs you can post');

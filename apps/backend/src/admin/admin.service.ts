@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
@@ -58,5 +58,54 @@ export class AdminService {
             skip:(page-1)*limit
         })
         return candidates;
+    }
+    async getUnverifiedCompanies(page:number,limit:number){
+        const unverifiedCompanies=await this.databaseService.companies.findMany({
+            where:{
+                isVerified:false,
+                rejected:false,
+            },
+            take:limit,
+            skip:(page-1)*limit
+        })
+        return unverifiedCompanies;
+    }
+    async verifyCompany(id:string){
+        const company=await this.databaseService.companies.findUnique({
+            where:{
+                id:id
+            }
+        })
+        if(!company){
+            throw new NotFoundException('Company not found');
+        }
+        const companyUpdated=await this.databaseService.companies.update({
+            where:{
+                id:id
+            },
+            data:{
+                isVerified:true
+            }
+        })
+        return companyUpdated;
+    }
+    async rejectCompany(id:string){
+        const company=await this.databaseService.companies.findUnique({
+            where:{
+                id:id
+            }
+        })
+        if(!company){
+            throw new NotFoundException('Company not found');
+        }
+        const companyUpdated=await this.databaseService.companies.update({
+            where:{
+                id:id
+            },
+            data:{
+                rejected:true
+            }
+        })
+        return companyUpdated;
     }
 }

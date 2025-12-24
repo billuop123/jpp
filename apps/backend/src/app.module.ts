@@ -77,6 +77,7 @@ export class AppModule implements NestModule {
         { path: 'applications/:applicationId', method: RequestMethod.GET },
         { path: 'jobs/:companyId', method: RequestMethod.POST },
         { path: 'gemini/resume-text-extraction', method: RequestMethod.POST },
+        { path: 'company/upload-incorporation-pdf/:companyId', method: RequestMethod.PUT },
       );
       
   consumer
