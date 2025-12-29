@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import AnimatedGrid from "@/components/home/AnimatedGrid";
 import { Button } from "@/components/ui/button";
 import LoadingStep from "@/components/LoadingStep";
@@ -15,6 +16,7 @@ import { useApplication } from "./hooks/useApplication";
 import { useTailorResume } from "./hooks/useTailorResume";
 import { usePremiumStatus } from "./hooks/usePremiumStatus";
 import { useSession } from "next-auth/react";
+import { BACKEND_URL } from "@/scripts/lib/config";
 
 interface JobDetailsClientProps {
   initialJob: Job;
@@ -28,8 +30,47 @@ export function JobDetailsClient({ initialJob, jobid }: JobDetailsClientProps) {
   const {data:session}=useSession()
   const { job } = useJobDetails(jobid, initialJob);
   const { isPremium } = usePremiumStatus(token);
-  const { applicationExistsQuery, applicationExists, applicationId } = useApplication(jobid, token);
+  const { applicationExistsQuery, canApply, applicationMessage } = useApplication(jobid, token);
   const { tailorResumeMutation } = useTailorResume(jobid, token, job?.title);
+
+  const myApplicationStatusQuery = useQuery<{
+    exists: boolean;
+    status?: string;
+    applicationId?: string;
+  }>({
+    queryKey: ["my-application-status", jobid],
+    enabled: !!jobid && !!token,
+    retry: false,
+    queryFn: async () => {
+      const response = await fetch(
+        `${BACKEND_URL}/applications/my-status/${jobid}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token!,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch application status");
+      }
+      return data as {
+        exists: boolean;
+        status?: string;
+        applicationId?: string;
+      };
+    },
+  });
+
+  const canInterview =
+    myApplicationStatusQuery.data?.exists &&
+    myApplicationStatusQuery.data.status === "GRANTED" &&
+    !!myApplicationStatusQuery.data.applicationId;
+
+  const interviewApplicationId = canInterview
+    ? myApplicationStatusQuery.data?.applicationId ?? null
+    : null;
 
   if (applicationExistsQuery.isLoading) {
     return (
@@ -75,8 +116,10 @@ export function JobDetailsClient({ initialJob, jobid }: JobDetailsClientProps) {
           job={job}
           isDialogOpen={isDialogOpen}
           onDialogOpenChange={setIsDialogOpen}
-          applicationExists={applicationExists}
-          applicationId={applicationId}
+          canApply={canApply}
+          applicationMessage={applicationMessage}
+          canInterview={canInterview}
+          interviewApplicationId={interviewApplicationId}
         />
 
         <section className="relative container mx-auto px-4 pb-20">

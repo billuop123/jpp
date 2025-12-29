@@ -26,9 +26,21 @@ export class JobsController {
     async searchJobs(@Body() searchDto: SearchDto) {
         return await this.jobsService.searchJobs(searchDto.query);
     }
+      @Get('types')
+      async getJobTypes(){
+          return await this.jobsService.getJobTypes();
+      }
     @Get('top-viewed-jobs')
     async getTopViewedJobs() {
         return await this.jobsService.getTopViewedJobs();
+    }
+    @Get('pending-requests/:jobId')
+    async getPendingRequests(@Param('jobId') jobId: string) {
+        return await this.jobsService.getPendingRequests(jobId);
+    }
+    @Patch('update-request-status/:applicationId')
+    async updateRequestStatus(@Param('applicationId') applicationId: string) {
+        return await this.jobsService.updateRequestStatus(applicationId);
     }
     @Patch('update-views/:jobId')
     async updateViews(@Param('jobId') jobId: string, @Req() req: Request) {

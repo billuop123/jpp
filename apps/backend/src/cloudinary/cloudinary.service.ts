@@ -12,8 +12,11 @@ export class CloudinaryService {
     private readonly usersService: UsersService,
     @Inject('CLOUDINARY') private cloudinary: any,
   ) {}
-
-  async uploadPdf(file: { buffer: Buffer }, req: Request) {
+  private async uploadOrUpdatePdf(
+    file: { buffer: Buffer },
+    req: Request,
+    { allowExisting }: { allowExisting: boolean },
+  ) {
     const userId = (req as any).userId;
     if (!userId) {
       throw new BadRequestException('Authenticated user context not found');
@@ -24,12 +27,12 @@ export class CloudinaryService {
     });
     if (!existingUserDetails) {
       existingUserDetails = await this.databaseService.userDetails.create({
-        data:{
+        data: {
           userId,
-        }
-      })
+        },
+      });
     }
-    if (existingUserDetails.resumeLink) {
+    if (existingUserDetails.resumeLink && !allowExisting) {
       throw new BadRequestException('Resume already uploaded');
     }
     return new Promise((resolve, reject) => {
@@ -55,6 +58,13 @@ export class CloudinaryService {
       );
       uploadStream.end(file.buffer);
     });
+  }
+  async uploadPdf(file: { buffer: Buffer }, req: Request) {
+    return this.uploadOrUpdatePdf(file, req, { allowExisting: false });
+  }
+
+  async updatePdf(file: { buffer: Buffer }, req: Request) {
+    return this.uploadOrUpdatePdf(file, req, { allowExisting: true });
   }
   async uploadCompanyIncorporationPdf(file:{buffer:Buffer},req:Request,companyId:string){
     const userId=(req as any).userId;

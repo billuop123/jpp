@@ -18,6 +18,7 @@ import { Step, ExtractedData } from "./types";
 
 export function UserDetailsFlowClient() {
   const [files, setFiles] = useState<File[]>([]);
+  const [isReuploading, setIsReuploading] = useState(false);
   const { token } = useUser();
   const router = useRouter();
 
@@ -41,11 +42,19 @@ export function UserDetailsFlowClient() {
   const { saveMutation } = useSaveUserDetails(token, setCurrentStep);
 
   useEffect(() => {
-    if (hasResume && currentStep === "upload" && !uploadMutation.isPending) {
+    if (hasResume && currentStep === "upload" && !uploadMutation.isPending && !isReuploading) {
       setExtractedData((prev) => prev ?? mappedUserDetails ?? {});
       setCurrentStep("review");
     }
-  }, [hasResume, currentStep, uploadMutation.isPending, mappedUserDetails, setExtractedData, setCurrentStep]);
+  }, [
+    hasResume,
+    currentStep,
+    uploadMutation.isPending,
+    mappedUserDetails,
+    setExtractedData,
+    setCurrentStep,
+    isReuploading,
+  ]);
 
   useEffect(() => {
     if (currentStep === "success") {
@@ -62,7 +71,10 @@ export function UserDetailsFlowClient() {
 
   const handleUpload = () => {
     if (!files.length) return;
-    uploadMutation.mutate(files[0]);
+    uploadMutation.mutate({
+      file: files[0],
+      mode: hasResume ? "update" : "create",
+    });
     setFiles([]);
   };
 
@@ -74,6 +86,14 @@ export function UserDetailsFlowClient() {
   const handleRetry = () => {
     uploadMutation.reset();
     saveMutation.reset();
+    setCurrentStep("upload");
+    setIsReuploading(false);
+  };
+
+  const handleChangeResume = () => {
+    uploadMutation.reset();
+    setIsReuploading(true);
+    setExtractedData(null);
     setCurrentStep("upload");
   };
 
@@ -95,7 +115,7 @@ export function UserDetailsFlowClient() {
   return (
     <>
       <AnimatePresence mode="wait">
-        {currentStep === "upload" && !uploadMutation.isPending && !hasResume && (
+        {currentStep === "upload" && !uploadMutation.isPending && (
           <UploadStep
             key="upload"
             files={files}
@@ -123,6 +143,7 @@ export function UserDetailsFlowClient() {
             extractedData={extractedData}
             onSave={handleSave}
             isSaving={saveMutation.isPending}
+            onChangeResume={hasResume ? handleChangeResume : undefined}
           />
         )}
 

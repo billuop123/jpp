@@ -78,6 +78,16 @@ export class JobsService {
         await this.qdrantService.insert(qdrantData);
         return newJob;
     }
+    async getJobTypes(){
+        const jobtypes=await this.databaseService.jobtypes.findMany({
+            select:{
+                id:true,
+                name:true,
+                description:true,
+            }
+        })
+        return jobtypes;
+    }
     async search(query: string) {
         if (!query) {
             throw new BadRequestException('Search query is required');
@@ -163,14 +173,27 @@ export class JobsService {
             where:{
                 jobId:jobIdData,
                 userId:userId,
+            },
+            select:{
+                applicationstatus:{
+                    select:{
+                        name:true,
+                    }
+                },
+                id:true,
             }
         })
+        if(application?.applicationstatus?.name==='PENDING'){
+            return {
+                status: false,
+                message: 'Application is pending review',
+            }
+        }
         return {
-            status: application ? true : false,
-            applicationId: application?.id || null
+            status:true,
         }
     }
-async getTopViewedJobs()  {
+    async getTopViewedJobs()  {
     const jobs=await this.databaseService.jobs.findMany({
         where:{
             isactive:true,
@@ -203,8 +226,59 @@ async getTopViewedJobs()  {
     return {
         jobs:jobs,
     }
-}
-async updateViews(jobId:string,req:any){
+}   
+    async getPendingRequests(jobId:string){
+        const job=await this.databaseService.jobs.findUnique({
+            where:{
+                id:jobId,
+            },
+        })
+        if(!job){
+            throw new NotFoundException('Job not found');
+        }
+        const applicationRequests=await this.databaseService.applications.findMany({
+            where:{
+                jobId:jobId,
+                applicationstatus:{
+                    name:'PENDING',
+                }
+            },
+        })
+        if(!applicationRequests){
+            throw new NotFoundException('Pending requests not found');
+        }
+        return applicationRequests;
+    }
+    async updateRequestStatus(applicationId:string){
+        const application=await this.databaseService.applications.findUnique({
+            where:{
+                id:applicationId,
+            },
+        })
+        if(!application){
+            throw new NotFoundException('Application not found');
+        }
+        const grantedStatus=await this.databaseService.applicationstatus.findUnique({
+            where:{
+                name:'GRANTED'
+            },
+        })
+        if(!grantedStatus){
+            throw new NotFoundException('Granted status not found');
+        }
+        await this.databaseService.applications.update({
+            where:{
+                id:applicationId,
+            },
+            data:{
+                applicationstatusId:grantedStatus.id,
+            }
+        })
+        return {
+            status:true
+        }
+    }
+    async updateViews(jobId:string,req:any){
     const job=await this.databaseService.jobs.findUnique({
         where:{
             id:jobId,
@@ -237,4 +311,6 @@ async updateViews(jobId:string,req:any){
     return {
         status:true,
     }
-}}
+}
+
+}

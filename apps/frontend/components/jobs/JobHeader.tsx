@@ -14,11 +14,21 @@ interface JobHeaderProps {
   job: Job;
   isDialogOpen: boolean;
   onDialogOpenChange: (open: boolean) => void;
-  applicationExists: boolean;
-  applicationId: string | null;
+  canApply: boolean;
+  applicationMessage: string | null;
+  canInterview?: boolean;
+  interviewApplicationId?: string | null;
 }
 
-export function JobHeader({ job, isDialogOpen, onDialogOpenChange, applicationExists, applicationId }: JobHeaderProps) {
+export function JobHeader({
+  job,
+  isDialogOpen,
+  onDialogOpenChange,
+  canApply,
+  applicationMessage,
+  canInterview,
+  interviewApplicationId,
+}: JobHeaderProps) {
   const router = useRouter();
   return (
     <section className="relative container mx-auto px-4 py-8 lg:py-12">
@@ -84,24 +94,31 @@ export function JobHeader({ job, isDialogOpen, onDialogOpenChange, applicationEx
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.3 }}
             >
-              {!applicationExists ? (
+              {canInterview && interviewApplicationId ? (
+                <Button
+                  size="lg"
+                  className="text-lg px-8"
+                  onClick={() => router.push(`/interview/${interviewApplicationId}`)}
+                >
+                  Interview now
+                </Button>
+              ) : canApply ? (
                 <ApplyDialog
                   job={job}
                   isOpen={isDialogOpen}
                   onOpenChange={onDialogOpenChange}
                 />
               ) : (
-                <Button
-                  size="lg"
-                  className="text-lg px-8"
-                  onClick={() => {
-                    if (applicationId) {
-                      router.push(`/interview/${applicationId}`);
-                    }
-                  }}
-                >
-                  Interview Now
-                </Button>
+                <div className="flex flex-col items-end gap-2">
+                  <Button size="lg" className="text-lg px-8" disabled>
+                    Application Pending Review
+                  </Button>
+                  {applicationMessage && (
+                    <p className="text-xs text-muted-foreground max-w-xs text-right">
+                      {applicationMessage}
+                    </p>
+                  )}
+                </div>
               )}
             </motion.div>
           </div>

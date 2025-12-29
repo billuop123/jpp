@@ -113,12 +113,20 @@ export function CompanyJobsList({
                     <TableCell>{job.views ?? 0}</TableCell>
                     <TableCell className="space-x-2 text-right">
                       {job.company.userId === userId && (
+                        <>
                         <Link
                           href={`/recruiter-applications/${job.id}`}
                           className="text-xs text-foreground"
                         >
                           View applications
                         </Link>
+                        <Link
+                          href={`/application-requests/${job.id}`}
+                          className="text-xs text-foreground"
+                        >
+                          View application requests
+                        </Link>
+                          </>
                       )}
                       <Button
                         variant="outline"

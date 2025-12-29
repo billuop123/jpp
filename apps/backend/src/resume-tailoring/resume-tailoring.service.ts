@@ -119,6 +119,42 @@ export class ResumeTailoringService {
         });
     }
 
+    /**
+     * Normalizes and removes placeholder-like values such as
+     * "N/A", "NA", "null", "undefined", "Not specified", "-", etc.
+     * Returns an empty string when a value should be treated as missing.
+     */
+    private sanitizePlaceholder(value: string | null | undefined): string {
+        if (!value) {
+            return '';
+        }
+        const trimmed = value.trim();
+        if (!trimmed) {
+            return '';
+        }
+        const lowered = trimmed.toLowerCase();
+        const compact = lowered.replace(/[\s._\-\/]/g, '');
+        const placeholders = new Set([
+            'n/a',
+            'na',
+            'notapplicable',
+            'notavailable',
+            'notprovided',
+            'nospecified',
+            'notspecified',
+            'unknown',
+            'none',
+            'null',
+            'undefined',
+            '-',
+            '--',
+        ]);
+        if (placeholders.has(lowered) || placeholders.has(compact)) {
+            return '';
+        }
+        return trimmed;
+    }
+
     private async extractResumeText(resumeLink: string) {
         try {
             const parser = new PDFParse({ url: resumeLink });
@@ -140,8 +176,14 @@ export class ResumeTailoringService {
             github?: string | null;
         },
     ) {
-        const displayName = resume.Name || user.name || 'Candidate';
-        const addressLine = details.location || resume.Location || '';
+        const displayName =
+            this.sanitizePlaceholder(resume.Name) ||
+            this.sanitizePlaceholder(user.name) ||
+            'Candidate';
+        const addressLine =
+            this.sanitizePlaceholder(details.location) ||
+            this.sanitizePlaceholder(resume.Location) ||
+            '';
 
         doc
             .font('Helvetica-Bold')
@@ -153,10 +195,10 @@ export class ResumeTailoringService {
         }
 
         const contactSegments = [
-            user.email,
-            resume.LinkedIn || details.linkedin,
-            resume.Portfolio || details.portfolio,
-            resume.Github || details.github,
+            this.sanitizePlaceholder(user.email),
+            this.sanitizePlaceholder(resume.LinkedIn || details.linkedin),
+            this.sanitizePlaceholder(resume.Portfolio || details.portfolio),
+            this.sanitizePlaceholder(resume.Github || details.github),
         ]
             .flat()
             .filter(Boolean)
@@ -205,15 +247,20 @@ export class ResumeTailoringService {
                 Array.isArray(parsed.education) &&
                 Array.isArray(parsed.closingNotes)
             ) {
+                const clean = (arr: unknown[]): string[] =>
+                    arr
+                        .map((item) => this.sanitizePlaceholder(String(item).trim()))
+                        .filter((val): val is string => Boolean(val));
+
                 return {
-                    personalInfo: parsed.personalInfo.map((item: unknown) => String(item).trim()).filter(Boolean),
-                    introduction: parsed.introduction.map((item: unknown) => String(item).trim()).filter(Boolean),
-                    projects: parsed.projects.map((item: unknown) => String(item).trim()).filter(Boolean),
-                    technicalSkills: parsed.technicalSkills.map((item: unknown) => String(item).trim()).filter(Boolean),
-                    keyHighlights: parsed.keyHighlights.map((item: unknown) => String(item).trim()).filter(Boolean),
-                    experiences: parsed.experiences.map((item: unknown) => String(item).trim()).filter(Boolean),
-                    education: parsed.education.map((item: unknown) => String(item).trim()).filter(Boolean),
-                    closingNotes: parsed.closingNotes.map((item: unknown) => String(item).trim()).filter(Boolean),
+                    personalInfo: clean(parsed.personalInfo),
+                    introduction: clean(parsed.introduction),
+                    projects: clean(parsed.projects),
+                    technicalSkills: clean(parsed.technicalSkills),
+                    keyHighlights: clean(parsed.keyHighlights),
+                    experiences: clean(parsed.experiences),
+                    education: clean(parsed.education),
+                    closingNotes: clean(parsed.closingNotes),
                 };
             }
             return null;
@@ -267,6 +314,22 @@ export class ResumeTailoringService {
         ];
         return entries
             .map((entry) => entry.trim())
+            .filter(Boolean)
+            // Clean lines like "LinkedIn: N/A" → drop if value is placeholder,
+            // or normalize to "LinkedIn: <actual value>".
+            .map((entry) => {
+                if (!entry.includes(':')) {
+                    return entry;
+                }
+                const [label, ...rest] = entry.split(':');
+                const rawValue = rest.join(':').trim();
+                const cleanedValue = this.sanitizePlaceholder(rawValue);
+                if (!cleanedValue) {
+                    // No meaningful value after the label, drop this entry entirely
+                    return '';
+                }
+                return `${label.trim()}: ${cleanedValue}`;
+            })
             .filter(Boolean)
             .filter((entry) => {
                 const lowered = entry.toLowerCase();

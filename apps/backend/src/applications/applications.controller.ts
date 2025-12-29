@@ -10,6 +10,7 @@ export class ApplicationsController {
     async create(@Body() application:ApplicationDto,@Req() req: Request) {
         return await this.applicationsService.create(application,req as any);
     }
+
     @Get(':applicationId')
     async getApplication(@Param('applicationId') applicationId: string, @Req() req: Request) {
         return await this.applicationsService.getApplicationWithJob(applicationId, (req as any).userId as string);
@@ -33,5 +34,13 @@ export class ApplicationsController {
     @Get('user-application-details/:jobId/:userId')
     async getUserApplicationDetails(@Param('jobId') jobId: string, @Param('userId') userId: string) {
         return await this.applicationsService.getUserApplicationDetails(jobId, userId);
+    }
+    @Get('user-details/:userId')
+    async getUserDetails(@Param('userId') userId: string) {
+        return await this.applicationsService.getUserDetails(userId);
+    }
+    @Get('my-status/:jobId')
+    async getMyApplicationStatus(@Param('jobId') jobId: string, @Req() req: Request) {
+        return await this.applicationsService.getMyApplicationStatus(jobId, (req as any).userId as string);
     }
 }

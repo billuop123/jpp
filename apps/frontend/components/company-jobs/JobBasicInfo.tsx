@@ -3,13 +3,31 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { JobFormData } from "./types";
+import { CompanyTypeDropdown } from "@/components/ui/company-type-dropdown";
+
+interface JobTypeOption {
+  id: string;
+  label: string;
+  value: string;
+}
 
 interface JobBasicInfoProps {
   formData: JobFormData;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  jobTypeOptions: JobTypeOption[];
+  onJobTypeChange: (value: string) => void;
+  jobTypesLoading?: boolean;
+  jobTypesError?: Error | null;
 }
 
-export function JobBasicInfo({ formData, onInputChange }: JobBasicInfoProps) {
+export function JobBasicInfo({
+  formData,
+  onInputChange,
+  jobTypeOptions,
+  onJobTypeChange,
+  jobTypesLoading,
+  jobTypesError,
+}: JobBasicInfoProps) {
   return (
     <>
       <div className="grid gap-2">
@@ -25,13 +43,17 @@ export function JobBasicInfo({ formData, onInputChange }: JobBasicInfoProps) {
 
       <div className="grid gap-2">
         <Label htmlFor="jobtype">Job Type *</Label>
-        <Input
-          id="jobtype"
-          name="jobtype"
-          placeholder="Full-time"
+        <CompanyTypeDropdown
+          options={jobTypeOptions}
           value={formData.jobtype}
-          onChange={onInputChange}
+          onValueChange={onJobTypeChange}
+          placeholder={jobTypesLoading ? "Loading job types..." : "Select job type"}
         />
+        {jobTypesError && (
+          <p className="text-xs text-destructive">
+            {jobTypesError.message || "Failed to load job types"}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

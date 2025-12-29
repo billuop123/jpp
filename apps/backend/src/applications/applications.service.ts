@@ -225,13 +225,13 @@ ${resumeText || 'No resume provided'}
         if(!application){
             throw new NotFoundException('Application not found');
         }
-        if(application.relevanceScore){
+        if(application.relevanceScore==null){
             return {
-                status: true,
+                status: false,
             };
         }
         return {
-            status: false,
+            status: true,
         };
     }
     async getRecruiterApplications(jobId:string){
@@ -283,6 +283,11 @@ ${resumeText || 'No resume provided'}
             },
             select:{
                 id:true,
+                applicationstatus:{
+                    select:{
+                        name:true,
+                    }
+                },
                 relevanceScore:true,
                 relevancecomment:true,
                 technicalScore:true,
@@ -309,5 +314,60 @@ ${resumeText || 'No resume provided'}
             throw new NotFoundException('Application not found');
         }
         return application
+    }
+    async getMyApplicationStatus(jobId:string,userId:string){
+        await this.usersService.userExistsById(userId);
+        const application=await this.databaseService.applications.findFirst({
+            where:{
+                jobId,
+                userId,
+            },
+            select:{
+                id:true,
+                applicationstatus:{
+                    select:{
+                        name:true,
+                    }
+                }
+            }
+        })
+        if(!application){
+            return {
+                exists:false,
+            }
+        }
+        return {
+            exists:true,
+            status:application.applicationstatus.name,
+            applicationId:application.id,
+        }
+    }
+    async getUserDetails(userId:string){
+        const user=await this.databaseService.users.findUnique({
+            where:{
+                id:userId,
+            },
+            select:{
+                userDetails:{
+                    select:{
+                        resumeLink:true,
+                        experience:true,
+                        location:true,
+                        linkedin:true,
+                        portfolio:true,
+                        github:true,
+                        expectedSalary:true,
+                        availability:true,
+                        skills:true,
+                    }
+                },
+                name:true,
+                email:true,
+            }
+        })
+        if(!user){
+            throw new NotFoundException('User not found');
+        }
+        return user
     }
 }

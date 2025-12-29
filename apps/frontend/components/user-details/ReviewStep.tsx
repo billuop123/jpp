@@ -10,6 +10,7 @@ interface ReviewStepProps {
   extractedData: ExtractedData;
   onSave: (data: ExtractedData) => void;
   isSaving: boolean;
+  onChangeResume?: () => void;
 }
 
 const availabilityOptions = [
@@ -25,6 +26,7 @@ export default function ReviewStep({
   extractedData,
   onSave,
   isSaving,
+  onChangeResume,
 }: ReviewStepProps) {
   const [formData, setFormData] = useState<ExtractedData>(extractedData);
 
@@ -156,6 +158,16 @@ export default function ReviewStep({
         >
           {isSaving ? "Saving…" : "Save Details"}
         </Button>
+        {onChangeResume && (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isSaving}
+            onClick={onChangeResume}
+          >
+            Change Resume
+          </Button>
+        )}
       </div>
     </motion.div>
   );

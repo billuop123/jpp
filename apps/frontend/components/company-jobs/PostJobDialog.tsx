@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -22,6 +22,12 @@ import { SkillsInput } from "./SkillsInput";
 import { JobDetailsSection } from "./JobDetailsSection";
 import { JobContactInfo } from "./JobContactInfo";
 
+interface JobTypeApi {
+  id: string;
+  name: string;
+  description?: string | null;
+}
+
 interface PostJobDialogProps {
   companyId: string;
   token: string;
@@ -40,6 +46,24 @@ export function PostJobDialog({
   const [formData, setFormData] = useState<JobFormData>(initialFormState);
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");
+
+  const jobTypesQuery = useQuery<JobTypeApi[]>({
+    queryKey: ["job-types"],
+    queryFn: async () => {
+      const response = await fetch(`${BACKEND_URL}/jobs/types`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      });
+      const res = await response.json();
+      if (!response.ok) {
+        throw new Error(res.message || "Failed to load job types");
+      }
+      return res as JobTypeApi[];
+    },
+  });
 
   const createJobMutation = useMutation({
     mutationFn: async () => {
@@ -126,7 +150,24 @@ export function PostJobDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <JobBasicInfo formData={formData} onInputChange={handleInputChange} />
+          <JobBasicInfo
+            formData={formData}
+            onInputChange={handleInputChange}
+            jobTypeOptions={
+              (jobTypesQuery.data || []).map((type) => ({
+                id: type.id,
+                label: type.name,
+                value: type.name,
+              })) ?? []
+            }
+            onJobTypeChange={(value) =>
+              setFormData((prev) => ({ ...prev, jobtype: value }))
+            }
+            jobTypesLoading={jobTypesQuery.isLoading}
+            jobTypesError={
+              jobTypesQuery.isError ? (jobTypesQuery.error as Error) : null
+            }
+          />
           <JobSalaryInfo formData={formData} onInputChange={handleInputChange} />
           <JobDatesAndExperience formData={formData} onInputChange={handleInputChange} />
           <SkillsInput

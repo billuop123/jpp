@@ -4,7 +4,7 @@ import { BACKEND_URL } from "@/scripts/lib/config";
 
 interface ApplicationExistsResponse {
   status: boolean;
-  applicationId: string | null;
+  message?: string;
 }
 
 export function useApplication(jobid: string, token: string | null) {
@@ -58,13 +58,13 @@ export function useApplication(jobid: string, token: string | null) {
     },
   });
 
-  const applicationExists = applicationExistsQuery.data?.status ?? false;
-  const applicationId = applicationExistsQuery.data?.applicationId ?? null;
+  const canApply = applicationExistsQuery.data?.status ?? false;
+  const applicationMessage = applicationExistsQuery.data?.message ?? null;
 
   return {
     applicationExistsQuery,
-    applicationExists,
-    applicationId,
+    canApply,
+    applicationMessage,
     applyMutation,
   };
 }

@@ -8,15 +8,22 @@ interface UseResumeUploadOptions {
   onSuccess?: () => void;
 }
 
+type UploadMode = "create" | "update";
+
 export function useResumeUpload(token: string | null, options?: UseResumeUploadOptions) {
   const [currentStep, setCurrentStep] = useState<Step>("upload");
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
 
   const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, mode }: { file: File; mode: UploadMode }) => {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await fetch(`${BACKEND_URL}/upload-pdf`, {
+      const endpoint =
+        mode === "update"
+          ? `${BACKEND_URL}/upload-pdf/update`
+          : `${BACKEND_URL}/upload-pdf`;
+
+      const response = await fetch(endpoint, {
         method: "PUT",
         body: formData,
         headers: token ? { Authorization: token! } : undefined,
@@ -100,6 +107,7 @@ export function useResumeUpload(token: string | null, options?: UseResumeUploadO
   return {
     currentStep,
     setCurrentStep,
+    // extracted resume data (AI-parsed fields)
     extractedData,
     setExtractedData,
     uploadMutation,

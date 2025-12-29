@@ -40,6 +40,7 @@ export class QdrantService implements OnModuleInit {
   }
 
   async search(vector: number[], limit = 50) {
+    await this.ensureCollectionExists();
     return await this.client.search('job_recommender', { vector, limit });
   }
 
@@ -54,6 +55,7 @@ export class QdrantService implements OnModuleInit {
     });
   }
   async searchJobs(vector:number[],limit=1000){
+    await this.ensureCollectionExists();
     return await this.client.search(this.COLLECTION_NAME, {
       vector: vector,
       limit: limit,

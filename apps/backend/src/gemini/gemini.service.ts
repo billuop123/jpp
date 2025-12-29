@@ -107,6 +107,7 @@ STRICT RULES:
     11. "education" lists institutions, degrees, and notable accomplishments in sentence form.
     12. "closingNotes" explicitly reference the target job/company, tie back to the most relevant projects or experience, and read like a closing paragraph.
     13. Do not add extra fields or metadata. Output raw JSON only.
+    14. Never write placeholder text like "N/A", "NA", "null", "undefined", "Not specified", "-", or similar. If information is missing, simply omit that sentence or leave the corresponding array empty.
     `;
 
     const userPrompt = `
@@ -120,11 +121,11 @@ STRICT RULES:
     
     Job information:
     Title: ${job.title}
-    Company: ${job.company?.name ?? 'Unknown'}
-    Location: ${job.location ?? 'Not specified'}
-    Description: ${job.description ?? 'N/A'}
-    Requirements: ${job.requirements ?? 'N/A'}
-    Responsibilities: ${job.responsibilities ?? 'N/A'}
+    Company: ${job.company?.name ?? ''}
+    Location: ${job.location ?? ''}
+    Description: ${job.description ?? ''}
+    Requirements: ${job.requirements ?? ''}
+    Responsibilities: ${job.responsibilities ?? ''}
     
     Write a tailored resume following this order: personalInfo, introduction, projects, technicalSkills, keyHighlights, experiences, education, closingNotes. Do NOT use headings, labels, bullet characters, quotes, or third-person references—only first-person sentences that drop directly into a resume. After describing the candidate, immediately explain why they fit the role. Projects must match the ones provided in the resume data/text (leave the array empty if none are provided). Populate all arrays with concise, impactful sentences. Pack "technicalSkills" with as many relevant skills as possible. Closing notes must reference the target job/company and highlight alignment with key experience or projects.
     `;

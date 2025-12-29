@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -18,17 +18,11 @@ import { BACKEND_URL } from "@/scripts/lib/config";
 import { useUser } from "@/store/user";
 import { toast } from "sonner";
 
-const companyTypes = [
-  { id: "1", label: "Intern", value: "Intern" },
-  { id: "2", label: "Full-time", value: "Full-time" },
-  { id: "3", label: "Part-time", value: "Part-time" },
-  { id: "4", label: "Freelance", value: "Freelance" },
-  { id: "5", label: "Remote", value: "Remote" },
-  { id: "6", label: "On-site", value: "On-site" },
-  { id: "7", label: "Hybrid", value: "Hybrid" },
-  { id: "8", label: "Contract", value: "Contract" },
-  { id: "9", label: "Temporary", value: "Temporary" },
-];
+interface CompanyTypeApi {
+  id: string;
+  name: string;
+  description?: string | null;
+}
 
 interface CreateCompanyDialogProps {
   isOpen: boolean;
@@ -48,6 +42,25 @@ export function CreateCompanyDialog({
   const [companyType, setCompanyType] = useState<string>("");
   const [incorporationFile, setIncorporationFile] = useState<File | null>(null);
   const { token } = useUser();
+
+  const companyTypesQuery = useQuery<CompanyTypeApi[]>({
+    queryKey: ["company-types"],
+    enabled: !!token,
+    queryFn: async () => {
+      const response = await fetch(`${BACKEND_URL}/company/types`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token!,
+        },
+      });
+      const res = await response.json();
+      if (!response.ok) {
+        throw new Error(res.message || "Failed to load company types");
+      }
+      return res as CompanyTypeApi[];
+    },
+  });
 
   const createCompanyMutation = useMutation({
     mutationFn: async () => {
@@ -143,11 +156,27 @@ export function CreateCompanyDialog({
           <div className="space-y-2">
             <Label htmlFor="companyType">Company Type *</Label>
             <CompanyTypeDropdown
-              options={companyTypes}
+              options={
+                (companyTypesQuery.data || []).map((type) => ({
+                  id: type.id,
+                  label: type.name,
+                  value: type.name,
+                })) ?? []
+              }
               value={companyType}
               onValueChange={setCompanyType}
-              placeholder="Select company type"
+              placeholder={
+                companyTypesQuery.isLoading
+                  ? "Loading company types..."
+                  : "Select company type"
+              }
             />
+            {companyTypesQuery.isError && (
+              <p className="text-xs text-destructive">
+                {(companyTypesQuery.error as Error | null)?.message ??
+                  "Failed to load company types"}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="companyEmail">Company Email *</Label>

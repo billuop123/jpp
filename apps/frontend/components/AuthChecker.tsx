@@ -9,7 +9,7 @@ interface AuthCheckerProps {
   children: ReactNode;
 }
 
-const PUBLIC_ROUTES = ["/", "/api/auth/signin", "/api/auth/signout", "/jobs"];
+const PUBLIC_ROUTES = ["/", "/login", "/api/auth/signin", "/api/auth/signout", "/jobs"];
 
 export default function AuthChecker({ children }: AuthCheckerProps) {
   const { status } = useSession();
@@ -28,7 +28,7 @@ export default function AuthChecker({ children }: AuthCheckerProps) {
   useEffect(() => {
     if (!isPublicRoute && status === "unauthenticated" && pathname) {
       const callbackUrl = encodeURIComponent(pathname);
-      router.replace(`/api/auth/signin?callbackUrl=${callbackUrl}`);
+      router.replace(`/login?callbackUrl=${callbackUrl}`);
     }
   }, [router, status, isPublicRoute, pathname]);
   if (isPublicRoute) {

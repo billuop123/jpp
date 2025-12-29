@@ -32,6 +32,10 @@ export class CompanyController {
     async create(@Body() company:CompanyDto, @Req() req: Request) {
         return await this.companyService.create(company,req as any);
     }
+      @Get('types')
+      async getCompanyTypes() {
+          return await this.companyService.getCompanyTypes();
+      }
     @Get('my-companies')
     async getMyCompanies(@Req() req: Request) {
         return await this.companyService.getMyCompanies(req as any);

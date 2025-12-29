@@ -52,6 +52,16 @@ export class CompanyService {
 
         return newCompany;
     }
+    async getCompanyTypes(){
+        const companyTypes=await this.databaseService.companyTypes.findMany({
+            select:{
+                id:true,
+                name:true,
+                description:true,
+            }
+        })
+        return companyTypes;
+    }
     async getMyCompanies(req:Request){
         const userId=(req as any).userId;
         await this.usersService.userExistsById(userId);
