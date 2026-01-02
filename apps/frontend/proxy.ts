@@ -20,6 +20,20 @@ export default withAuth(
         return NextResponse.redirect(url);
       }
     }
+    if(pathname.startsWith('/recruiterdashboard')){
+      const userRole=token?.role || token?.user?.role;
+      if(userRole!=='RECRUITER'){
+        const url=new URL('/',req.url);
+        return NextResponse.redirect(url);
+      }
+    }
+    if(pathname.startsWith('/companyjobs')){
+      const userRole=token?.role || token?.user?.role;
+      if(userRole!=='RECRUITER'){
+        const url=new URL('/',req.url);
+        return NextResponse.redirect(url);
+      }
+    }
     return NextResponse.next();
   },
   {
@@ -30,6 +44,12 @@ export default withAuth(
           return !!token; 
         }
         if(pathname.startsWith('/candidatedashboard')){
+          return !!token;
+        }
+        if(pathname.startsWith('/recruiterdashboard')){
+          return !!token;
+        }
+        if(pathname.startsWith('/companyjobs')){
           return !!token;
         }
         return true;
@@ -43,7 +63,11 @@ export const config = {
     "/admindashboard",
     "/admindashboard/:path*",
     "/candidatedashboard",
-    "/candidatedashboard/:path*"
+    "/candidatedashboard/:path*",
+    "/recruiterdashboard",
+    "/recruiterdashboard/:path*",
+    "/companyjobs",
+    "/companyjobs/:path*",
   ],
 };
 

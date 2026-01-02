@@ -48,4 +48,8 @@ export class CompanyController {
     async getCompany(@Param('companyId') companyId: string, @Req() req: Request) {
         return await this.companyService.getCompany(companyId, (req as any).userId);
     }
+    @Get('is-recruiter/:companyId')
+    async isRecruiter(@Param('companyId') companyId: string, @Req() req: Request) {
+        return await this.companyService.isRecruiter(companyId, (req as any).userId);
+    }
 }

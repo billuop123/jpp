@@ -1,97 +1,53 @@
-"use client";
+import { getServerSession } from "next-auth";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { authOptions } from "@/scripts/authOptions";
+import { CompanyJobsClient } from "./CompanyJobsClient";
+import { BACKEND_URL } from "@/scripts/lib/config";
+import { redirect } from "next/navigation";
+export default async function CompanyJobsPage({
+  params,
+}: {
+  params: Promise<{ companyId: string }>;
+}) {
+  const [{ companyId }, session] = await Promise.all([
+    params,
+    getServerSession(authOptions),
+  ]);
 
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/store/user";
-import { useCompanyJobs } from "@/components/company-jobs/useCompanyJobs";
-import { CompanyJobsList } from "@/components/company-jobs/CompanyJobsList";
-import { PostJobDialog } from "@/components/company-jobs/PostJobDialog";
-import { useSession } from "next-auth/react";
-
-export default function CompanyJobsPage() {
-  const { companyId } = useParams<{ companyId: string }>();
-  const router = useRouter();
-  const { token } = useUser();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const {data:session}=useSession()
-  const userId=session?.user?.id
-  const jobsQuery = useCompanyJobs(companyId, token);
-  if(!userId){
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <p className="text-lg text-muted-foreground">
-          Please sign in to manage company jobs.
-        </p>
-        <Button className="mt-4" onClick={() => router.push("/login")}>
-          Go to Login
-        </Button>
-      </div>
-    );
+  if (!session?.token || !session.user?.id || session.user.role !== "RECRUITER") {
+    redirect("/");
   }
-  if (!companyId) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <p className="text-lg text-muted-foreground">
-          Missing company information.
-        </p>
-        <Button className="mt-4" onClick={() => router.back()}>
-          Go Back
-        </Button>
-      </div>
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/company/is-recruiter/${companyId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: session.token,
+        },
+        cache: "no-store",
+      }
     );
-  }
 
-  if (!token) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
-        <p className="text-lg text-muted-foreground">
-          Sign in to manage company jobs.
-        </p>
-        <Button className="mt-4" onClick={() => router.push("/login")}>
-          Go to Login
-        </Button>
-      </div>
-    );
+    if (!res.ok) {
+      redirect("/");
+    }
+
+    const data = await res.json();
+    if (!data?.status) {
+      redirect("/");
+    }
+  } catch {
+    redirect("/");
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-5xl px-6 py-10 space-y-8">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground uppercase tracking-wide">
-              Company Jobs
-            </p>
-            <h1 className="text-3xl font-semibold mt-1">Manage Job Postings</h1>
-            <p className="text-muted-foreground">
-              Post new roles and review everything published under this company.
-            </p>
-          </div>
-          <Button size="lg" onClick={() => setIsDialogOpen(true)}>
-            Post Job
-          </Button>
-        </header>
-
-        <CompanyJobsList
-          jobs={jobsQuery.data}
-          isLoading={jobsQuery.isLoading}
-          isError={jobsQuery.isError}
-          error={jobsQuery.error as Error | null}
-          isRefetching={jobsQuery.isRefetching}
-          onRefresh={() => jobsQuery.refetch()}
-          userId={session?.user?.id || ""}
-        />
-      </div>
-
-      <PostJobDialog
-        companyId={companyId}
-        token={token}
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSuccess={() => jobsQuery.refetch()}
-      />
-    </div>
+    <CompanyJobsClient
+      companyId={companyId}
+      token={session?.token}
+      userId={session?.user?.id}
+    />
   );
 }
+

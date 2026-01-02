@@ -144,4 +144,21 @@ export class CompanyService {
         })
         return company;
     }
+    async isRecruiter(companyId:string,userId:string){
+        const company=await this.databaseService.companies.findUnique({
+            where:{
+                id:companyId
+            },
+            select:{
+                userId:true,
+            },
+        })
+        if(!company){
+            throw new NotFoundException('Company not found');
+        }
+        if(company.userId!==userId){
+            return {status:false,message:'You are not authorized to get this company'};
+        }
+        return {status:true,message:'You are authorized to get this company'};
+    }
 }

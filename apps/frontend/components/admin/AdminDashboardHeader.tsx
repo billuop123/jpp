@@ -24,10 +24,10 @@ export function AdminDashboardHeader({
         <h1 className="text-3xl font-semibold">Admin Dashboard</h1>
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <Button asChild variant="outline" size="sm">
-            <Link href="/candidateadmin">Candidate Admin</Link>
+            <Link href="/admindashboard/candidateadmin">Candidate Admin</Link>
           </Button>
           <Button asChild variant="outline" size="sm">
-            <Link href="/recruiteradmin">Recruiter Admin</Link>
+            <Link href="/admindashboard/recruiteradmin">Recruiter Admin</Link>
           </Button>
           <Button
             variant="destructive"
