@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { BACKEND_URL } from "@/scripts/lib/config";
 import PremiumSection from "@/components/home/PremiumSection";
 import type { Session } from "next-auth";
+import { useUser } from "@/store/user";
+import { usePremiumStatus } from "@/components/jobs/hooks/usePremiumStatus";
 
 interface Props {
   session: Session | null;
@@ -16,8 +18,21 @@ export default function PremiumSectionWithCheckout({ session, isAuthenticated }:
   const [premiumStatus, setPremiumStatus] = useState<string | null>(null);
   const [loadingPremium, setLoadingPremium] = useState(false);
   const router = useRouter();
+  const { token } = useUser();
+  const {
+    isPremium,
+    isTailoringPremium,
+    isMockInterviewsPremium,
+  } = usePremiumStatus(token);
 
-  const handleBuyPremium = async () => {
+  const hasFull =
+    !!isPremium || (!!isTailoringPremium && !!isMockInterviewsPremium);
+  const hasTailoring = !!isPremium || !!isTailoringPremium;
+  const hasMock = !!isPremium || !!isMockInterviewsPremium;
+
+  type PlanType = "TAILORING" | "MOCK" | "FULL";
+
+  const handleBuy = async (planType: PlanType) => {
     if (!session?.user?.email) {
       toast.error("Please sign in to upgrade to premium.");
       router.push("/api/auth/signin");
@@ -32,19 +47,9 @@ export default function PremiumSectionWithCheckout({ session, isAuthenticated }:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mode: "payment",
           success_url: `${window.location.origin}/premium/success`,
           cancel_url: `${window.location.origin}/premium/canceled`,
-          line_items: [
-            {
-              price_data: {
-                currency: "usd",
-                product_data: { name: "Premium Membership" },
-                unit_amount: 1500,
-              },
-              quantity: 1,
-            },
-          ],
+          planType,
           customer_email: session.user.email,
         }),
       });
@@ -71,7 +76,12 @@ export default function PremiumSectionWithCheckout({ session, isAuthenticated }:
       isAuthenticated={isAuthenticated}
       loading={loadingPremium}
       statusMessage={premiumStatus}
-      onBuyPremium={handleBuyPremium}
+      onBuyTailoring={() => handleBuy("TAILORING")}
+      onBuyMock={() => handleBuy("MOCK")}
+      onBuyFull={() => handleBuy("FULL")}
+      hasTailoring={hasTailoring}
+      hasMock={hasMock}
+      hasFull={hasFull}
     />
   );
 }

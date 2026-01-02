@@ -1,14 +1,8 @@
-import { Body, Module, Post } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { QdrantService } from './qdrant.service';
 
 @Module({
   providers: [QdrantService],
+  exports: [QdrantService],
 })
-export class QdrantModule {
-  constructor(private readonly qdrantService: QdrantService) {}
-  @Post('search')
-  async search(@Body() vector: number[]) {
-    return await this.qdrantService.search(vector);
-  }
-
-}
+export class QdrantModule {}

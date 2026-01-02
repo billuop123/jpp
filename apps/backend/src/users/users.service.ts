@@ -267,7 +267,11 @@ export class UsersService {
         if(!user){
             throw new NotFoundException('User not found');
         }
-        return {isPremium: user.isPremium};
+        return {
+            isPremium: user.isPremium,
+            isTailoringPremium: user.isTailoringPremium,
+            isMockInterviewsPremium: user.isMockInterviewsPremium,
+        };
     }
     async userExistsById(userId:string){
         const user=await this.databaseService.users.findUnique({

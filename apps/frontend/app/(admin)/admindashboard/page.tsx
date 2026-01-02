@@ -89,6 +89,58 @@ export default function AdminDashboard() {
     },
   })
 
+  const clearJobsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`${BACKEND_URL}/admin/jobs/clear`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token!,
+        },
+      })
+
+      const res = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to clear jobs')
+      }
+
+      return res
+    },
+    onSuccess: () => {
+      toast.success('Jobs cleared from both databases')
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || 'Failed to clear jobs')
+    },
+  })
+
+  const syncJobsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`${BACKEND_URL}/admin/jobs/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token!,
+        },
+      })
+
+      const res = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(res.message || 'Failed to sync jobs')
+      }
+
+      return res
+    },
+    onSuccess: () => {
+      toast.success('Jobs synced to Qdrant')
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || 'Failed to sync jobs')
+    },
+  })
+
   const handleOpenCompany = (company: Company) => {
     setSelectedCompany(company)
     setIsDialogOpen(true)
@@ -103,7 +155,12 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-6 py-10 space-y-8">
-        <AdminDashboardHeader />
+        <AdminDashboardHeader
+          onClearJobs={() => clearJobsMutation.mutate()}
+          onSyncJobs={() => syncJobsMutation.mutate()}
+          isClearing={clearJobsMutation.isPending}
+          isSyncing={syncJobsMutation.isPending}
+        />
 
         <UnverifiedCompaniesSection
           page={page}

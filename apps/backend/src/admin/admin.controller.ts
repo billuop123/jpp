@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Query, Post } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
@@ -19,5 +19,14 @@ export class AdminController {
     @Patch('verify-company/:id')
     async verifyCompany(@Param('id') id: string) {
         return await this.adminService.verifyCompany(id);
+    }
+    @Post('jobs/clear')
+    async clearJobsFromBothDbs() {
+        return await this.adminService.clearJobsFromBothDbs();
+    }
+
+    @Post('jobs/sync')
+    async syncJobsToQdrant() {
+        return await this.adminService.syncJobsToQdrant();
     }
 }

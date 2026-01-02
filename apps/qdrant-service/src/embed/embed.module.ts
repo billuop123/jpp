@@ -5,5 +5,6 @@ import { EmbedService } from './embed.service';
 @Module({
   controllers: [EmbedController],
   providers: [EmbedService],
+  exports: [EmbedService],
 })
 export class EmbedModule {}

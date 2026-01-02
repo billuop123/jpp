@@ -18,10 +18,22 @@ export class QdrantService {
       this.client.send('insert', { data }),
     );
   }
-async searchJobs(query:string){
-  return await firstValueFrom(
-    this.client.send('search-jobs', { query }),
-  );
-}
+  async searchJobs(query:string){
+    return await firstValueFrom(
+      this.client.send('search-jobs', { query }),
+    );
+  }
+
+  async clearJobs() {
+    return await firstValueFrom(
+      this.client.send('clear-jobs', {}),
+    );
+  }
+
+  async syncJobs() {
+    return await firstValueFrom(
+      this.client.send('sync-jobs', {}),
+    );
+  }
 }
 

@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
+import { QdrantService } from 'src/qdrant/qdrant.service';
 
 @Injectable()
 export class AdminService {
-    constructor(private readonly databaseService: DatabaseService) {}
+    constructor(
+      private readonly databaseService: DatabaseService,
+      private readonly qdrantService: QdrantService,
+    ) {}
     async getRecruiters(page:number,limit:number){
         const recruiters=await this.databaseService.users.findMany({
             where:{
@@ -107,5 +111,19 @@ export class AdminService {
             }
         })
         return companyUpdated;
+    }
+    async clearJobsFromBothDbs() {
+        // Clear relational DB jobs
+        await this.databaseService.jobs.deleteMany({});
+
+        // Clear Qdrant collection
+        await this.qdrantService.clearJobs();
+
+        return { status: true };
+    }
+
+    async syncJobsToQdrant() {
+        const result = await this.qdrantService.syncJobs();
+        return { status: true, ...result };
     }
 }

@@ -62,4 +62,22 @@ export class QdrantService implements OnModuleInit {
     });
   }
 
+  /**
+   * Delete all points from the collection by dropping and recreating it.
+   */
+  async clearCollection() {
+    try {
+      // Drop the collection if it exists
+      await this.client.deleteCollection(this.COLLECTION_NAME);
+    } catch (error: any) {
+      // If collection does not exist, ignore and recreate it below
+      if (error?.status !== 404 && !error?.message?.includes("doesn't exist")) {
+        throw error;
+      }
+    }
+
+    // Recreate the collection so it's ready for new inserts
+    await this.createCollection();
+  }
+
 }

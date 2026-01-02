@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { InsertService } from './insert.service';
 import { InsertController } from './insert.controller';
-import { QdrantService } from 'src/qdrant/qdrant.service';
-import { EmbedService } from 'src/embed/embed.service';
+import { QdrantModule } from 'src/qdrant/qdrant.module';
+import { EmbedModule } from 'src/embed/embed.module';
 
 @Module({
-  providers: [InsertService,QdrantService,EmbedService],
-  controllers: [InsertController]
+  imports: [QdrantModule, EmbedModule],
+  providers: [InsertService],
+  controllers: [InsertController],
+  exports: [InsertService],
 })
 export class InsertModule {}

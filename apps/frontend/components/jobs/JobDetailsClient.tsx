@@ -29,7 +29,7 @@ export function JobDetailsClient({ initialJob, jobid }: JobDetailsClientProps) {
   const { token } = useUser();
   const {data:session}=useSession()
   const { job } = useJobDetails(jobid, initialJob);
-  const { isPremium } = usePremiumStatus(token);
+  const { isPremium, isTailoringPremium } = usePremiumStatus(token);
   const { applicationExistsQuery, canApply, applicationMessage } = useApplication(jobid, token);
   const { tailorResumeMutation } = useTailorResume(jobid, token, job?.title);
 
@@ -102,7 +102,8 @@ export function JobDetailsClient({ initialJob, jobid }: JobDetailsClientProps) {
         repeatDelay={1}
         className="[mask-image:radial-gradient(300px_circle_at_center,white,transparent)]"
       />
-      {isPremium && session?.user?.role === "CANDIDATE" && (
+      {(isPremium || isTailoringPremium) &&
+        session?.user?.role === "CANDIDATE" && (
         <Button
           disabled={!token || tailorResumeMutation.isPending}
           onClick={() => tailorResumeMutation.mutate()}

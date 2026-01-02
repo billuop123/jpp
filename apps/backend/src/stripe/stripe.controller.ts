@@ -9,8 +9,21 @@ export class StripeController {
       return await this.stripeService.createIntent(body.amount, body.currency, body.receipt_email);
     }
     @Post('create-checkout-session')
-    async createCheckoutSession(@Body() body: { line_items: any[], success_url: string, cancel_url: string, mode: string }) {
-      return await this.stripeService.createCheckoutsession(body.line_items, body.success_url, body.cancel_url, body.mode);
+    async createCheckoutSession(
+      @Body()
+      body: {
+        planType: 'TAILORING' | 'MOCK' | 'FULL';
+        success_url: string;
+        cancel_url: string;
+        customer_email: string;
+      },
+    ) {
+      return await this.stripeService.createCheckoutsession(
+        body.planType,
+        body.success_url,
+        body.cancel_url,
+        body.customer_email,
+      );
     }
     @Post('check-session')
     async checkSession(@Query('session_id') session_id:string,@Body() body: { customer_email: string }){

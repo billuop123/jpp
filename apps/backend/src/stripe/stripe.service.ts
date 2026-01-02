@@ -30,28 +30,80 @@ export class StripeService {
   
       return { mock: false };
     }
-    async createCheckoutsession(line_items:any[],success_url:string,cancel_url:string,mode="payment"){
-        if(!Array.isArray(line_items) || line_items.length === 0){
-            throw new BadRequestException('Line items (array of objects) required');
-        }
+    async createCheckoutsession(
+      planType: 'TAILORING' | 'MOCK' | 'FULL',
+      success_url: string,
+      cancel_url: string,
+      customer_email: string,
+    ){
         if(!this.stripe){
             throw new InternalServerErrorException('Stripe is not configured');
         }
+        let amount = 0;
+        let productName = '';
+
+        switch (planType) {
+          case 'TAILORING':
+            amount = 500; // $5.00
+            productName = 'Tailored Resume Access';
+            break;
+          case 'MOCK':
+            amount = 500; // $5.00
+            productName = 'Mock Interviews Access';
+            break;
+          case 'FULL':
+          default:
+            amount = 800; // $8.00 for full premium
+            productName = 'Full Premium (Tailoring + Mock Interviews)';
+            break;
+        }
+
         const session=  await this.stripe?.checkout.sessions.create({
-            line_items,
+            line_items: [
+              {
+                price_data: {
+                  currency: "usd",
+                  product_data: { name: productName },
+                  unit_amount: amount,
+                },
+                quantity: 1,
+              },
+            ],
             success_url:success_url+"?session_id={CHECKOUT_SESSION_ID}",
             cancel_url:cancel_url+"?session_id={CHECKOUT_SESSION_ID}",
-            mode: mode as any,
+            mode: "payment",
+            customer_email,
+            metadata: {
+              planType,
+            },
         });
         return {url:session?.url}
     }
     async checkSession(session_id:string,customer_email:string){
         const session=await this.stripe?.checkout.sessions.retrieve(session_id);
         if(session?.status==="complete" && customer_email){
-            await this.databaseService.users.update({
-                where: { email: customer_email },
-                data: { isPremium: true },
-            });
+          const planType = session?.metadata?.planType as
+            | 'TAILORING'
+            | 'MOCK'
+            | 'FULL'
+            | undefined;
+
+          const data: any = {};
+          if (planType === 'TAILORING') {
+            data.isTailoringPremium = true;
+          } else if (planType === 'MOCK') {
+            data.isMockInterviewsPremium = true;
+          } else {
+            // FULL or unknown defaults to full premium
+            data.isPremium = true;
+            data.isTailoringPremium = true;
+            data.isMockInterviewsPremium = true;
+          }
+
+          await this.databaseService.users.update({
+              where: { email: customer_email },
+              data,
+          });
         }
         else{
             throw new BadRequestException('Payment is not complete');

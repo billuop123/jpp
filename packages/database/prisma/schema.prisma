@@ -35,6 +35,8 @@ model Users {
   applications applications[]
   roleId String?
   isPremium Boolean @default(false)
+  isTailoringPremium Boolean @default(false)
+  isMockInterviewsPremium Boolean @default(false)
   role Roles? @relation(fields: [roleId], references: [id],onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
