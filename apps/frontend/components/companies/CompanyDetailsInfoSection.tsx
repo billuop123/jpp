@@ -1,13 +1,16 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import type { Company } from "./types";
 
 interface CompanyDetailsInfoSectionProps {
   company: Company;
+  onOpenPdf?: (url: string) => void;
 }
 
 export function CompanyDetailsInfoSection({
   company,
+  onOpenPdf,
 }: CompanyDetailsInfoSectionProps) {
   return (
     <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -33,14 +36,24 @@ export function CompanyDetailsInfoSection({
       </InfoTile>
       <InfoTile label="Incorporation document">
         {company.incorporationLink ? (
-          <a
-            href={company.incorporationLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline underline-offset-2"
-          >
-            View PDF
-          </a>
+          onOpenPdf ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenPdf(company.incorporationLink!)}
+            >
+              View PDF
+            </Button>
+          ) : (
+            <a
+              href={company.incorporationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2"
+            >
+              View PDF
+            </a>
+          )
         ) : (
           <span className="text-muted-foreground">Not uploaded</span>
         )}

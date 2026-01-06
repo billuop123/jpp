@@ -23,6 +23,19 @@ export default function CompanyDetailsPage() {
   const { token } = useUser();
   const router = useRouter();
 
+  const openPdfInBrowser = async (url: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const pdfUrl = URL.createObjectURL(
+        new Blob([blob], { type: "application/pdf" })
+      );
+      window.open(pdfUrl, "_blank", "noopener,noreferrer");
+    } catch {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const {
     data,
     isLoading,
@@ -77,7 +90,10 @@ export default function CompanyDetailsPage() {
               companytypeDescription={data.companytype?.description}
               isAssociated={data.isAssociated}
             />
-            <CompanyDetailsInfoSection company={data} />
+            <CompanyDetailsInfoSection
+              company={data}
+              onOpenPdf={openPdfInBrowser}
+            />
           </>
         )}
       </div>

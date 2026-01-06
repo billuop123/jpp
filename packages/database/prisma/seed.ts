@@ -65,6 +65,25 @@ const companySettingsDefaults = [
   },
 ];
 
+const sampleJobs = [
+  {
+    title: "Software Engineer",
+    description:
+      "Join our team as a Software Engineer working with modern web technologies.",
+    location: "Remote",
+    isRemote: true,
+    skills: ["TypeScript", "Node.js", "React"],
+  },
+  {
+    title: "Product Manager",
+    description:
+      "Drive product strategy, roadmap, and delivery in a fast-paced environment.",
+    location: "Hybrid - San Francisco, CA",
+    isRemote: false,
+    skills: ["Product Management", "Agile", "Communication"],
+  },
+];
+
 export default async function seed() {
   for (const role of roles) {
     await prisma.roles.upsert({
@@ -133,6 +152,41 @@ export default async function seed() {
         });
       }
     }
+  }
+
+  // Seed example jobs for companies that don't have any yet
+  const jobTypesInDb = await prisma.jobtypes.findMany({
+    select: { id: true, name: true },
+  });
+
+  if (jobTypesInDb.length === 0) {
+    console.warn("No job types found – skipping job seeding.");
+    return;
+  }
+
+  const defaultJobTypeId =
+    jobTypesInDb.find((jt) => jt.name === "full-time")?.id ??
+    jobTypesInDb[0]?.id;
+
+  for (const company of companies) {
+    const existingJob = await prisma.jobs.findFirst({
+      where: { companyId: company.id },
+    });
+
+    // Keep seed idempotent – don't add jobs if this company already has any
+    if (existingJob) continue;
+
+    await prisma.jobs.createMany({
+      data: sampleJobs.map((job) => ({
+        title: job.title,
+        description: job.description,
+        companyId: company.id,
+        jobtypeId: defaultJobTypeId,
+        location: job.location,
+        isRemote: job.isRemote,
+        skills: job.skills,
+      })),
+    });
   }
 }
 
