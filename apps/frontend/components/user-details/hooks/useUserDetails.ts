@@ -4,14 +4,18 @@ import { toast } from "sonner";
 import { fetchUserDetails } from "@/app/lib/queryfunctions/jobsqueryfunctions";
 import { UserDetailsResponse } from "../types";
 
-export function useUserDetails(token: string | null) {
+export function useUserDetails(
+  token: string | null,
+  initialData?: UserDetailsResponse | null
+) {
   const router = useRouter();
 
   const userDetailsQuery = useQuery<UserDetailsResponse, Error>({
     queryKey: ["user-details-self"],
-    enabled: !!token,
+    enabled: !!token && !initialData,
     retry: false,
     queryFn: () => fetchUserDetails(token as string),
+    initialData: initialData ?? undefined,
     // @ts-expect-error onError is available at runtime but missing in our types
     onError: (error: Error) => {
       if (error.message === "Invalid token") {

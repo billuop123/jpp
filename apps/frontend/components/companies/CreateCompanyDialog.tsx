@@ -17,6 +17,7 @@ import { CompanyTypeDropdown } from "@/components/ui/company-type-dropdown";
 import { BACKEND_URL } from "@/scripts/lib/config";
 import { useUser } from "@/store/user";
 import { toast } from "sonner";
+import type { Company } from "@/components/companies/types";
 
 interface CompanyTypeApi {
   id: string;
@@ -27,7 +28,7 @@ interface CompanyTypeApi {
 interface CreateCompanyDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess?: () => void;
+  onSuccess?: (company: Company) => void;
 }
 
 export function CreateCompanyDialog({
@@ -106,9 +107,9 @@ export function CreateCompanyDialog({
         }
       }
 
-      return res;
+      return res as Company;
     },
-    onSuccess: () => {
+    onSuccess: (createdCompany: Company) => {
       toast.success("Company created successfully!");
       onOpenChange(false);
       // Reset form
@@ -118,7 +119,7 @@ export function CreateCompanyDialog({
       setCompanyLogo("");
       setCompanyType("");
       setIncorporationFile(null);
-      onSuccess?.();
+      onSuccess?.(createdCompany);
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to create company");

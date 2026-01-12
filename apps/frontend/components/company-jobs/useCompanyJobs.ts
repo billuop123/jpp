@@ -5,10 +5,15 @@ import { useQuery } from "@tanstack/react-query";
 import { BACKEND_URL } from "@/scripts/lib/config";
 import { Job } from "@/components/jobs/types";
 
-export function useCompanyJobs(companyId?: string, token?: string | null) {
+export function useCompanyJobs(
+  companyId?: string,
+  token?: string | null,
+  initialJobs?: Job[]
+) {
   return useQuery<Job[]>({
     queryKey: ["company-jobs", companyId],
-    enabled: Boolean(companyId && token),
+    enabled: Boolean(companyId && token) && initialJobs === undefined,
+    initialData: initialJobs,
     queryFn: async () => {
       const response = await fetch(
         `${BACKEND_URL}/company/company-jobs/${companyId}`,
@@ -28,8 +33,8 @@ export function useCompanyJobs(companyId?: string, token?: string | null) {
       const jobIds: { id: string }[] = Array.isArray(raw)
         ? raw
         : Array.isArray(raw?.jobs)
-          ? raw.jobs
-          : [];
+        ? raw.jobs
+        : [];
 
       if (!jobIds.length) {
         return [];

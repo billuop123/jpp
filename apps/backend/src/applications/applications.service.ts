@@ -24,7 +24,14 @@ export class ApplicationsService {
             this.logger.error('User ID not found in request');
             throw new UnauthorizedException('User ID not found in token');
         }
-
+        const user=await this.databaseService.users.findUnique({
+            where:{
+                id:userId,
+            }
+        });
+        if(!user){
+            throw new BadRequestException('User not found');
+        }
         if(typeof userId !== 'string'){
             this.logger.error(`Invalid userId type: ${typeof userId}, value: ${userId}`);
             throw new BadRequestException('Invalid user ID format');

@@ -87,14 +87,16 @@ export class AppModule implements NestModule {
         { path: 'gemini/resume-text-extraction', method: RequestMethod.POST },
         { path: 'company/upload-incorporation-pdf/:companyId', method: RequestMethod.PUT },
         { path: 'company/is-recruiter/:companyId', method: RequestMethod.GET },
+
       );
       
   consumer
       .apply(IsCandidate)
       .forRoutes(
         // { path: 'applications', method: RequestMethod.ALL },
+        {path:'applications/',method:RequestMethod.POST},
         { path: 'resume-tailoring/:jobId', method: RequestMethod.GET },
-      );
+      );    
   }
 
 }

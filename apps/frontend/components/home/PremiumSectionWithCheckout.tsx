@@ -6,29 +6,34 @@ import { toast } from "sonner";
 import { BACKEND_URL } from "@/scripts/lib/config";
 import PremiumSection from "@/components/home/PremiumSection";
 import type { Session } from "next-auth";
-import { useUser } from "@/store/user";
-import { usePremiumStatus } from "@/components/jobs/hooks/usePremiumStatus";
 
 interface Props {
   session: Session | null;
   isAuthenticated: boolean;
+  premiumAccess: {
+    isPremium: boolean;
+    isTailoringPremium?: boolean;
+    isMockInterviewsPremium?: boolean;
+  } | null;
 }
 
-export default function PremiumSectionWithCheckout({ session, isAuthenticated }: Props) {
-  const [premiumStatus, setPremiumStatus] = useState<string | null>(null);
+export default function PremiumSectionWithCheckout({
+  session,
+  isAuthenticated,
+  premiumAccess,
+}: Props) {
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [loadingPremium, setLoadingPremium] = useState(false);
   const router = useRouter();
-  const { token } = useUser();
-  const {
-    isPremium,
-    isTailoringPremium,
-    isMockInterviewsPremium,
-  } = usePremiumStatus(token);
 
   const hasFull =
-    !!isPremium || (!!isTailoringPremium && !!isMockInterviewsPremium);
-  const hasTailoring = !!isPremium || !!isTailoringPremium;
-  const hasMock = !!isPremium || !!isMockInterviewsPremium;
+    !!premiumAccess?.isPremium ||
+    (!!premiumAccess?.isTailoringPremium &&
+      !!premiumAccess?.isMockInterviewsPremium);
+  const hasTailoring =
+    !!premiumAccess?.isPremium || !!premiumAccess?.isTailoringPremium;
+  const hasMock =
+    !!premiumAccess?.isPremium || !!premiumAccess?.isMockInterviewsPremium;
 
   type PlanType = "TAILORING" | "MOCK" | "FULL";
 
@@ -40,7 +45,7 @@ export default function PremiumSectionWithCheckout({ session, isAuthenticated }:
     }
 
     setLoadingPremium(true);
-    setPremiumStatus(null);
+    setStatusMessage(null);
 
     try {
       const checkoutRes = await fetch(`${BACKEND_URL}/stripe/create-checkout-session`, {
@@ -65,7 +70,7 @@ export default function PremiumSectionWithCheckout({ session, isAuthenticated }:
         throw new Error("Stripe checkout URL missing in response.");
       }
     } catch (error: any) {
-      setPremiumStatus(error.message || "Unexpected error creating checkout session.");
+      setStatusMessage(error.message || "Unexpected error creating checkout session.");
     } finally {
       setLoadingPremium(false);
     }
@@ -75,7 +80,7 @@ export default function PremiumSectionWithCheckout({ session, isAuthenticated }:
     <PremiumSection
       isAuthenticated={isAuthenticated}
       loading={loadingPremium}
-      statusMessage={premiumStatus}
+      statusMessage={statusMessage}
       onBuyTailoring={() => handleBuy("TAILORING")}
       onBuyMock={() => handleBuy("MOCK")}
       onBuyFull={() => handleBuy("FULL")}

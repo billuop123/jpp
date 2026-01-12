@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { Job } from "@/components/jobs/types";
+import type { Job } from "@/components/jobs/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {

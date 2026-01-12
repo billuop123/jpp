@@ -17,7 +17,18 @@ import {
   CtaButtons,
 } from "./HomeClientHooks";
 
-export default function HomePage({ session }: { session: Session | null }) {
+type PremiumStatus = {
+  isPremium: boolean;
+  isTailoringPremium?: boolean;
+  isMockInterviewsPremium?: boolean;
+};
+
+interface HomePageProps {
+  session: Session | null;
+  premiumStatus: PremiumStatus | null;
+}
+
+export default function HomePage({ session, premiumStatus }: HomePageProps) {
   const isAuthenticated = !!session;
 
   return (
@@ -93,6 +104,7 @@ export default function HomePage({ session }: { session: Session | null }) {
           <PremiumSectionWithCheckout
             session={session}
             isAuthenticated={isAuthenticated}
+            premiumAccess={premiumStatus}
           />
         </section>
 

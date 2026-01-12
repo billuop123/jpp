@@ -2,10 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { fetchJobs, fetchResumeText, fetchTopViewedJobs, fetchUserDetails } from "@/app/lib/queryfunctions/jobsqueryfunctions";
+import {
+  fetchJobs,
+  fetchResumeText,
+  fetchTopViewedJobs,
+  fetchUserDetails,
+} from "@/app/lib/queryfunctions/jobsqueryfunctions";
 import { JobListItem, JobsResponse } from "../types";
 
-export function useJobs(token: string | null, role: string | null) {
+export function useJobs(
+  token: string | null,
+  role: string | null,
+  initialTopViewedJobs?: JobsResponse
+) {
   const router = useRouter();
   const canFetchUser = !!token && role === "CANDIDATE";
 
@@ -37,9 +46,11 @@ export function useJobs(token: string | null, role: string | null) {
   }, [userQuery.data, router, role]);
 
   const topViewedJobsQuery = useQuery({
-    queryKey: ['top-viewed-jobs'],
+    queryKey: ["top-viewed-jobs"],
     retry: false,
     queryFn: () => fetchTopViewedJobs(),
+    initialData: initialTopViewedJobs,
+    enabled: !initialTopViewedJobs,
   });
 
   useEffect(() => {

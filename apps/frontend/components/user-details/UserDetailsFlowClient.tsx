@@ -16,14 +16,26 @@ import SuccessStep from "./SuccessStep";
 import { ErrorDisplay } from "./ErrorDisplay";
 import { Step, ExtractedData } from "./types";
 
-export function UserDetailsFlowClient() {
+import type { UserDetailsResponse } from "./types";
+
+interface UserDetailsFlowClientProps {
+  initialUserDetails: UserDetailsResponse | null;
+}
+
+export function UserDetailsFlowClient({
+  initialUserDetails,
+}: UserDetailsFlowClientProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [isReuploading, setIsReuploading] = useState(false);
   const { token } = useUser();
   const router = useRouter();
 
-  const { userDetailsQuery, userDetailsData, hasResume, isUserDetailsNotFound } =
-    useUserDetails(token);
+  const {
+    userDetailsQuery,
+    userDetailsData,
+    hasResume,
+    isUserDetailsNotFound,
+  } = useUserDetails(token, initialUserDetails);
 
   const mappedUserDetails = useMappedUserDetails(userDetailsData);
 

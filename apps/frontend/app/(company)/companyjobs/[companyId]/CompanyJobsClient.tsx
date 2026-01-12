@@ -7,22 +7,29 @@ import { Button } from "@/components/ui/button";
 import { useCompanyJobs } from "@/components/company-jobs/useCompanyJobs";
 import { CompanyJobsList } from "@/components/company-jobs/CompanyJobsList";
 import { PostJobDialog } from "@/components/company-jobs/PostJobDialog";
+import type { Job } from "@/components/jobs/types";
 
 interface CompanyJobsClientProps {
   companyId?: string;
   token?: string | null;
   userId?: string | null;
+  initialJobs?: Job[] | null;
 }
 
 export function CompanyJobsClient({
   companyId,
   token,
   userId,
+  initialJobs,
 }: CompanyJobsClientProps) {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const jobsQuery = useCompanyJobs(companyId, token ?? undefined);
+  const jobsQuery = useCompanyJobs(
+    companyId,
+    token ?? undefined,
+    initialJobs ?? undefined
+  );
 
   if (!userId) {
     return (

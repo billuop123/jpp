@@ -1,193 +1,92 @@
-"use client";
-import { useParams, useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { BACKEND_URL } from '@/scripts/lib/config';
-import { useUser } from '@/store/user';
-import { Button } from '@/components/ui/button';
-import LoadingStep from '@/components/LoadingStep';
-import { InterviewHeader } from '@/components/interview/InterviewHeader';
-import { InterviewControls } from '@/components/interview/InterviewControls';
-import { useInterview } from '@/components/interview/useInterview';
-import { useEffect } from 'react';
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
-export default function InterviewPage() {
-  const { applicationId } = useParams<{ applicationId: string }>();
-  const { token } = useUser();
-  const router=useRouter()
-  const interviewExistsQuery = useQuery({
-    queryKey: ['interview-exists', applicationId],
-    queryFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/applications/${applicationId}/interview-exists`, {
-        method: 'GET',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to check if interview exists');
-      }
-      const status=await response.json()
-      if(status.status){
-        router.push(`/interview/analysis/${applicationId}`);
-      }
-      return status;
-    },
-    enabled: !!applicationId,
-    retry: false,
-  });
-  useEffect(()=>{
-    if(interviewExistsQuery.isSuccess){
-      if(interviewExistsQuery.data?.status){
-        router.push(`/interview/analysis/${applicationId}`);
-      }
+import { BACKEND_URL } from "@/scripts/lib/config";
+import { authOptions } from "@/scripts/authOptions";
+import type { ApplicationData } from "@/components/interview/types";
+import InterviewPageClient from "@/components/interview/InterviewPageClient";
+
+interface PageProps {
+  params: {
+    applicationId: string;
+  };
+}
+
+async function checkInterviewExists(applicationId: string): Promise<boolean> {
+  const response = await fetch(
+    `${BACKEND_URL}/applications/${applicationId}/interview-exists`,
+    {
+      method: "GET",
+      cache: "no-store",
     }
-  },[interviewExistsQuery.isSuccess]);
-  const applicationQuery = useQuery({
-    queryKey: ['application', applicationId],
-    queryFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/applications/${applicationId}`, {
-        headers: {
-          'Authorization': token!,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch application details');
-      }
-      return response.json();
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to check if interview exists");
+  }
+  const status = await response.json();
+  return !!status.status;
+}
+
+async function getApplication(
+  applicationId: string,
+  token: string
+): Promise<ApplicationData> {
+  const response = await fetch(`${BACKEND_URL}/applications/${applicationId}`, {
+    headers: {
+      Authorization: token,
     },
-    enabled: !!token && !!applicationId,
-    retry: false,
+    cache: "no-store",
   });
-  const clientKeyQuery = useQuery({
-    queryKey: ['vapi-client-key'],
-    retry: false,
-    enabled: !!token && !!applicationId,
-    queryFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/vapi/client-key`, {
-        headers: {
-          'Authorization': token!,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to get VAPI client key');
-      }
-      return response.json();
+  if (!response.ok) {
+    throw new Error("Failed to fetch application details");
+  }
+  return (await response.json()) as ApplicationData;
+}
+
+async function getClientKey(token: string): Promise<string> {
+  const response = await fetch(`${BACKEND_URL}/vapi/client-key`, {
+    headers: {
+      Authorization: token,
     },
+    cache: "no-store",
   });
+  if (!response.ok) {
+    throw new Error("Failed to get VAPI client key");
+  }
+  const data = await response.json();
+  return data.key as string;
+}
 
-  const assistantQuery = useQuery({
-    queryKey: ['vapi-assistant', applicationId],
-    queryFn: async () => {
-      const response = await fetch(`${BACKEND_URL}/vapi/call-assistant/${applicationId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token!,
-        },
-        body: JSON.stringify({}),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create assistant');
-      }
-      return response.json();
-    },
-    enabled: !!token && !!applicationId && !!clientKeyQuery.data,
-    retry: false,
-  });
+export default async function InterviewPage({ params }: PageProps) {
+  const { applicationId } = params;
 
-  const interview = useInterview({
-    applicationId: applicationId as string,
-    apiKey: clientKeyQuery.data?.key || '',
-    assistantId: assistantQuery.data?.assistantId || '',
-    token: token || '',
-  });
+  const session = await getServerSession(authOptions);
+  const token = session?.token ?? null;
 
-  const isLoading = 
-    applicationQuery.isLoading || 
-    clientKeyQuery.isLoading || 
-    assistantQuery.isLoading;
-  const error = applicationQuery.error || clientKeyQuery.error || assistantQuery.error;
-
-  if (!token) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <p className="text-lg text-muted-foreground mb-4">
-          Please sign in to start the interview.
-        </p>
-      </div>
-    );
+  // If interview already exists, redirect to analysis
+  const exists = await checkInterviewExists(applicationId);
+  if (exists) {
+    redirect(`/interview/analysis/${applicationId}`);
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-destructive mb-2">Error</h2>
-          <p className="text-destructive/80 mb-4">
-            {error instanceof Error ? error.message : 'Failed to initialize interview'}
-          </p>
-          <Button
-            onClick={() => {
-              applicationQuery.refetch();
-              clientKeyQuery.refetch();
-              assistantQuery.refetch();
-            }}
-            variant="destructive"
-          >
-            Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  let application: ApplicationData | null = null;
+  let clientKey: string | null = null;
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <LoadingStep message="Initializing interview session..." />
-      </div>
-    );
-  }
-
-  if (interview.isConnecting) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <LoadingStep message="Connecting to interview session..." />
-      </div>
-    );
-  }
-
-  if (interview.isSubmitting) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <LoadingStep message="Submitting interview and analyzing responses..." />
-      </div>
-    );
-  }
-
-  if (!applicationQuery.data?.job) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-destructive mb-2">Error</h2>
-          <p className="text-destructive/80">Job information not found</p>
-        </div>
-      </div>
-    );
+  if (token) {
+    [application, clientKey] = await Promise.all([
+      getApplication(applicationId, token),
+      getClientKey(token),
+    ]);
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
-        <InterviewHeader job={applicationQuery.data.job} />
-        
-        <InterviewControls
-          isConnected={interview.isConnected}
-          isSpeaking={interview.isSpeaking}
-          timeRemaining={interview.timeRemaining}
-          onStart={interview.startCall}
-          onEnd={interview.endInterview}
-          disabled={!assistantQuery.data?.assistantId || !clientKeyQuery.data?.key}
-        />
-      </div>
-    </div>
+    <InterviewPageClient
+      applicationId={applicationId}
+      token={token}
+      initialApplication={application}
+      clientKey={clientKey}
+    />
   );
 }
+
