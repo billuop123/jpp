@@ -8,33 +8,33 @@ import CandidateUserProfilePageClient, {
 } from "@/components/applications/CandidateUserProfilePageClient";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     applicationId: string;
     userId: string;
-  };
+  }>;
 }
 
 async function getUserDetails(
   userId: string,
   token: string
 ): Promise<UserDetailsResponse> {
-  const response = await fetch(
-    `${BACKEND_URL}/applications/user-details/${userId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
+      const response = await fetch(
+        `${BACKEND_URL}/applications/user-details/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
         Authorization: token,
-      },
+          },
       cache: "no-store",
-    }
-  );
+        }
+      );
 
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to fetch user details");
-  }
-  return data as UserDetailsResponse;
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch user details");
+      }
+      return data as UserDetailsResponse;
 }
 
 export default async function CandidateUserProfilePage({ params }: PageProps) {
@@ -44,7 +44,7 @@ export default async function CandidateUserProfilePage({ params }: PageProps) {
     redirect("/login");
   }
 
-  const { applicationId, userId } = params;
+  const { applicationId, userId } = await params;
 
   const userDetails = await getUserDetails(userId, session.token);
 

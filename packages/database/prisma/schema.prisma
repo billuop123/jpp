@@ -33,6 +33,7 @@ model Users {
   company Companies[]
   userDetails UserDetails?
   applications applications[]
+  mockInterviews MockInterview[]
   roleId String?
   isPremium Boolean @default(false)
   isTailoringPremium Boolean @default(false)
@@ -144,12 +145,36 @@ model jobs{
   isfeatured Boolean @default(false)
   postedBy String?
   applications applications[]
+  mockInterviews MockInterview[]
   deadline DateTime?
   company Companies @relation(fields: [companyId], references: [id],onDelete: Cascade)
   jobtype jobtypes @relation(fields: [jobtypeId], references: [id],onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
+}
+
+model MockInterview{
+  id String @id @default(uuid())
+  userId String
+  jobId String
+  conversationHistory String?
+  relevanceScore Int?
+  relevancecomment String?
+  technicalScore Int?
+  communicationScore Int?
+  problemSolvingScore Int?
+  jobRelevanceScore Int?
+  depthOfKnowledgeScore Int?
+  strengths String?
+  weaknesses String?
+  /// JSON blob with per-question feedback, e.g. [{question, answer, feedback, scores:{...}}, ...]
+  answerFeedback Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job jobs @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
 model applicationstatus{

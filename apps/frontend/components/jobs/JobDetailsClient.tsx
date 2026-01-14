@@ -29,7 +29,7 @@ export function JobDetailsClient({ initialJob, jobid }: JobDetailsClientProps) {
   const { token } = useUser();
   const {data:session}=useSession()
   const { job } = useJobDetails(jobid, initialJob);
-  const { isPremium, isTailoringPremium } = usePremiumStatus(token);
+  const { isPremium, isTailoringPremium, isMockInterviewsPremium } = usePremiumStatus(token);
   const { applicationExistsQuery, canApply, applicationMessage } = useApplication(jobid, token);
   const { tailorResumeMutation } = useTailorResume(jobid, token, job?.title);
 
@@ -102,15 +102,26 @@ export function JobDetailsClient({ initialJob, jobid }: JobDetailsClientProps) {
         repeatDelay={1}
         className="[mask-image:radial-gradient(300px_circle_at_center,white,transparent)]"
       />
-      {(isPremium || isTailoringPremium) &&
-        session?.user?.role === "CANDIDATE" && (
-        <Button
-          disabled={!token || tailorResumeMutation.isPending}
-          onClick={() => tailorResumeMutation.mutate()}
-          className="fixed top-4 right-4 z-20"
-        >
-          {tailorResumeMutation.isPending ? "Generating..." : "Tailor Resume"}
-        </Button>
+      {session?.user?.role === "CANDIDATE" && (
+        <div className="fixed top-4 right-4 z-20 flex flex-col items-end gap-2">
+          {(isPremium || isTailoringPremium) && (
+            <Button
+              disabled={!token || tailorResumeMutation.isPending}
+              onClick={() => tailorResumeMutation.mutate()}
+            >
+              {tailorResumeMutation.isPending ? "Generating..." : "Tailor Resume"}
+            </Button>
+          )}
+          {(isPremium || isMockInterviewsPremium) && (
+            <Button
+              variant="outline"
+              disabled={!token}
+              onClick={() => router.push(`/mock/${jobid}`)}
+            >
+              Start Mock Interview
+            </Button>
+          )}
+        </div>
       )}
       <div className="relative z-10">
         <JobHeader

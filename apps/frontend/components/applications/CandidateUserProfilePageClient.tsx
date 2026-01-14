@@ -190,15 +190,22 @@ function DetailItem({
   value,
 }: {
   label: string;
-  value: string | null | undefined;
+  value: string | number | null | undefined;
 }) {
+  const text =
+    typeof value === "string"
+      ? value
+      : typeof value === "number"
+      ? String(value)
+      : "";
+
   return (
     <div className="rounded-lg border bg-muted/40 px-3 py-2">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">
         {label}
       </p>
       <p className="text-sm font-medium">
-        {value && value.trim().length > 0 ? value : "—"}
+        {text && text.trim().length > 0 ? text : "—"}
       </p>
     </div>
   );
@@ -211,7 +218,7 @@ function LinkItem({
   label: string;
   href: string | null | undefined;
 }) {
-  const hasLink = href && href.trim().length > 0;
+  const hasLink = typeof href === "string" && href.trim().length > 0;
 
   if (!hasLink) {
     return (

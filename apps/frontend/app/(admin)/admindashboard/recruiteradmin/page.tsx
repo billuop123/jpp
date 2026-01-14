@@ -37,20 +37,20 @@ export default async function RecruiterAdminPage({ searchParams }: PageProps) {
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 2;
 
-  const response = await fetch(
-    `${BACKEND_URL}/admin/recruiters?page=${page}&limit=${limit}`,
-    {
-      headers: {
+      const response = await fetch(
+        `${BACKEND_URL}/admin/recruiters?page=${page}&limit=${limit}`,
+        {
+          headers: {
         "Content-Type": "application/json",
         Authorization: session.token,
-      },
+          },
       cache: "no-store",
     }
   );
 
-  if (!response.ok) {
+      if (!response.ok) {
     throw new Error("Failed to fetch recruiters");
-  }
+      }
 
   const recruiters = (await response.json()) as Recruiter[];
 

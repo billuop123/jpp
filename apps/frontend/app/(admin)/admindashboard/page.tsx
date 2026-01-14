@@ -23,10 +23,10 @@ export default async function AdminDashboard({ searchParams }: PageProps) {
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 5;
 
-  const response = await fetch(
-    `${BACKEND_URL}/admin/unverified-companies?page=${page}&limit=${limit}`,
-    {
-      headers: {
+      const response = await fetch(
+        `${BACKEND_URL}/admin/unverified-companies?page=${page}&limit=${limit}`,
+        {
+          headers: {
         "Content-Type": "application/json",
         Authorization: session.token,
       },
@@ -34,7 +34,7 @@ export default async function AdminDashboard({ searchParams }: PageProps) {
     }
   );
 
-  if (!response.ok) {
+      if (!response.ok) {
     throw new Error("Failed to fetch unverified companies");
   }
 
@@ -43,9 +43,9 @@ export default async function AdminDashboard({ searchParams }: PageProps) {
   return (
     <AdminDashboardPageClient
       companies={companies}
-      page={page}
-      limit={limit}
+          page={page}
+          limit={limit}
       token={session.token}
-    />
+      />
   );
 }

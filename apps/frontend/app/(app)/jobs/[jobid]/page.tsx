@@ -1,16 +1,18 @@
 import { BACKEND_URL } from "@/scripts/lib/config";
-import { Job } from "@/components/jobs/types";
+import type { Job } from "@/components/jobs/types";
 import { JobDetailsClient } from "@/components/jobs/JobDetailsClient";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface JobDetailsPageProps {
-  params: Promise<{ jobid: string }>;
+  params: Promise<{
+    jobid: string;
+  }>;
 }
 
 async function getJob(jobid: string): Promise<Job> {
   const response = await fetch(`${BACKEND_URL}/jobs/${jobid}`, {
-    cache: "no-store", 
+    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -27,7 +29,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
     const job = await getJob(jobid);
 
     return <JobDetailsClient initialJob={job} jobid={jobid} />;
-  } catch (error) {
+  } catch (_error) {
     return (
       <div className="min-h-[calc(100vh-8rem)] flex flex-col items-center justify-center">
         <p className="text-muted-foreground">Failed to load job details</p>
@@ -38,3 +40,4 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
     );
   }
 }
+

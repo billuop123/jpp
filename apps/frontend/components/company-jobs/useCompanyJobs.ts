@@ -33,8 +33,8 @@ export function useCompanyJobs(
       const jobIds: { id: string }[] = Array.isArray(raw)
         ? raw
         : Array.isArray(raw?.jobs)
-        ? raw.jobs
-        : [];
+          ? raw.jobs
+          : [];
 
       if (!jobIds.length) {
         return [];

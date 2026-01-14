@@ -7,9 +7,9 @@ import { BACKEND_URL } from "@/scripts/lib/config";
 import type { Job } from "@/components/jobs/types";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     companyId: string;
-  };
+  }>;
 }
 
 async function ensureRecruiterForCompany(
@@ -17,22 +17,22 @@ async function ensureRecruiterForCompany(
   token: string
 ): Promise<void> {
   const res = await fetch(`${BACKEND_URL}/company/is-recruiter/${companyId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
       Authorization: token,
-    },
-    cache: "no-store",
+        },
+        cache: "no-store",
   });
 
-  if (!res.ok) {
-    redirect("/");
-  }
+    if (!res.ok) {
+      redirect("/");
+    }
 
-  const data = await res.json();
-  if (!data?.status) {
-    redirect("/");
-  }
+    const data = await res.json();
+    if (!data?.status) {
+      redirect("/");
+    }
 }
 
 async function getCompanyJobs(
@@ -88,7 +88,7 @@ export default async function CompanyJobsPage({ params }: PageProps) {
     redirect("/");
   }
 
-  const { companyId } = params;
+  const { companyId } = await params;
 
   await ensureRecruiterForCompany(companyId, session.token);
 

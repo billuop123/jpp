@@ -25,6 +25,7 @@ import { ResumeTailoringModule } from './resume-tailoring/resume-tailoring.modul
 import { VapiModule } from './vapi/vapi.module';
 import { GeminiModule } from './gemini/gemini.module';
 import { AdminModule } from './admin/admin.module';
+import { MockInterviewsModule } from './mock-interviews/mock-interviews.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { AdminModule } from './admin/admin.module';
     VapiModule,
     GeminiModule,
     AdminModule,
+    MockInterviewsModule,
 
   ],
   controllers: [AppController],
@@ -87,6 +89,10 @@ export class AppModule implements NestModule {
         { path: 'gemini/resume-text-extraction', method: RequestMethod.POST },
         { path: 'company/upload-incorporation-pdf/:companyId', method: RequestMethod.PUT },
         { path: 'company/is-recruiter/:companyId', method: RequestMethod.GET },
+        { path: 'mock-interviews', method: RequestMethod.ALL },
+        { path: 'mock-interviews/:mockInterviewId', method: RequestMethod.ALL },
+        { path: 'mock-interviews/:mockInterviewId/conversation', method: RequestMethod.POST },
+        { path: 'mock-interviews/:mockInterviewId/analyze', method: RequestMethod.PATCH },
 
       );
       

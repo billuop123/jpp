@@ -99,6 +99,10 @@ export class CompanyService {
         return jobs;
     }
     async getCompany(companyId:string,userId:string){
+        console.log('getCompany called with:', companyId, userId);
+        if(!companyId){
+            throw new BadRequestException('Company ID is required');
+        }
         const company=await this.databaseService.companies.findUnique({
             where:{
                 id:companyId,

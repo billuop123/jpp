@@ -21,9 +21,9 @@ async function checkInterviewExists(applicationId: string): Promise<boolean> {
     }
   );
 
-  if (!response.ok) {
+      if (!response.ok) {
     throw new Error("Failed to check if interview exists");
-  }
+      }
   const status = await response.json();
   return !!status.status;
 }
@@ -32,26 +32,26 @@ async function getApplication(
   applicationId: string,
   token: string
 ): Promise<ApplicationData> {
-  const response = await fetch(`${BACKEND_URL}/applications/${applicationId}`, {
-    headers: {
+      const response = await fetch(`${BACKEND_URL}/applications/${applicationId}`, {
+        headers: {
       Authorization: token,
-    },
+        },
     cache: "no-store",
-  });
-  if (!response.ok) {
+      });
+      if (!response.ok) {
     throw new Error("Failed to fetch application details");
-  }
+      }
   return (await response.json()) as ApplicationData;
 }
 
 async function getClientKey(token: string): Promise<string> {
-  const response = await fetch(`${BACKEND_URL}/vapi/client-key`, {
-    headers: {
+      const response = await fetch(`${BACKEND_URL}/vapi/client-key`, {
+        headers: {
       Authorization: token,
-    },
+        },
     cache: "no-store",
-  });
-  if (!response.ok) {
+      });
+      if (!response.ok) {
     throw new Error("Failed to get VAPI client key");
   }
   const data = await response.json();
@@ -86,7 +86,7 @@ export default async function InterviewPage({ params }: PageProps) {
       token={token}
       initialApplication={application}
       clientKey={clientKey}
-    />
+        />
   );
 }
 

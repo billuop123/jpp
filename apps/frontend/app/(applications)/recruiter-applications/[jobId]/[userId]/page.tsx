@@ -13,17 +13,17 @@ async function getApplicationDetails(
   jobId: string,
   userId: string
 ): Promise<UserApplicationDetails> {
-  const response = await fetch(
+      const response = await fetch(
     `${BACKEND_URL}/applications/user-application-details/${jobId}/${userId}`,
     {
       cache: "no-store",
     }
-  );
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to fetch user application details");
-  }
-  return data as UserApplicationDetails;
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch user application details");
+      }
+      return data as UserApplicationDetails;
 }
 
 export default async function RecruiterApplicationsPage({

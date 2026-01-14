@@ -8,33 +8,33 @@ import ApplicationRequestsPageClient, {
 } from "@/components/applications/ApplicationRequestsPageClient";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     jobId: string;
-  };
+  }>;
 }
 
 async function getPendingRequests(
   jobId: string,
   token: string
 ): Promise<PendingApplication[]> {
-  const response = await fetch(
-    `${BACKEND_URL}/jobs/pending-requests/${jobId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
+      const response = await fetch(
+        `${BACKEND_URL}/jobs/pending-requests/${jobId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
         Authorization: token,
-      },
+          },
       cache: "no-store",
-    }
-  );
+        }
+      );
 
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to fetch application requests");
-  }
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to fetch application requests");
+      }
 
-  return data as PendingApplication[];
+      return data as PendingApplication[];
 }
 
 export default async function ApplicationRequestsPage({ params }: PageProps) {
@@ -42,9 +42,9 @@ export default async function ApplicationRequestsPage({ params }: PageProps) {
 
   if (!session?.token) {
     redirect("/login");
-  }
+      }
 
-  const { jobId } = params;
+  const { jobId } = await params;
 
   const requests = await getPendingRequests(jobId, session.token);
 

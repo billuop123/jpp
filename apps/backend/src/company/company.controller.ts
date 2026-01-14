@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UseInterceptors, Req, BadRequestException, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseInterceptors, Req, BadRequestException, UploadedFile, Query } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CompanyDto } from './dto/create-company.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -44,9 +44,16 @@ export class CompanyController {
     async getCompanyJobs(@Param('companyId') companyId: string, @Req() req: Request) {
         return await this.companyService.getCompanyJobs(companyId,req as any);
     }
+  // Fallback/query-based version to avoid any path param issues
+  @Get()
+  async getCompanyByQuery(@Query('companyId') companyId: string, @Req() req: Request) {
+      return await this.companyService.getCompany(companyId, (req as any).userId);
+  }
     @Get(':companyId')
-    async getCompany(@Param('companyId') companyId: string, @Req() req: Request) {
-        return await this.companyService.getCompany(companyId, (req as any).userId);
+  async getCompany(@Param('companyId') companyId: string, @Req() req: Request) {
+      const params = (req as any).params || {};
+      const effectiveCompanyId = companyId || params.companyId;
+      return await this.companyService.getCompany(effectiveCompanyId, (req as any).userId);
     }
     @Get('is-recruiter/:companyId')
     async isRecruiter(@Param('companyId') companyId: string, @Req() req: Request) {

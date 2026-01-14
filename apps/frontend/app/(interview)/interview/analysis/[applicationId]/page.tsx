@@ -16,17 +16,17 @@ async function getApplication(
   applicationId: string,
   token: string
 ): Promise<ApplicationData> {
-  const response = await fetch(`${BACKEND_URL}/applications/${applicationId}`, {
-    headers: {
+      const response = await fetch(`${BACKEND_URL}/applications/${applicationId}`, {
+        headers: {
       Authorization: token,
-    },
+        },
     cache: "no-store",
-  });
-  if (!response.ok) {
+      });
+      if (!response.ok) {
     throw new Error("Failed to fetch application details");
-  }
+      }
   return (await response.json()) as ApplicationData;
-}
+  }
 
 export default async function AnalysisPage({ params }: PageProps) {
   const { applicationId } = params;

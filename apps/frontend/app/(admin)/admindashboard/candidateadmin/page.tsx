@@ -34,20 +34,20 @@ export default async function CandidatePage({ searchParams }: PageProps) {
   const page = Number(searchParams?.page) || 1;
   const limit = Number(searchParams?.limit) || 5;
 
-  const response = await fetch(
-    `${BACKEND_URL}/admin/candidates?page=${page}&limit=${limit}`,
-    {
-      headers: {
+      const response = await fetch(
+        `${BACKEND_URL}/admin/candidates?page=${page}&limit=${limit}`,
+        {
+          headers: {
         "Content-Type": "application/json",
         Authorization: session.token,
-      },
+          },
       cache: "no-store",
     }
   );
 
-  if (!response.ok) {
+      if (!response.ok) {
     throw new Error("Failed to fetch candidates");
-  }
+      }
 
   const candidates = (await response.json()) as Candidate[];
 

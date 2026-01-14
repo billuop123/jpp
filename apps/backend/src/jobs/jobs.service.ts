@@ -138,9 +138,11 @@ export class JobsService {
                 deletedAt: true,
             },
         });
-        const jobsInOrder=orderedIds.map((id:string)=>{
-            return jobsData.find((job:any)=>job.id===id)
-        })
+        // Keep result order, but filter out any missing jobs to avoid null entries in the array
+        const jobsInOrder = orderedIds
+            .map((id: string) => jobsData.find((job: any) => job.id === id) || null)
+            .filter((job): job is typeof jobsData[number] => job !== null);
+
         return { jobs: jobsInOrder };
     }
     async findOneJob(jobId:string){
