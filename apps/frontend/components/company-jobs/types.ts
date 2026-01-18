@@ -24,7 +24,7 @@ export const initialFormState: JobFormData = {
   isRemote: false,
   salaryMin: "",
   salaryMax: "",
-  salaryCurrency: "USD",
+  salaryCurrency: "NPR",
   requirements: "",
   responsibilities: "",
   benefits: "",

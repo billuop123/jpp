@@ -7,9 +7,13 @@ export const formatDate = (dateString: string) => {
   });
 };
 
-export const formatSalary = (min: string | null, max: string | null, currency: string | null) => {
+export const formatSalary = (
+  min: string | null,
+  max: string | null,
+  currency: string | null
+) => {
   if (!min && !max) return "Not specified";
-  const curr = currency || "USD";
+  const curr = currency || "NPR";
   if (min && max) return `${curr} ${min} - ${curr} ${max}`;
   if (min) return `From ${curr} ${min}`;
   if (max) return `Up to ${curr} ${max}`;

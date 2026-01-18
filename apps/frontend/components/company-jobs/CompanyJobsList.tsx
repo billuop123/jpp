@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Job } from "@/components/jobs/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Users, UserPlus } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -111,30 +112,42 @@ export function CompanyJobsList({
                         : "Not specified"}
                     </TableCell>
                     <TableCell>{job.views ?? 0}</TableCell>
-                    <TableCell className="space-x-2 text-right">
-                      {job.company.userId === userId && (
-                        <>
-                        <Link
-                          href={`/recruiter-applications/${job.id}`}
-                          className="text-xs text-foreground"
+                    <TableCell className="text-right">
+                      <div className="flex flex-col items-end gap-2">
+                        {job.company.userId === userId && (
+                          <div className="flex flex-wrap justify-end gap-2">
+                            <Button
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                            >
+                              <Link href={`/recruiter-applications/${job.id}`}>
+                                <Users className="mr-1 h-3 w-3" />
+                                View applications
+                              </Link>
+                            </Button>
+                            <Button
+                              asChild
+                              variant="outline"
+                              size="sm"
+                              className="h-7 px-2 text-xs"
+                            >
+                              <Link href={`/application-requests/${job.id}`}>
+                                <UserPlus className="mr-1 h-3 w-3" />
+                                View application requests
+                              </Link>
+                            </Button>
+                          </div>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => router.push(`/jobs/${job.id}`)}
                         >
-                          View applications
-                        </Link>
-                        <Link
-                          href={`/application-requests/${job.id}`}
-                          className="text-xs text-foreground"
-                        >
-                          View application requests
-                        </Link>
-                          </>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/jobs/${job.id}`)}
-                      >
-                        View
-                      </Button>
+                          View job
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

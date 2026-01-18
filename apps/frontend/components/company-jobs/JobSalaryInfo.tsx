@@ -39,7 +39,7 @@ export function JobSalaryInfo({ formData, onInputChange }: JobSalaryInfoProps) {
         <Input
           id="salaryCurrency"
           name="salaryCurrency"
-          placeholder="USD"
+          placeholder="NPR"
           value={formData.salaryCurrency}
           onChange={onInputChange}
         />

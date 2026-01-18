@@ -17,7 +17,7 @@ export function JobOverview({ job }: JobOverviewProps) {
           <div>
             <p className="text-sm text-muted-foreground">Salary</p>
             <p className="font-medium">
-              {formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency)}
+              {formatSalary(job.salaryMin, job.salaryMax, null)}
             </p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Feature } from "@/components/ui/feature-with-advantages";
 import { Sparkles, Target, Zap } from "lucide-react";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import type { Session } from "next-auth";
 import AnimatedGrid from "./AnimatedGrid";
 import MotionDiv from "../MotionDiv";
@@ -35,15 +36,6 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
       <UnauthorizedHandler />
       <AnimatedGrid />
-      {session?.user?.role === "CANDIDATE" && (
-        <Link href="/candidatedashboard">Candidate Dashboard</Link>
-      )}
-      {session?.user?.role === "RECRUITER" && (
-        <Link href="/recruiterdashboard">Recruiter Dashboard</Link>
-      )}
-      {session?.user?.role === "ADMIN" && (
-        <Link href="/admindashboard">Admin Dashboard</Link>
-      )}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-8">
           <FloatingHeader />
@@ -65,8 +57,10 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
             >
-              Find Your Dream Job
-              <span className="block text-primary mt-2">Faster Than Ever</span>
+              <span className="text-primary">Job-यात्रा</span>
+              <span className="block text-primary mt-2">
+                Your AI-powered job journey
+              </span>
             </MotionH1>
             
             <MotionP
@@ -80,23 +74,35 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
             </MotionP>
             <HeroButtons isAuthenticated={isAuthenticated} />
 
-            {/* Stats */}
-            <MotionDiv initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.5,delay:0.4}} className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16">
-            {[
-                { value: "10K+", label: "Active Job Listings" },
-                { value: "95%", label: "Match Accuracy" },
-                { value: "50K+", label: "Happy Candidates" },
-              ].map((stat, index) => (
-                <MotionDiv  key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }} className="space-y-2">
-                <div className="text-3xl md:text-4xl font-bold text-primary">{stat.value}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-                </MotionDiv>
-      
-              ))}
-                </MotionDiv>
+            {isAuthenticated && session?.user?.role && (
+              <MotionDiv
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.5 }}
+                className="flex flex-col items-center gap-2 pt-4"
+              >
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Continue where you left off
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {session.user.role === "CANDIDATE" && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link href="/candidatedashboard">Open candidate dashboard</Link>
+                    </Button>
+                  )}
+                  {session.user.role === "RECRUITER" && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link href="/recruiterdashboard">Open recruiter dashboard</Link>
+                    </Button>
+                  )}
+                  {session.user.role === "ADMIN" && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link href="/admindashboard">Open admin dashboard</Link>
+                    </Button>
+                  )}
+                </div>
+              </MotionDiv>
+            )}
           </div>
         </section>
 
@@ -172,10 +178,12 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
             >
               <div className="flex items-center gap-2">
                 <Zap className="w-5 h-5 text-primary" />
-                <p className="font-mono text-lg font-bold">JobPlace</p>
+                <p className="font-mono text-lg font-bold text-primary">
+                  Job-यात्रा
+                </p>
               </div>
               <p className="text-sm text-muted-foreground">
-                © {new Date().getFullYear()} JobPlace. All rights reserved.
+                © {new Date().getFullYear()} Job-यात्रा. All rights reserved.
               </p>
             </MotionDiv>
           </div>

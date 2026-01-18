@@ -45,3 +45,11 @@ export interface JobsResponse {
   jobs?: JobListItem[];
 }
 
+export type RemoteFilter = "any" | "remote" | "onsite";
+
+export interface JobFilters {
+  location: string;
+  jobType: string;
+  remote: RemoteFilter;
+}
+

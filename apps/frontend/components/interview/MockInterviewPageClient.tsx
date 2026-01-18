@@ -19,6 +19,24 @@ interface MockInterviewPageClientProps {
   initialJob: Job | null;
 }
 
+// Local type matching the Job shape expected by InterviewHeader
+type HeaderJob = {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  company: {
+    name: string;
+    logo: string | null;
+  } | null;
+  jobtype: {
+    name: string;
+  } | null;
+  salaryMin: string | null;
+  salaryMax: string | null;
+  salaryCurrency: string | null;
+};
+
 export default function MockInterviewPageClient({
   jobId,
   mockInterviewId,
@@ -66,7 +84,7 @@ export default function MockInterviewPageClient({
           "Content-Type": "application/json",
           Authorization: token!,
         },
-        body: JSON.stringify({ assistant: null, jobId }),
+        body: JSON.stringify({ assistant: null, jobId, mode: "mock" }),
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -144,7 +162,19 @@ export default function MockInterviewPageClient({
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
-        <InterviewHeader job={initialJob} />
+        <InterviewHeader
+          job={{
+            id: initialJob.id,
+            title: initialJob.title,
+            description: initialJob.description,
+            location: initialJob.location ?? null,
+            company: null,
+            jobtype: null,
+            salaryMin: initialJob.salaryMin,
+            salaryMax: initialJob.salaryMax,
+            salaryCurrency: initialJob.salaryCurrency,
+          } satisfies HeaderJob}
+        />
 
         <InterviewControls
           isConnected={mockInterview.isConnected}

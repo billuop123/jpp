@@ -3,18 +3,19 @@ import { Badge } from "@/components/ui/badge";
 
 function Feature() {
   return (
-    <div className="w-full py-20 lg:py-40" id="features">
+    <div className="w-full py-20 lg:py-32" id="features">
       <div className="container mx-auto px-4">
-        <div className="flex gap-4 py-20 lg:py-40 flex-col items-start">
+        <div className="flex gap-4 py-10 lg:py-16 flex-col items-start">
           <div>
-            <Badge>Platform Features</Badge>
+            <Badge>Job-यात्रा Features</Badge>
           </div>
           <div className="flex gap-2 flex-col">
             <h2 className="text-3xl md:text-5xl tracking-tighter lg:max-w-xl font-regular">
-              Find Your Dream Job with AI-Powered Matching
+              Everything you need for your job journey
             </h2>
             <p className="text-lg max-w-xl lg:max-w-xl leading-relaxed tracking-tight text-muted-foreground">
-              Our intelligent platform uses advanced AI to match your skills and experience with the perfect job opportunities.
+              Job-यात्रा combines AI-powered job matching, resume tailoring, and realistic mock
+              interviews so candidates and recruiters can make better decisions, faster.
             </p>
           </div>
           <div className="flex gap-10 pt-12 flex-col w-full">
@@ -22,45 +23,50 @@ function Feature() {
               <div className="flex flex-row gap-6 w-full items-start">
                 <Check className="w-5 h-5 mt-2 text-primary flex-shrink-0" />
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold">AI-Powered Matching</p>
+                  <p className="font-semibold">AI Job & Resume Matching</p>
                   <p className="text-muted-foreground text-sm">
-                    Advanced algorithms analyze your resume and match you with the most relevant job opportunities.
+                    Semantic search and AI ranking match your profile to the most relevant roles,
+                    not just keyword hits.
                   </p>
                 </div>
               </div>
               <div className="flex flex-row gap-6 items-start">
                 <Check className="w-5 h-5 mt-2 text-primary flex-shrink-0" />
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold">Resume Parsing</p>
+                  <p className="font-semibold">AI Resume Tailoring</p>
                   <p className="text-muted-foreground text-sm">
-                    Upload your resume and let our AI extract all your skills, experience, and qualifications automatically.
+                    Tailor your resume to each job using AI that highlights the right skills,
+                    experience, and achievements.
                   </p>
                 </div>
               </div>
               <div className="flex flex-row gap-6 items-start">
                 <Check className="w-5 h-5 mt-2 text-primary flex-shrink-0" />
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold">Smart Job Search</p>
+                  <p className="font-semibold">Mock Interview Coaching</p>
                   <p className="text-muted-foreground text-sm">
-                    Search through thousands of job listings with intelligent filters and personalized recommendations.
+                    Practice with voice-based mock interviews and get per-answer feedback powered
+                    by Gemini before the real call.
                   </p>
                 </div>
               </div>
               <div className="flex flex-row gap-6 w-full items-start">
                 <Check className="w-5 h-5 mt-2 text-primary flex-shrink-0" />
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold">Profile Management</p>
+                  <p className="font-semibold">Recruiter Workflows</p>
                   <p className="text-muted-foreground text-sm">
-                    Keep your profile up-to-date with skills, experience, and portfolio links all in one place.
+                    Recruiters get structured scoring, candidate shortlists, and rich application
+                    views to move faster.
                   </p>
                 </div>
               </div>
               <div className="flex flex-row gap-6 items-start">
                 <Check className="w-5 h-5 mt-2 text-primary flex-shrink-0" />
                 <div className="flex flex-col gap-1">
-                  <p className="font-semibold">Real-time Updates</p>
+                  <p className="font-semibold">Deep Interview Insights</p>
                   <p className="text-muted-foreground text-sm">
-                    Get notified instantly when new jobs matching your profile are posted.
+                    Capture interview conversations and generate detailed analysis on skills,
+                    communication, and fit.
                   </p>
                 </div>
               </div>
@@ -69,7 +75,8 @@ function Feature() {
                 <div className="flex flex-col gap-1">
                   <p className="font-semibold">Secure & Private</p>
                   <p className="text-muted-foreground text-sm">
-                    Your data is encrypted and secure. Control who sees your profile and information.
+                    Your data is encrypted and access-controlled, with clear boundaries between
+                    real interviews and mock practice.
                   </p>
                 </div>
               </div>

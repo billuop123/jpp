@@ -1,13 +1,16 @@
- "use client";
+"use client";
 
- import LoadingStep from "@/components/LoadingStep";
- import { useUser } from "@/store/user";
- import AnimatedGrid from "@/components/home/AnimatedGrid";
- import JobsHeader from "./JobsHeader";
- import JobsGrid from "./JobsGrid";
- import { useJobs } from "./hooks/useJobs";
- import { useJobSource } from "./hooks/useJobSource";
- import type { JobsResponse } from "./types";
+import { useState } from "react";
+
+import LoadingStep from "@/components/LoadingStep";
+import { useUser } from "@/store/user";
+import AnimatedGrid from "@/components/home/AnimatedGrid";
+import JobsHeader from "./JobsHeader";
+import JobsGrid from "./JobsGrid";
+import { useJobs } from "./hooks/useJobs";
+import { useJobSource } from "./hooks/useJobSource";
+import type { JobsResponse, JobFilters, JobListItem } from "./types";
+import { JobsFilters } from "./JobsFilters";
  
  interface JobsClientProps {
    initialTopViewedJobs: JobsResponse | null;
@@ -15,8 +18,13 @@
 
  export default function JobsClient({ initialTopViewedJobs }: JobsClientProps) {
    const { token, role } = useUser();
-    
-    const {
+  const [filters, setFilters] = useState<JobFilters>({
+    location: "",
+    jobType: "",
+    remote: "any",
+  });
+
+  const {
         userQuery,
         topViewedJobsQuery,
         resumeQuery,
@@ -28,16 +36,16 @@
         canFetchResume,
    } = useJobs(token, role, initialTopViewedJobs ?? undefined);
 
-   const { jobSource, setJobSource } = useJobSource(canUseSemantic);
+  const { jobSource, setJobSource } = useJobSource(canUseSemantic);
 
-    const formatDate = (dateString: string) => {
-     const date = new Date(dateString);
-     return date.toLocaleDateString("en-US", {
-       year: "numeric",
-       month: "short",
-       day: "numeric",
-     });
-   };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
    if (!initialTopViewedJobs && topViewedJobsQuery.isPending) {
         return (
@@ -87,7 +95,8 @@
      );
     }
 
-   const displayJobs = jobSource === "semantic" ? semanticJobs : topViewedJobs;
+  const displayJobs = jobSource === "semantic" ? semanticJobs : topViewedJobs;
+  const filteredJobs = applyFilters(displayJobs, filters);
    const showSourceSelector = canUseSemantic && topViewedJobs.length > 0;
 
     return (
@@ -102,14 +111,36 @@
             <div className="relative z-10">
                 <JobsHeader
                     jobSource={jobSource}
-                    displayJobsCount={displayJobs.length}
+                    displayJobsCount={filteredJobs.length}
                     showSourceSelector={showSourceSelector}
                     onSourceChange={setJobSource}
                 />
-                <JobsGrid jobs={displayJobs} formatDate={formatDate} />
+                <JobsFilters filters={filters} onFiltersChange={setFilters} />
+                <JobsGrid jobs={filteredJobs} formatDate={formatDate} />
             </div>
         </div>
    );
+}
+
+function applyFilters(jobs: JobListItem[], filters: JobFilters): JobListItem[] {
+  return jobs.filter((job) => {
+    if (
+      filters.location &&
+      !job.location.toLowerCase().includes(filters.location.toLowerCase())
+    ) {
+      return false;
+    }
+    if (filters.jobType && job.jobtype.name !== filters.jobType) {
+      return false;
+    }
+    if (filters.remote === "remote" && !job.isRemote) {
+      return false;
+    }
+    if (filters.remote === "onsite" && job.isRemote) {
+      return false;
+    }
+    return true;
+  });
 }
 
 
