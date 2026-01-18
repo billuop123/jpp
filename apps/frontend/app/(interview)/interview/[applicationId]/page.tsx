@@ -7,9 +7,9 @@ import type { ApplicationData } from "@/components/interview/types";
 import InterviewPageClient from "@/components/interview/InterviewPageClient";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     applicationId: string;
-  };
+  }>;
 }
 
 async function checkInterviewExists(applicationId: string): Promise<boolean> {
@@ -59,7 +59,7 @@ async function getClientKey(token: string): Promise<string> {
 }
 
 export default async function InterviewPage({ params }: PageProps) {
-  const { applicationId } = params;
+  const { applicationId } = await params;
 
   const session = await getServerSession(authOptions);
   const token = session?.token ?? null;

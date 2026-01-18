@@ -7,9 +7,9 @@ import type { ApplicationData } from "@/components/interview/types";
 import AnalysisPageClient from "@/components/interview/AnalysisPageClient";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     applicationId: string;
-  };
+  }>;
 }
 
 async function getApplication(
@@ -22,14 +22,14 @@ async function getApplication(
         },
     cache: "no-store",
       });
-      if (!response.ok) {
+  if (!response.ok) {
     throw new Error("Failed to fetch application details");
-      }
-  return (await response.json()) as ApplicationData;
   }
+  return (await response.json()) as ApplicationData;
+}
 
 export default async function AnalysisPage({ params }: PageProps) {
-  const { applicationId } = params;
+  const { applicationId } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.token) {
