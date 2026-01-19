@@ -147,6 +147,7 @@ model jobs{
   applications applications[]
   mockInterviews MockInterview[]
   deadline DateTime?
+  embedding Float[]
   company Companies @relation(fields: [companyId], references: [id],onDelete: Cascade)
   jobtype jobtypes @relation(fields: [jobtypeId], references: [id],onDelete: Cascade)
   createdAt DateTime @default(now())

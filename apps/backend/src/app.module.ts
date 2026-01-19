@@ -16,7 +16,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { RolesModule } from './roles/roles.module';
 import { CompanyModule } from './company/company.module';
 import { JobsModule } from './jobs/jobs.module';
-import { QdrantModule } from './qdrant/qdrant.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { OpenaiModule } from './openai/openai.module';
 import { IsCandidate } from './roles/roles.middleware';
@@ -38,7 +37,6 @@ import { MockInterviewsModule } from './mock-interviews/mock-interviews.module';
     RolesModule,
     CompanyModule,
     JobsModule,
-    QdrantModule,
     ApplicationsModule,
     OpenaiModule,
     StripeModule,

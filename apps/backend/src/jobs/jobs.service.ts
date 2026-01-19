@@ -3,12 +3,17 @@ import { DatabaseService } from 'src/database/database.service';
 import { JobDto } from './dto/jobs.dto';
 import { Prisma } from '@repo/db';
 import { Request } from 'express';
-import { QdrantService } from 'src/qdrant/qdrant.service';
 import { UsersService } from 'src/users/users.service';
 import { CompanyService } from 'src/company/company.service';
+import { EmbedService } from 'src/embed/embed.service';
 @Injectable()
 export class JobsService {
-    constructor(private readonly databaseService:DatabaseService,private readonly qdrantService: QdrantService,private readonly usersService: UsersService,private readonly companyService: CompanyService){}
+    constructor(
+      private readonly databaseService:DatabaseService,
+      private readonly usersService: UsersService,
+      private readonly companyService: CompanyService,
+      private readonly embedService: EmbedService,
+    ){}
     async create(job:JobDto,req:Request,companyId:string): Promise<Prisma.jobsGetPayload<{}>>{
         const userId=(req as any).userId;
         const date=new Date()
@@ -68,14 +73,23 @@ export class JobsService {
             data:jobData,
         });
         await this.companyService.decrementPostlimit(companyId);
-        const qdrantData = {
-            id: newJob.id,
-            title: newJob.title,
-            description: newJob.description,
-            requirements: newJob.requirements,
-            responsibilities: newJob.responsibilities,
-        };
-        await this.qdrantService.insert(qdrantData);
+        const textToEmbed = [
+          newJob.title,
+          newJob.description || '',
+          newJob.requirements || '',
+          newJob.responsibilities || '',
+        ].join(' ').trim();
+        if (textToEmbed) {
+          try {
+            const embedding = await this.embedService.embed(textToEmbed);
+            await this.databaseService.jobs.update({
+              where: { id: newJob.id },
+              data: { embedding } as any,
+            });
+          } catch (e) {
+            throw new BadRequestException('Failed to embed job, please try again later');
+          }
+        }
         return newJob;
     }
     async getJobTypes(){
@@ -92,7 +106,7 @@ export class JobsService {
         if (!query) {
             throw new BadRequestException('Search query is required');
         }
-        return await this.qdrantService.search(query);
+        return await this.searchJobs(query);
     }
     async findAll(limit?: number, offset?: number) {
         return await this.databaseService.jobs.findMany({
@@ -114,35 +128,54 @@ export class JobsService {
         if (!query) {
             throw new BadRequestException('Search query is required');
         }
-        const jobs = await this.qdrantService.searchJobs(query);
-        const orderedIds = jobs.map((job: any) => job.id);
-        const jobsData = await this.databaseService.jobs.findMany({
-            where: {
-                id: { in: orderedIds },
+        const queryEmbedding = await this.embedService.embed(query);
+        const jobsWithEmbedding = await (this.databaseService.jobs as any).findMany({
+          select: {
+            company: {
+              select: { name: true, logo: true }
             },
-            select: {
-                company: {
-                    select: { name: true, logo: true }
-                },
-                jobtype: {
-                    select: { name: true }
-                },
-                id: true,
-                title: true,
-                location: true,
-                isRemote: true,
-                isfeatured: true,
-                createdAt: true,
-                deadline:true,
-                updatedAt: true,
-                deletedAt: true,
+            jobtype: {
+              select: { name: true }
             },
+            id: true,
+            title: true,
+            location: true,
+            isRemote: true,
+            isfeatured: true,
+            createdAt: true,
+            deadline:true,
+            updatedAt: true,
+            deletedAt: true,
+            embedding: true,
+          },
         });
-        // Keep result order, but filter out any missing jobs to avoid null entries in the array
-        const jobsInOrder = orderedIds
-            .map((id: string) => jobsData.find((job: any) => job.id === id) || null)
-            .filter((job): job is typeof jobsData[number] => job !== null);
 
+        const cosine = (a: number[], b: number[]): number => {
+          let dot = 0;
+          let na = 0;
+          let nb = 0;
+          const len = Math.min(a.length, b.length);
+          for (let i = 0; i < len; i++) {
+            const va = a[i] || 0;
+            const vb = b[i] || 0;
+            dot += va * vb;
+            na += va * va;
+            nb += vb * vb;
+          }
+          if (!na || !nb) return 0;
+          return dot / (Math.sqrt(na) * Math.sqrt(nb));
+        };
+
+        const scored = jobsWithEmbedding
+          .filter((job: any) => Array.isArray(job.embedding))
+          .map((job: any) => ({
+            ...job,
+            score: cosine(queryEmbedding, job.embedding as number[]),
+          }))
+          .sort((a: any, b: any) => b.score - a.score);
+        const jobsInOrder = scored.map(
+          ({ embedding, score, ...rest }: any) => rest,
+        );
         return { jobs: jobsInOrder };
     }
     async findOneJob(jobId:string){

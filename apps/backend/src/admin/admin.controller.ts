@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query, Post } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Query, Post, Body } from '@nestjs/common';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
@@ -16,17 +16,19 @@ export class AdminController {
     async getUnverifiedCompanies(@Query('page') page:number=1,@Query('limit') limit:number=10){
         return await this.adminService.getUnverifiedCompanies(page,limit);
     }
+    @Get('users')
+    async getUsers(@Query('page') page:number=1,@Query('limit') limit:number=10){
+        return await this.adminService.getUsers(page,limit);
+    }
     @Patch('verify-company/:id')
     async verifyCompany(@Param('id') id: string) {
         return await this.adminService.verifyCompany(id);
     }
-    @Post('jobs/clear')
-    async clearJobsFromBothDbs() {
-        return await this.adminService.clearJobsFromBothDbs();
-    }
-
-    @Post('jobs/sync')
-    async syncJobsToQdrant() {
-        return await this.adminService.syncJobsToQdrant();
+    @Patch('users/:id/role')
+    async updateUserRole(
+      @Param('id') id: string,
+      @Body('roleCode') roleCode: string,
+    ) {
+        return await this.adminService.updateUserRole(id,roleCode);
     }
 }

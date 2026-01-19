@@ -51,6 +51,9 @@ importers:
       '@vapi-ai/server-sdk':
         specifier: ^0.11.0
         version: 0.11.0
+      '@xenova/transformers':
+        specifier: ^2.17.2
+        version: 2.17.2
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1

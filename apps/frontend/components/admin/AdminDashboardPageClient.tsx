@@ -26,8 +26,6 @@ export default function AdminDashboardPageClient({
   const [currentCompanies, setCurrentCompanies] = useState<Company[]>(companies);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isClearing, setIsClearing] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const router = useRouter();
@@ -50,56 +48,6 @@ export default function AdminDashboardPageClient({
       window.open(pdfUrl, "_blank", "noopener,noreferrer");
     } catch {
       window.open(url, "_blank", "noopener,noreferrer");
-    }
-  };
-
-  const clearJobs = async () => {
-    try {
-      setIsClearing(true);
-      const response = await fetch(`${BACKEND_URL}/admin/jobs/clear`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      });
-
-      const res = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(res.message || "Failed to clear jobs");
-      }
-
-      toast.success("Jobs cleared from both databases");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to clear jobs");
-    } finally {
-      setIsClearing(false);
-    }
-  };
-
-  const syncJobs = async () => {
-    try {
-      setIsSyncing(true);
-      const response = await fetch(`${BACKEND_URL}/admin/jobs/sync`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      });
-
-      const res = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(res.message || "Failed to sync jobs");
-      }
-
-      toast.success("Jobs synced to Qdrant");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to sync jobs");
-    } finally {
-      setIsSyncing(false);
     }
   };
 
@@ -150,12 +98,7 @@ export default function AdminDashboardPageClient({
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-6 py-10 space-y-8">
-        <AdminDashboardHeader
-          onClearJobs={clearJobs}
-          onSyncJobs={syncJobs}
-          isClearing={isClearing}
-          isSyncing={isSyncing}
-        />
+        <AdminDashboardHeader />
 
         <UnverifiedCompaniesSection
           page={page}

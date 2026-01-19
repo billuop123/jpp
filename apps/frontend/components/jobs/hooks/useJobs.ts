@@ -85,7 +85,7 @@ export function useJobs(
   useEffect(() => {
     if (jobsQuery.isError) {
       toast.error(jobsQuery.error.message || "Failed to fetch jobs");
-      router.replace("/");
+      // router.replace("/");
     }
   }, [jobsQuery.isError, router]);
 

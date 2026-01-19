@@ -10,6 +10,15 @@ interface JobDatesAndExperienceProps {
 }
 
 export function JobDatesAndExperience({ formData, onInputChange }: JobDatesAndExperienceProps) {
+  // Prevent selecting past or same-day deadlines.
+  // Backend requires deadline > now, so we set min to "tomorrow" in local time.
+  const tomorrow = (() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  })();
+
   return (
     <div className="grid gap-2 md:grid-cols-2">
       <div className="grid gap-2">
@@ -18,6 +27,7 @@ export function JobDatesAndExperience({ formData, onInputChange }: JobDatesAndEx
           id="deadline"
           name="deadline"
           type="date"
+          min={tomorrow}
           value={formData.deadline}
           onChange={onInputChange}
         />
