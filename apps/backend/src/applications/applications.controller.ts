@@ -43,4 +43,10 @@ export class ApplicationsController {
     async getMyApplicationStatus(@Param('jobId') jobId: string, @Req() req: Request) {
         return await this.applicationsService.getMyApplicationStatus(jobId, (req as any).userId as string);
     }
+    @Get('my-interviews')
+    async listMyInterviews(@Req() req: Request) {
+        return await this.applicationsService.listMyInterviews(
+            (req as any).userId as string,
+        );
+    }
 }

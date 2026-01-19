@@ -377,4 +377,42 @@ ${resumeText || 'No resume provided'}
         }
         return user
     }
+    async listMyInterviews(userId: string) {
+        await this.usersService.userExistsById(userId);
+
+        const applications = await this.databaseService.applications.findMany({
+            where: {
+                userId,
+                relevanceScore: {
+                    not: null,
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+            select: {
+                id: true,
+                createdAt: true,
+                relevanceScore: true,
+                applicationstatus: {
+                    select: {
+                        name: true,
+                    },
+                },
+                job: {
+                    select: {
+                        id: true,
+                        title: true,
+                        company: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        return applications;
+    }
 }

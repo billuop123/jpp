@@ -1,7 +1,15 @@
 "use client";
 
 import LoadingStep from "@/components/LoadingStep";
-import { Code, MessageSquare, Lightbulb, Target, BookOpen } from "lucide-react";
+import {
+  Code,
+  MessageSquare,
+  Lightbulb,
+  Target,
+  BookOpen,
+  ArrowLeft,
+} from "lucide-react";
+import Link from "next/link";
 
 import { AnalysisHeader } from "@/components/interview/AnalysisHeader";
 import { OverallScore } from "@/components/interview/OverallScore";
@@ -12,6 +20,7 @@ import { DetailedAnalysisCard } from "@/components/interview/DetailedAnalysisCar
 import { AnalysisEmptyState } from "@/components/interview/AnalysisEmptyState";
 import { InterviewRadarChart } from "@/components/interview/InterviewRadarChart";
 import type { ApplicationData } from "@/components/interview/types";
+import { Button } from "@/components/ui/button";
 
 interface AnalysisPageClientProps {
   application: ApplicationData | null;
@@ -48,7 +57,15 @@ export default function AnalysisPageClient({
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-6 py-10 space-y-8">
-        <AnalysisHeader job={application.job} />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <AnalysisHeader job={application.job} />
+          <Button asChild variant="outline" size="sm">
+            <Link href="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Go back home
+            </Link>
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">

@@ -189,14 +189,58 @@ export default async function seed() {
     });
   }
 }
+async function createUsers() {
+  const usersToCreate: { email: string; roleCode: string }[] = [
+    { email: "biplovthapa890@gmail.com", roleCode: "RECRUITER" },
+    { email: "biplovthapa80@gmail.com", roleCode: "CANDIDATE" },
+    { email: "biplovthapa456@gmail.com", roleCode: "ADMIN" },
+  ];
+
+  for (const { email, roleCode } of usersToCreate) {
+    // Skip if user already exists (idempotent)
+    const existingUser = await prisma.users.findUnique({
+      where: { email },
+    });
+    if (existingUser) continue;
+
+    const role = await prisma.roles.findUnique({
+      where: { code: roleCode },
+    });
+
+    if (!role) {
+      console.warn(`Role with code ${roleCode} not found, skipping user ${email}`);
+      continue;
+    }
+
+    await prisma.users.create({
+      data: {
+        email,
+        name: email.split("@")[0],
+        password: Math.random().toString(36).substring(2, 15),
+        role: {
+          connect: {
+            id: role.id,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+  }
+}
 
 if (require.main === module) {
-  seed()
-    .then(() => prisma.$disconnect())
-    .then(() => console.log("Database seeded successfully"))
-    .catch(async (error) => {
+  (async () => {
+    try {
+      await seed();
+      await createUsers();
+      console.log("Database seeded successfully");
+    } catch (error) {
       console.error("Failed to seed database:", error);
-      await prisma.$disconnect();
       process.exit(1);
-    });
+    } finally {
+      await prisma.$disconnect();
+    }
+  })();
 }

@@ -66,7 +66,10 @@ STRICT RULES:
     },
   ): Promise<string> {
     const user = await this.usersService.userExistsById(userId);
-    if (!user.isPremium) {
+    const hasTailoringAccess =
+      user.isPremium || user.isTailoringPremium;
+
+    if (!hasTailoringAccess) {
       throw new UnauthorizedException(
         'User is not premium,Please upgrade to premium to use this feature',
       );
