@@ -27,7 +27,6 @@ export class InsertService {
         const id = jobData.id || `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const vector = await this.embedService.embed(textToEmbed);
         const result=await this.qdrantService.upsertPoint(id, vector, jobData);
-        console.log("Result of upsertPoint", result);
         return { id, success: true };
     }
 }

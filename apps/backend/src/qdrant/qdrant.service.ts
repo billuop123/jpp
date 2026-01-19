@@ -14,7 +14,6 @@ export class QdrantService {
     );
   }
   async insert(data:any){
-    console.log("Inserting data into Qdrant", data);
     return await firstValueFrom(
       this.client.send('insert', { data }),
     );

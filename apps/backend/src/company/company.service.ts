@@ -85,7 +85,6 @@ export class CompanyService {
             throw new NotFoundException('Company not found');
         }
         if(company.userId!==(req as any).userId){
-            console.log(company.userId, (req as any).userId)
             throw new UnauthorizedException('You are not authorized to get this company jobs');
         }
         const jobs=await this.databaseService.jobs.findMany({
@@ -99,7 +98,6 @@ export class CompanyService {
         return jobs;
     }
     async getCompany(companyId:string,userId:string){
-        console.log('getCompany called with:', companyId, userId);
         if(!companyId){
             throw new BadRequestException('Company ID is required');
         }

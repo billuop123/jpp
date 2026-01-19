@@ -24,13 +24,11 @@ export class SearchService {
         payload[title] = score;
       }
     });
-    console.log("Search Payload", payload);
     return payload;
   }
   async searchJobs(query:string){
     const queryEmbedding = (await this.embedService.embed(query)) as number[];
     const results = await this.qdrantService.searchJobs(queryEmbedding, 5);
-    console.log("Search Jobs Results", results);
     return results;
   }
 }

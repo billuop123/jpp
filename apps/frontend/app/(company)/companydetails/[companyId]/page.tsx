@@ -26,7 +26,6 @@ async function getCompanyDetails(
   companyId: string,
   token: string
 ): Promise<CompanyDetails | null> {
-  console.log(companyId,token)
   const response = await fetch(`${BACKEND_URL}/company?companyId=${companyId}`, {
         method: "GET",
         headers: {

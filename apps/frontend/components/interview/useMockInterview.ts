@@ -180,9 +180,6 @@ export function useMockInterview({
           functionCall.name === "endInterview") &&
         endInterviewRef.current
       ) {
-        console.log(
-          "Mock interviewer finished asking questions, auto-submitting interview"
-        );
 
         if (vapiRef.current) {
           try {
@@ -222,9 +219,6 @@ export function useMockInterview({
         endInterviewRef.current &&
         !isEndingRef.current
       ) {
-        console.log(
-          "Mock interviewer finished asking questions, auto-submitting interview"
-        );
         finalizeMessages();
 
         const existingText = messagesByRole.get(role) || "";
@@ -262,7 +256,6 @@ export function useMockInterview({
         endInterviewRef.current &&
         !isEndingRef.current
       ) {
-        console.log("Candidate requested to end mock interview, auto-submitting");
         finalizeMessages();
         const existingText = messagesByRole.get(role) || "";
         const fullText = existingText.length > text.length ? existingText : text;
@@ -318,9 +311,6 @@ export function useMockInterview({
             endInterviewRef.current &&
             !isEndingRef.current
           ) {
-            console.log(
-              "Mock interviewer finished asking questions (detected on speech end), auto-submitting interview"
-            );
             const cleanedText = text
               .replace(/\[INTERVIEW_COMPLETE\]/g, "")
               .trim();
@@ -366,7 +356,6 @@ export function useMockInterview({
     };
 
     vapiInstance.on("call-start", () => {
-      console.log("Mock call started");
       setIsConnected(true);
       setIsConnecting(false);
       isEndingRef.current = false;
@@ -378,7 +367,6 @@ export function useMockInterview({
     });
 
     vapiInstance.on("call-end", () => {
-      console.log("Mock call ended");
       setIsConnected(false);
       setIsConnecting(false);
       setIsSpeaking(false);
@@ -390,12 +378,10 @@ export function useMockInterview({
     });
 
     vapiInstance.on("speech-start", () => {
-      console.log("Mock assistant started speaking");
       setIsSpeaking(true);
     });
 
     vapiInstance.on("speech-end", () => {
-      console.log("Mock assistant stopped speaking");
       setIsSpeaking(false);
       commitMessageOnSpeechEnd();
     });
@@ -407,7 +393,6 @@ export function useMockInterview({
         message.function
       ) {
         const functionCall = message.functionCall || message.function || message;
-        console.log("Mock function call received via message event:", functionCall);
         handleFunctionCall(functionCall);
         return;
       }
@@ -425,7 +410,6 @@ export function useMockInterview({
     });
 
     (vapiInstance.on as any)("function-call", (functionCall: any) => {
-      console.log("Mock function call event received:", functionCall);
       handleFunctionCall(functionCall);
     });
 

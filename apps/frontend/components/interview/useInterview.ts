@@ -156,7 +156,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
 
     const handleFunctionCall = (functionCall: any) => {
       if ((functionCall.function?.name === 'endInterview' || functionCall.name === 'endInterview') && endInterviewRef.current) {
-        console.log('Interviewer finished asking questions, auto-submitting interview');
         
         functionCalledRef.current = true;
         
@@ -187,7 +186,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
       
       // Check if interviewer has signaled interview completion
       if (role === 'assistant' && checkInterviewComplete(text) && endInterviewRef.current && !isEndingRef.current) {
-        console.log('Interviewer finished asking questions, auto-submitting interview');
         finalizeMessages();
         // Add the current message before ending (remove the marker)
         const existingText = messagesByRole.get(role) || '';
@@ -219,7 +217,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
       
       // Check if candidate wants to end the interview
       if (role === 'user' && checkCandidateWantsToEnd(text) && endInterviewRef.current && !isEndingRef.current) {
-        console.log('Candidate requested to end interview, auto-submitting');
         finalizeMessages();
         // Add the current message before ending
         const existingText = messagesByRole.get(role) || '';
@@ -272,7 +269,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
         if (text && text.trim()) {
           // Check if this is the interviewer completing the interview
           if (lastCommittedRole === 'assistant' && checkInterviewComplete(text) && endInterviewRef.current && !isEndingRef.current) {
-            console.log('Interviewer finished asking questions (detected on speech end), auto-submitting interview');
             const cleanedText = text.replace(/\[INTERVIEW_COMPLETE\]/g, '').trim();
             if (cleanedText) {
               conversationRef.current.push({
@@ -316,7 +312,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
     };
 
     vapiInstance.on('call-start', () => {
-      console.log('Call started');
       setIsConnected(true);
       setIsConnecting(false);
       isEndingRef.current = false;
@@ -328,7 +323,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
     });
 
     vapiInstance.on('call-end', () => {
-      console.log('Call ended');
       setIsConnected(false);
       setIsConnecting(false);
       setIsSpeaking(false);
@@ -340,12 +334,10 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
     });
 
     vapiInstance.on('speech-start', () => {
-      console.log('Assistant started speaking');
       setIsSpeaking(true);
     });
 
     vapiInstance.on('speech-end', () => {
-      console.log('Assistant stopped speaking');
       setIsSpeaking(false);
       commitMessageOnSpeechEnd();
     });
@@ -353,7 +345,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
     vapiInstance.on('message', (message: any) => {
       if (message.type === 'function-call' || message.functionCall || message.function) {
         const functionCall = message.functionCall || message.function || message;
-        console.log('Function call received via message event:', functionCall);
         handleFunctionCall(functionCall);
         return;
       }
@@ -371,7 +362,6 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
     });
 
     (vapiInstance.on as any)('function-call', (functionCall: any) => {
-      console.log('Function call event received:', functionCall);
       handleFunctionCall(functionCall);
     });
 

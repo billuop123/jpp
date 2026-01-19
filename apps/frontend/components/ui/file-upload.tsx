@@ -81,7 +81,6 @@ export const FileUpload = ({
       }
       setFiles([]);
       onChange?.([]);
-      console.log(fileRejections);
     },
   });
 
