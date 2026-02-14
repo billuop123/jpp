@@ -13,8 +13,7 @@ type StatusState = "idle" | "checking" | "success" | "error";
 export default function SuccessPageClient() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
-  const { token } = useUser();
-  const {email} = useUser()
+  const { token, email } = useUser();
   const [status, setStatus] = useState<StatusState>("idle");
   const [message, setMessage] = useState<string>("");
 
@@ -69,7 +68,7 @@ export default function SuccessPageClient() {
     };
 
     verifySession();
-  }, [sessionId, token]);
+  }, [sessionId, token, email]);
 
   const headline =
     status === "success"

@@ -107,7 +107,6 @@ export function useResumeUpload(token: string | null, options?: UseResumeUploadO
   return {
     currentStep,
     setCurrentStep,
-    // extracted resume data (AI-parsed fields)
     extractedData,
     setExtractedData,
     uploadMutation,

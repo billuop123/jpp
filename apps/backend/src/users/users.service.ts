@@ -140,6 +140,7 @@ export class UsersService {
                 role: newUser.role?.code,
             };
         }catch(error){
+            console.log(error.message);
             if(error instanceof HttpException){
                 throw error;
             }

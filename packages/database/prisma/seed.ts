@@ -92,6 +92,16 @@ export default async function seed() {
       create: role,
     });
   }
+  await prisma.applicationstatus.upsert({
+    where: { code: "PENDING" },
+    update: { name: "PENDING" },
+    create: { name: "PENDING", code: "PENDING" },
+  })
+  await prisma.applicationstatus.upsert({
+    where: { code: "GRANTED" },
+    update: { name: "GRANTED" },
+    create: { name: "GRANTED", code: "GRANTED" },
+  })
 
   // Seed job types if not already present (by name)
   for (const jobType of jobTypes) {

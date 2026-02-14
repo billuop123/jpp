@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: job-placement-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: job_placement
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: job-placement-app
+    ports:
+      - "3000:3000" # NestJS backend
+      - "3001:3001" # Next.js frontend
+    env_file:
+      - ./apps/backend/.env
+      - ./apps/frontend/.env
+    environment:
+      # Override DB host to point at the Postgres service in this compose file
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/job_placement?schema=public"
+    depends_on:
+      - db
+
+
+
+volumes:
+  db_data:
+
