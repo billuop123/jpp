@@ -1,4 +1,4 @@
-name: Continuous Deployment (Prod) (Backend)
+name: Continuous Deployment (Prod) (Full App)
 on:
   push:
     branches: [ main ]
@@ -19,6 +19,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: Dockerfile
+          file: Dockerfile  
           push: true
           tags: billuop/job-placement-platform:${{ github.sha }}
