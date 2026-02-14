@@ -1,0 +1,25 @@
+# Environment variables declared in this file are NOT automatically loaded by Prisma.# Please add `import "dotenv/config";` to your `prisma.config.ts` file, or use the Prisma CLI with Bun
+# to load environment variables from .env files: https://pris.ly/prisma-config-env-vars.
+
+# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+
+# The following `prisma+postgres` URL is similar to the URL produced by running a local Prisma Postgres 
+# server with the `prisma dev` CLI command, when not choosing any non-default ports or settings. The API key, unlike the 
+# one found in a remote Prisma Postgres URL, does not contain any sensitive information.
+STRIPE_SECRET_KEY="rk_test_51SXa9TLGnGVoi0SVMMLjbb7V7PDEZQ2OKB5HhC20WX7ahnzRle8ZGQ4jSY5LnsCol8BdQV2yfDpVWEc3YjiqHLIQ00vSghuQ5I"
+DATABASE_URL="postgresql://postgres:postgres@db:5432/job_placement?schema=public"
+GOOGLE_CLIENT_ID="somename"
+JWT_SECRET="SECRET"
+CLOUDINARY_CLOUD_NAME="dybr0yfit"
+CLOUDINARY_API_KEY="728131657892886"
+CLOUDINARY_API_SECRET="OSzdVmYk41fxkSESnzCZL5nw3NI"
+ELEVENLABS_API_KEY=sk_1eebe56cc278086cdb942761efe0268d944ddb6283d702b9
+GOOGLE_CLIENT_ID=907919637299-gkjl6qaao8e1r0uudatfgum5rd34fg6p.apps.googleusercontent.com
+GITHUB_CLIENTID=Ov23liwt92PwKcE2Lasa
+GITHUB_CLIENT_SECRET=df7ac89b3673fbbc8461329808cc942650531012
+GOOGLE_CLIENT_SECRET=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
+VAPIAPI_KEY=7c9dacf1-1097-4f6f-8ef5-b80a907ffd9b
+VAPIPUBLIC_KEY=02fbab81-d9b9-47f1-8d08-5cedf9bde4db
+GEMINI_API_KEY=AIzaSyAYQuZIbw8GNx05g-JiX4lKqsa0JWGcVKs
+OPENAI_API_KEY="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"
