@@ -36,7 +36,7 @@ export class VapiService {
             temperature: 0.7,
             messages: [{
               role: "system",
-              content: isMock
+          content: isMock
                 ? `You are a professional mock interviewer and coach conducting a 5-minute practice interview.
 
 IMPORTANT RULES:
@@ -64,6 +64,7 @@ IMPORTANT RULES:
    - This marker is MANDATORY - the interview will not end automatically without it.
    - Do NOT continue asking questions after you've decided the interview is complete.
 8. If the candidate asks to end the interview, acknowledge their request briefly and ALWAYS end your response with "[INTERVIEW_COMPLETE]".
+9. If the candidate repeatedly gives clearly off-topic, irrelevant, or inappropriate responses (for example, commenting on your voice or making sexual or personal remarks instead of answering the question), treat this as the interview being over. Politely end the interview early and ALWAYS include "[INTERVIEW_COMPLETE]" at the end of your closing statement.
 
 Job Information:
 - Job Title: ${job.title}
@@ -93,7 +94,7 @@ IMPORTANT RULES:
 7. Ask the question such that it becomes easier to track the technicalScore, communicationScore, problemSolvingScore, jobRelevanceScore, depthOfKnowledgeScore of the candidate.
 8. CRITICAL - Interview Completion Rules:
    - When you have finished asking all your questions (whether the candidate answered well or not), you MUST end the interview
-   - If the candidate is uncooperative, arrogant, or not answering questions, you may end the interview early after attempting a few questions
+   - If the candidate is uncooperative, arrogant, repeatedly gives clearly off-topic or irrelevant answers, or is not answering questions, you may end the interview early after attempting a few questions
    - When ending the interview for ANY reason, you MUST:
      a) Say a brief closing statement (e.g., "Thank you for your time. I've finished asking all my questions. The interview is now complete.")
      b) ALWAYS end your closing statement with the exact phrase: "[INTERVIEW_COMPLETE]" (include the brackets)

@@ -2,8 +2,15 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import Vapi from '@vapi-ai/web';
-import { BACKEND_URL } from '@/scripts/lib/config';
-import { checkCandidateWantsToEnd, checkInterviewComplete } from './interviewDetection';
+import {
+  BACKEND_URL,
+  VAPI_FEMALE_VOICE_ID,
+  VAPI_MALE_VOICE_ID,
+} from '@/scripts/lib/config';
+import {
+  checkCandidateWantsToEnd,
+  checkInterviewComplete,
+} from './interviewDetection';
 import type { ConversationMessage } from './interviewTypes';
 
 const INTERVIEW_DURATION_MS = 5 * 60 * 1000;
@@ -13,9 +20,16 @@ interface UseInterviewProps {
   apiKey: string;
   assistantId: string;
   token: string;
+  voicePreference: "female" | "male";
 }
 
-export function useInterview({ applicationId, apiKey, assistantId, token }: UseInterviewProps) {
+export function useInterview({
+  applicationId,
+  apiKey,
+  assistantId,
+  token,
+  voicePreference,
+}: UseInterviewProps) {
   const router = useRouter();
   
   const [isConnected, setIsConnected] = useState(false);
@@ -380,9 +394,20 @@ export function useInterview({ applicationId, apiKey, assistantId, token }: UseI
   const startCall = useCallback(() => {
     if (vapiRef.current && assistantId) {
       setIsConnecting(true);
-      vapiRef.current.start(assistantId);
+      (vapiRef.current as any).start(assistantId, {
+        voice: {
+          provider: '11labs',
+          voiceId:
+            voicePreference === 'female'
+              ? VAPI_FEMALE_VOICE_ID
+              : VAPI_MALE_VOICE_ID,
+        },
+        variableValues: {
+          voicePreference,
+        },
+      });
     }
-  }, [assistantId]);
+  }, [assistantId, voicePreference]);
 
   return {
     isConnected,

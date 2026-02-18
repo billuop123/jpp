@@ -9,6 +9,8 @@ export type UserApplicationDetails={
     depthOfKnowledgeScore:number,
     strengths:string,
     weaknesses:string,
+    coverletter:string,
+    notes:string,
     user:{
         id:string,
         name:string,

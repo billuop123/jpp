@@ -17,6 +17,7 @@ export function checkInterviewComplete(text: string): boolean {
     'i have finished asking',
     'interview is now complete',
     'interview is complete',
+    'interview complete',
     'that concludes our interview',
     "we've finished the interview",
     'we have finished the interview',

@@ -304,6 +304,8 @@ ${resumeText || 'No resume provided'}
                 depthOfKnowledgeScore:true,
                 strengths:true,
                 weaknesses:true,
+                coverletter:true,
+                notes:true,
                 user:{
                     select:{
                         id:true,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
@@ -11,6 +11,7 @@ import { InterviewControls } from "@/components/interview/InterviewControls";
 import { useInterview } from "@/components/interview/useInterview";
 import { BACKEND_URL } from "@/scripts/lib/config";
 import type { ApplicationData } from "@/components/interview/types";
+import { Label } from "@/components/ui/label";
 
 interface InterviewPageClientProps {
   applicationId: string;
@@ -26,6 +27,9 @@ export default function InterviewPageClient({
   clientKey,
 }: InterviewPageClientProps) {
   const router = useRouter();
+  const [voicePreference, setVoicePreference] = useState<"female" | "male">(
+    "female",
+  );
 
   // If user is not authenticated, show sign-in message
   if (!token) {
@@ -86,6 +90,7 @@ export default function InterviewPageClient({
     apiKey: clientKey,
     assistantId: assistantQuery.data?.assistantId || "",
     token: token || "",
+    voicePreference,
   });
 
   const isLoading = assistantQuery.isLoading;
@@ -137,6 +142,35 @@ export default function InterviewPageClient({
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
         <InterviewHeader job={initialApplication.job} />
+
+        <div className="rounded-xl border bg-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <Label className="text-sm font-medium">Interviewer voice</Label>
+            <p className="text-xs text-muted-foreground">
+              Choose before starting. Default is female.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={voicePreference === "female" ? "default" : "outline"}
+              onClick={() => setVoicePreference("female")}
+              disabled={interview.isConnected}
+            >
+              Female
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={voicePreference === "male" ? "default" : "outline"}
+              onClick={() => setVoicePreference("male")}
+              disabled={interview.isConnected}
+            >
+              Male
+            </Button>
+          </div>
+        </div>
 
         <InterviewControls
           isConnected={interview.isConnected}

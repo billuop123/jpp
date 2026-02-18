@@ -278,6 +278,21 @@ export class JobsService {
                     name:'PENDING',
                 }
             },
+            select:{
+                id:true,
+                jobId:true,
+                userId:true,
+                applicationstatusId:true,
+                createdAt:true,
+                coverletter:true,
+                notes:true,
+                user:{
+                    select:{
+                        name:true,
+                        email:true,
+                    }
+                }
+            }
         })
         if(!applicationRequests){
             throw new NotFoundException('Pending requests not found');

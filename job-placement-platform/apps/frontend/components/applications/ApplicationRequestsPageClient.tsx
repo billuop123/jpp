@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { FileText } from "lucide-react";
 
 import { BACKEND_URL } from "@/scripts/lib/config";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,12 @@ export type PendingApplication = {
   userId: string;
   applicationstatusId: string;
   createdAt: string;
+  coverletter?: string;
+  notes?: string;
+  user: {
+    name: string;
+    email: string;
+  };
 };
 
 interface ApplicationRequestsPageClientProps {
@@ -45,6 +52,8 @@ export default function ApplicationRequestsPageClient({
   const router = useRouter();
   const [requests, setRequests] = useState<PendingApplication[]>(initialRequests);
   const [selectedRequest, setSelectedRequest] =
+    useState<PendingApplication | null>(null);
+  const [viewingApplication, setViewingApplication] =
     useState<PendingApplication | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -105,57 +114,107 @@ export default function ApplicationRequestsPageClient({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Application ID</TableHead>
-                  <TableHead>Candidate ID</TableHead>
+                  <TableHead>Candidate</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead>Requested at</TableHead>
-                  <TableHead className="w-[140px] text-right">Actions</TableHead>
+                  <TableHead className="w-[200px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {requests.map((request) => {
-                  const shortApplicationId = request.id.slice(0, 8);
-                  const shortUserId = request.userId.slice(0, 8);
-
-                  return (
-                    <TableRow
-                      key={request.id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() =>
-                        router.push(
-                          `/user-profile/${request.userId}/${request.id}`
-                        )
-                      }
-                    >
-                      <TableCell className="font-mono text-xs">
-                        {shortApplicationId}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">
-                        {shortUserId}
-                      </TableCell>
-                      <TableCell>
-                        {request.createdAt
-                          ? new Date(request.createdAt).toLocaleString()
-                          : "—"}
-                      </TableCell>
-                      <TableCell className="text-right">
+                {requests.map((request) => (
+                  <TableRow key={request.id}>
+                    <TableCell className="font-medium">{request.user.name}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {request.user.email}
+                    </TableCell>
+                    <TableCell>
+                      {request.createdAt
+                        ? new Date(request.createdAt).toLocaleString()
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
                         <Button
                           size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedRequest(request);
-                          }}
+                          variant="outline"
+                          onClick={() => setViewingApplication(request)}
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          View
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => setSelectedRequest(request)}
                           disabled={isUpdating}
                         >
-                          {isUpdating ? "Updating..." : "Grant access"}
+                          Grant access
                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
         )}
+
+        <Dialog
+          open={!!viewingApplication}
+          onOpenChange={(open) => {
+            if (!open) setViewingApplication(null);
+          }}
+        >
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Application Details</DialogTitle>
+              <DialogDescription>
+                {viewingApplication?.user.name} • {viewingApplication?.user.email}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {viewingApplication?.coverletter ? (
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    Cover Letter
+                  </h3>
+                  <div className="rounded-lg border bg-muted/30 p-4">
+                    <p className="text-sm whitespace-pre-line">
+                      {viewingApplication.coverletter}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No cover letter provided</p>
+              )}
+
+              {viewingApplication?.notes && (
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    Additional Notes
+                  </h3>
+                  <div className="rounded-lg border bg-muted/30 p-4">
+                    <p className="text-sm whitespace-pre-line">
+                      {viewingApplication.notes}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setViewingApplication(null)}>
+                Close
+              </Button>
+              <Button
+                onClick={() => {
+                  setViewingApplication(null);
+                  setSelectedRequest(viewingApplication);
+                }}
+              >
+                Grant Access
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Dialog
           open={!!selectedRequest}

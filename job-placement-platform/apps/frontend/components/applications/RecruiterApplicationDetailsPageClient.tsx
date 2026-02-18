@@ -99,6 +99,27 @@ export default function RecruiterApplicationDetailsPageClient({
 
               <ApplicationCommentsSection application={application} />
 
+              {(application.coverletter || application.notes) && (
+                <div className="space-y-3 pt-2">
+                  {application.coverletter && (
+                    <div className="rounded-lg border bg-muted/30 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                        Cover Letter
+                      </p>
+                      <p className="text-sm whitespace-pre-line">{application.coverletter}</p>
+                    </div>
+                  )}
+                  {application.notes && (
+                    <div className="rounded-lg border bg-muted/30 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                        Additional Notes
+                      </p>
+                      <p className="text-sm whitespace-pre-line">{application.notes}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-3">
                 <Button
                   variant="outline"
