@@ -43,24 +43,23 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
 
         {/* Hero Section */}
         <section className="relative container mx-auto px-4 py-20 lg:py-32">
+        <div className="absolute inset-0 opacity-10">
+          <img src="/bg-image2.png" alt="" className="w-full h-full object-cover" />
+        </div>
         <AnimatedGrid numSquares={20} maxOpacity={0.2} duration={4} repeatDelay={0.5} className="absolute inset-0 [mask-image:radial-gradient(600px_circle_at_center,white,transparent)]" />
           <div className="relative max-w-4xl mx-auto text-center space-y-8">
-            <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <MotionDiv initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border bg-card">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium">AI-Powered Job Matching</span>
+                <span className="text-sm font-medium text-primary">AI-Powered Job Matching</span>
             </MotionDiv>
-            
             
             <MotionH1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+              className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight font-[family-name:var(--font-display)]"
             >
-              <span className="text-primary">Job-यात्रा</span>
-              <span className="block text-primary mt-2">
-                Your AI-powered job journey
-              </span>
+              <span className="text-foreground/80">Job-यात्रा</span>
             </MotionH1>
             
             <MotionP
@@ -69,8 +68,7 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             >
-              Upload your resume and let our AI match you with the perfect job opportunities. 
-              Get personalized recommendations based on your skills, experience, and career goals.
+              Upload your resume and let our AI find your perfect match. Get personalized job recommendations based on your skills and experience.
             </MotionP>
             <HeroButtons isAuthenticated={isAuthenticated} />
 
@@ -130,7 +128,7 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="rounded-2xl border bg-gradient-to-br from-primary/10 to-primary/5 p-8 md:p-12 text-center space-y-6"
+              className="rounded-2xl border bg-card p-8 md:p-12 text-center space-y-6"
             >
               <MotionDiv
                 initial={{ scale: 0 }}
@@ -178,7 +176,7 @@ export default function HomePage({ session, premiumStatus }: HomePageProps) {
             >
               <div className="flex items-center gap-2">
                 <Zap className="w-5 h-5 text-primary" />
-                <p className="font-mono text-lg font-bold text-primary">
+                <p className="text-lg font-bold text-primary font-[family-name:var(--font-display)]">
                   Job-यात्रा
                 </p>
               </div>

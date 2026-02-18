@@ -44,6 +44,10 @@ export function FloatingHeader() {
 			label: 'Jobs',
 			href: '/jobs',
 		},
+		...(session?.user?.role === 'CANDIDATE' ? [{
+			label: 'Salary Predictor',
+			href: '/salary-predictor',
+		}] : []),
 		{
 			label: 'About',
 			href: '#about',
@@ -64,7 +68,7 @@ export function FloatingHeader() {
 			<nav className="mx-auto flex items-center justify-between p-1.5">
 				<Link href="/" className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 duration-100">
 					<BriefcaseIcon className="size-5" />
-					<p className="font-mono text-base font-bold text-primary">
+					<p className="text-base font-bold font-[family-name:var(--font-display)]">
 						Job-यात्रा
 					</p>
 				</Link>

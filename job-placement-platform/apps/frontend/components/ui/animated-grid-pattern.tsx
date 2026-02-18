@@ -99,7 +99,7 @@ export function AnimatedGridPattern({
       ref={containerRef}
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute inset-0 h-full w-full fill-gray-400/30 stroke-gray-400/30",
+        "pointer-events-none absolute inset-0 h-full w-full fill-primary/10 stroke-primary/10",
         className,
       )}
       {...props}
@@ -140,6 +140,7 @@ export function AnimatedGridPattern({
             y={y * height + 1}
             fill="currentColor"
             strokeWidth="0"
+            className="text-primary/60"
           />
         ))}
       </svg>

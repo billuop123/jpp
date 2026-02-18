@@ -1,20 +1,22 @@
 import AuthProviders from "@/components/AuthProviders";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import AuthChecker from "@/components/AuthChecker";
 import QueryClientProvider from "@/components/QueryClientProvider";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ErrorSuppress } from "./error-suppress";
 import { Toaster } from "sonner";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
+  variable: "--font-sans",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -78,7 +80,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${jakarta.variable} ${poppins.variable} font-sans antialiased`}
       >
         <ErrorBoundary>
           <ErrorSuppress />
