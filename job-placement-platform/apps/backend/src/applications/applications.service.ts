@@ -417,4 +417,39 @@ ${resumeText || 'No resume provided'}
 
         return applications;
     }
+    async listMyApplications(userId: string) {
+        await this.usersService.userExistsById(userId);
+
+        const applications = await this.databaseService.applications.findMany({
+            where: {
+                userId,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+            select: {
+                id: true,
+                createdAt: true,
+                relevanceScore: true,
+                applicationstatus: {
+                    select: {
+                        name: true,
+                    },
+                },
+                job: {
+                    select: {
+                        id: true,
+                        title: true,
+                        company: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        return applications;
+    }
 }

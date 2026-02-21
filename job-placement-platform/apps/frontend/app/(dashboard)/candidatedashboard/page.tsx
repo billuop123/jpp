@@ -2,13 +2,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/scripts/authOptions";
 import { redirect } from "next/navigation";
 import { CandidateDashboardClient } from "@/components/dashboard/CandidateDashboardClient";
+import { BACKEND_URL } from "@/scripts/lib/config";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-async function getMyApplications(userId: string) {
+async function getMyApplications(token: string) {
   try {
-    const res = await fetch(`${BACKEND_URL}/applications/my-interviews`, {
-      headers: { "x-user-id": userId },
+    const res = await fetch(`${BACKEND_URL}/applications/my-applications`, {
+      headers: { Authorization: token },
       cache: "no-store",
     });
     if (!res.ok) return [];
@@ -20,9 +19,9 @@ async function getMyApplications(userId: string) {
 
 export default async function CandidateDashboard() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.token || session.user?.role !== "CANDIDATE") redirect("/login");
 
-  const applications = await getMyApplications(session.user.id);
+  const applications = await getMyApplications(session.token);
 
   return <CandidateDashboardClient applications={applications} />;
 }

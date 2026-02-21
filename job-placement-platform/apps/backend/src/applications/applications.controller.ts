@@ -11,17 +11,17 @@ export class ApplicationsController {
         return await this.applicationsService.create(application,req as any);
     }
 
-    @Get(':applicationId')
-    async getApplication(@Param('applicationId') applicationId: string, @Req() req: Request) {
-        return await this.applicationsService.getApplicationWithJob(applicationId, (req as any).userId as string);
+    @Get('my-interviews')
+    async listMyInterviews(@Req() req: Request) {
+        return await this.applicationsService.listMyInterviews(
+            (req as any).userId as string,
+        );
     }
-    @Patch(':applicationId/analyze')
-    async analyzeInterview(@Param('applicationId') applicationId: string, @Req() req: Request) {
-        return await this.applicationsService.analyzeInterview(applicationId, (req as any).userId as string);
-    }
-    @Get(':applicationId/interview-exists')
-    async interviewExists(@Param('applicationId') applicationId: string) {
-        return await this.applicationsService.interviewExists(applicationId);
+    @Get('my-applications')
+    async listMyApplications(@Req() req: Request) {
+        return await this.applicationsService.listMyApplications(
+            (req as any).userId as string,
+        );
     }
     @Get('recruiter/:jobId')
     async getRecruiterApplications(@Param('jobId') jobId: string) {
@@ -43,10 +43,16 @@ export class ApplicationsController {
     async getMyApplicationStatus(@Param('jobId') jobId: string, @Req() req: Request) {
         return await this.applicationsService.getMyApplicationStatus(jobId, (req as any).userId as string);
     }
-    @Get('my-interviews')
-    async listMyInterviews(@Req() req: Request) {
-        return await this.applicationsService.listMyInterviews(
-            (req as any).userId as string,
-        );
+    @Get(':applicationId')
+    async getApplication(@Param('applicationId') applicationId: string, @Req() req: Request) {
+        return await this.applicationsService.getApplicationWithJob(applicationId, (req as any).userId as string);
+    }
+    @Patch(':applicationId/analyze')
+    async analyzeInterview(@Param('applicationId') applicationId: string, @Req() req: Request) {
+        return await this.applicationsService.analyzeInterview(applicationId, (req as any).userId as string);
+    }
+    @Get(':applicationId/interview-exists')
+    async interviewExists(@Param('applicationId') applicationId: string) {
+        return await this.applicationsService.interviewExists(applicationId);
     }
 }

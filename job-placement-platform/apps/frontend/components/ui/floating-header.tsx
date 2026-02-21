@@ -123,7 +123,7 @@ export function FloatingHeader() {
 												</div>
 												<button
 													onClick={() => {
-														router.push('/user-details');
+														router.push(`/user-profile/${session?.user?.id}`);
 														setDropdownOpen(false);
 													}}
 													className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-accent transition-colors"

@@ -112,6 +112,9 @@ export class JobsService {
         return await this.databaseService.jobs.findMany({
             where: {
                 isactive: true,
+                deadline: {
+                    gt: new Date(),
+                },
             },
             take: limit || 50,
             skip: offset || 0,
@@ -130,6 +133,11 @@ export class JobsService {
         }
         const queryEmbedding = await this.embedService.embed(query);
         const jobsWithEmbedding = await (this.databaseService.jobs as any).findMany({
+          where: {
+            deadline: {
+              gt: new Date(),
+            },
+          },
           select: {
             company: {
               select: { name: true, logo: true }
@@ -232,6 +240,9 @@ export class JobsService {
     const jobs=await this.databaseService.jobs.findMany({
         where:{
             isactive:true,
+            deadline: {
+                gt: new Date(),
+            },
         },
         orderBy:{
             views:'desc',

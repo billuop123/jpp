@@ -111,6 +111,9 @@ STRICT RULES:
     12. "closingNotes" explicitly reference the target job/company, tie back to the most relevant projects or experience, and read like a closing paragraph.
     13. Do not add extra fields or metadata. Output raw JSON only.
     14. Never write placeholder text like "N/A", "NA", "null", "undefined", "Not specified", "-", or similar. If information is missing, simply omit that sentence or leave the corresponding array empty.
+    15. CRITICAL: Adapt role titles and descriptions to match the target job ONLY if the roles are in the same domain. Examples of same domain: Full Stack Developer ↔ Frontend Developer ↔ Backend Developer ↔ Software Engineer; DevOps Engineer ↔ Site Reliability Engineer; Data Scientist ↔ ML Engineer ↔ AI Engineer. DO NOT reframe roles across different domains (e.g., AI Engineer applying for Web Developer should remain AI Engineer, not be changed to Web Developer). Only reframe when the candidate's background is clearly transferable and in the same technical domain.
+    16. CRITICAL: Completely omit skills, technologies, projects, and experiences that are irrelevant to the target job. For example, if applying for a Frontend Developer role, omit machine learning skills, data science projects, or backend-heavy experiences. Only include information that directly supports the target role. Be ruthless in filtering out irrelevant content.
+    17. Prioritize and emphasize skills, technologies, and experiences that are most relevant to the target job title.
     `;
 
     const userPrompt = `
@@ -130,7 +133,24 @@ STRICT RULES:
     Requirements: ${job.requirements ?? ''}
     Responsibilities: ${job.responsibilities ?? ''}
     
-    Write a tailored resume following this order: personalInfo, introduction, projects, technicalSkills, keyHighlights, experiences, education, closingNotes. Do NOT use headings, labels, bullet characters, quotes, or third-person references—only first-person sentences that drop directly into a resume. After describing the candidate, immediately explain why they fit the role. Projects must match the ones provided in the resume data/text (leave the array empty if none are provided). Populate all arrays with concise, impactful sentences. Pack "technicalSkills" with as many relevant skills as possible. Closing notes must reference the target job/company and highlight alignment with key experience or projects.
+    Write a tailored resume for the "${job.title}" position following this order: personalInfo, introduction, projects, technicalSkills, keyHighlights, experiences, education, closingNotes. 
+    
+    IMPORTANT: Only reframe the candidate's role if it's within the same technical domain. For example:
+    - Full Stack Developer → Frontend/Backend Developer (SAME DOMAIN - reframe)
+    - DevOps Engineer → Site Reliability Engineer (SAME DOMAIN - reframe)
+    - AI Engineer → Web Developer (DIFFERENT DOMAINS - DO NOT reframe, keep as AI Engineer)
+    - Data Scientist → Frontend Developer (DIFFERENT DOMAINS - DO NOT reframe, keep as Data Scientist)
+    
+    CRITICAL: Completely omit any skills, technologies, projects, or experiences that are NOT relevant to "${job.title}". Examples:
+    - Applying for Frontend Developer: OMIT machine learning, data science, backend-only technologies
+    - Applying for Backend Developer: OMIT UI/UX design, frontend frameworks (unless full-stack context)
+    - Applying for DevOps: OMIT mobile development, game development
+    
+    Only include information that directly supports the "${job.title}" role. Be selective and ruthless in filtering. If a project or experience has no relevance, leave it out entirely.
+    
+    If roles are in the same domain, emphasize the relevant subset of skills. If roles are in different domains, keep the original role title and highlight any transferable skills without changing their core identity.
+    
+    Do NOT use headings, labels, bullet characters, quotes, or third-person references—only first-person sentences that drop directly into a resume. After describing the candidate, immediately explain why they fit the role. Projects must match the ones provided in the resume data/text (leave the array empty if none are provided). Populate all arrays with concise, impactful sentences. Pack "technicalSkills" with ONLY the skills relevant to "${job.title}". Closing notes must reference the target job/company and highlight alignment with key experience or projects.
     `;
 
     const result = await model.generateContent(
