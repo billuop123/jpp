@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { FileText } from "lucide-react";
+import { FileText, User } from "lucide-react";
 
 import { BACKEND_URL } from "@/scripts/lib/config";
 import { Button } from "@/components/ui/button";
@@ -95,7 +95,7 @@ export default function ApplicationRequestsPageClient({
             Application Requests
           </p>
           <h1 className="text-3xl font-semibold">
-            Pending access requests for job {jobId}
+            Application Requests
           </h1>
           <p className="text-muted-foreground">
             Review incoming application access requests for this job and grant
@@ -117,7 +117,7 @@ export default function ApplicationRequestsPageClient({
                   <TableHead>Candidate</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Requested at</TableHead>
-                  <TableHead className="w-[200px] text-right">Actions</TableHead>
+                  <TableHead className="w-[250px] text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -134,6 +134,14 @@ export default function ApplicationRequestsPageClient({
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => router.push(`/user-profile/${request.userId}`)}
+                        >
+                          <User className="h-4 w-4 mr-1" />
+                          Profile
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"

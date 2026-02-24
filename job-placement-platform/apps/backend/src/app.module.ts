@@ -25,6 +25,7 @@ import { VapiModule } from './vapi/vapi.module';
 import { GeminiModule } from './gemini/gemini.module';
 import { AdminModule } from './admin/admin.module';
 import { MockInterviewsModule } from './mock-interviews/mock-interviews.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -45,7 +46,7 @@ import { MockInterviewsModule } from './mock-interviews/mock-interviews.module';
     GeminiModule,
     AdminModule,
     MockInterviewsModule,
-
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthMiddleware],

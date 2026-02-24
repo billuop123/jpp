@@ -15,22 +15,26 @@ interface PageProps {
 async function getScoringList(
   jobId: string,
   token: string
-): Promise<ScoringListData[]> {
-  const response = await fetch(
-    `${BACKEND_URL}/applications/scoring-list/${jobId}`,
-    {
-      headers: {
-        Authorization: token,
-      },
+): Promise<{ applications: ScoringListData[]; jobTitle: string }> {
+  const [applicationsResponse, jobResponse] = await Promise.all([
+    fetch(`${BACKEND_URL}/applications/scoring-list/${jobId}`, {
+      headers: { Authorization: token },
       cache: "no-store",
-    }
-  );
+    }),
+    fetch(`${BACKEND_URL}/jobs/${jobId}`, {
+      headers: { Authorization: token },
+      cache: "no-store",
+    }),
+  ]);
 
-  if (!response.ok) {
+  if (!applicationsResponse.ok) {
     throw new Error("Failed to fetch applications");
   }
-  const data = (await response.json()) as ScoringListData[];
-  return data;
+  
+  const applications = (await applicationsResponse.json()) as ScoringListData[];
+  const job = jobResponse.ok ? await jobResponse.json() : null;
+  
+  return { applications, jobTitle: job?.title || 'this position' };
 }
 
 export default async function RecruiterApplicationsPage({ params }: PageProps) {
@@ -42,12 +46,14 @@ export default async function RecruiterApplicationsPage({ params }: PageProps) {
 
   const { jobId } = await params;
 
-  const applications = await getScoringList(jobId, session.token);
+  const { applications, jobTitle } = await getScoringList(jobId, session.token);
 
   return (
     <RecruiterJobApplicationsPageClient
       jobId={jobId}
       applications={applications}
+      token={session.token}
+      jobTitle={jobTitle}
     />
   );
 }

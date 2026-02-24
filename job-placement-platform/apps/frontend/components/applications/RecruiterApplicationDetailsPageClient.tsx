@@ -50,8 +50,7 @@ export default function RecruiterApplicationDetailsPageClient({
             <CardHeader>
               <CardTitle>Overview</CardTitle>
               <CardDescription>
-                High-level view of this candidate&apos;s performance for job{" "}
-                <span className="font-mono text-xs">{jobId}</span>.
+                High-level view of this candidate&apos;s performance.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

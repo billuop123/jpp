@@ -125,8 +125,21 @@ export class ApplicationsService {
             throw new BadRequestException('No conversation history found');
         }
 
+        // Check if conversation is substantial enough
+        const conversationLines = application.conversationHistory.split('\n').filter(line => line.trim());
+        const candidateResponses = conversationLines.filter(line => line.toLowerCase().includes('candidate:')).length;
+        
+        if (candidateResponses < 3) {
+            throw new BadRequestException('Insufficient conversation data for analysis. Please conduct a longer interview.');
+        }
+
         const job = application.job;
         const prompt = `You are an expert recruiter analyzing an interview transcript and resume text matching the job requirements. 
+
+IMPORTANT: Be strict in your evaluation. Short interviews or brief responses should receive lower scores. Each score category (0-2) should reflect:
+- 0: Poor/Inadequate - Lacks depth, unclear responses, or insufficient demonstration of skills
+- 1: Satisfactory - Shows basic understanding but lacks depth or has some gaps
+- 2: Excellent - Demonstrates strong skills, clear communication, and thorough knowledge
 
 Job Details:
 - Title: ${job.title}
@@ -140,6 +153,8 @@ ${application.conversationHistory}
 
 Analyze this interview and provide:
 1. A detailed relevance comment explaining the score, highlighting strengths and areas for improvement
+2. Consider the depth and quality of responses, not just their presence
+3. Penalize brief or superficial answers
 
 Return your response as JSON in this exact format:
 {

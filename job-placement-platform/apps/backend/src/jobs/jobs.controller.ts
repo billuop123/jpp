@@ -34,6 +34,10 @@ export class JobsController {
     async getTopViewedJobs() {
         return await this.jobsService.getTopViewedJobs();
     }
+    @Post('regenerate-embeddings')
+    async regenerateEmbeddings() {
+        return await this.jobsService.regenerateEmbeddings();
+    }
     @Get('pending-requests/:jobId')
     async getPendingRequests(@Param('jobId') jobId: string) {
         return await this.jobsService.getPendingRequests(jobId);

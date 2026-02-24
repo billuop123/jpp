@@ -1,10 +1,43 @@
 import { config } from "dotenv";
 import path from "path";
 import { PrismaClient } from "../generated/prisma/client";
+import { pipeline } from '@xenova/transformers';
 
 config({ path: path.resolve(__dirname, "../.env") });
 
 const prisma = new PrismaClient();
+
+// Embedding service
+let embedder: any;
+let initialized = false;
+
+async function initEmbedder() {
+  if (!initialized) {
+    embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    initialized = true;
+  }
+}
+
+async function embed(text: string): Promise<number[]> {
+  await initEmbedder();
+  const output = await embedder(text);
+  const embeddingArray = Array.from(output.data) as number[];
+
+  if (embeddingArray.length > 384) {
+    const numTokens = embeddingArray.length / 384;
+    const pooled = new Array(384).fill(0);
+    for (let dim = 0; dim < 384; dim++) {
+      let sum = 0;
+      for (let token = 0; token < numTokens; token++) {
+        sum += embeddingArray[token * 384 + dim] as number;
+      }
+      pooled[dim] = sum / numTokens;
+    }
+    return pooled;
+  }
+
+  return embeddingArray;
+}
 
 const roles = [
   { name: "Admin", code: "ADMIN" },
@@ -507,6 +540,33 @@ async function createUsers() {
             })),
           });
           console.log(`Seeded ${sampleJobs.length} jobs for recruiter's company`);
+
+          // Generate embeddings for seeded jobs
+          const jobs = await prisma.jobs.findMany({
+            where: { companyId: company.id },
+            select: { id: true, title: true, description: true, requirements: true, responsibilities: true },
+          });
+
+          console.log(`Generating embeddings for ${jobs.length} jobs...`);
+          for (const job of jobs) {
+            const textToEmbed = [
+              job.title,
+              job.title,
+              job.title,
+              job.description || '',
+              job.requirements || '',
+              job.responsibilities || '',
+            ].join(' ').trim();
+
+            if (textToEmbed) {
+              const embedding = await embed(textToEmbed);
+              await prisma.jobs.update({
+                where: { id: job.id },
+                data: { embedding } as any,
+              });
+              console.log(`✓ Generated embedding for: ${job.title}`);
+            }
+          }
         }
       }
     } else {
@@ -515,6 +575,37 @@ async function createUsers() {
         where: { companyId: existingCompany.id },
       });
       console.log(`Existing jobs: ${existingJobCount}`);
+
+      // Check for jobs without embeddings - just get all and filter
+      const allJobs = await prisma.jobs.findMany({
+        where: { companyId: existingCompany.id },
+        select: { id: true, title: true, description: true, requirements: true, responsibilities: true, embedding: true },
+      });
+
+      const jobsWithoutEmbeddings = allJobs.filter(job => !job.embedding || job.embedding.length === 0);
+
+      if (jobsWithoutEmbeddings.length > 0) {
+        console.log(`Found ${jobsWithoutEmbeddings.length} jobs without embeddings. Generating...`);
+        for (const job of jobsWithoutEmbeddings) {
+          const textToEmbed = [
+            job.title,
+            job.title,
+            job.title,
+            job.description || '',
+            job.requirements || '',
+            job.responsibilities || '',
+          ].join(' ').trim();
+
+          if (textToEmbed) {
+            const embedding = await embed(textToEmbed);
+            await prisma.jobs.update({
+              where: { id: job.id },
+              data: { embedding } as any,
+            });
+            console.log(`✓ Generated embedding for: ${job.title}`);
+          }
+        }
+      }
 
       if (existingJobCount < 15) {
         // Seed jobs for existing company
@@ -547,6 +638,33 @@ async function createUsers() {
             })),
           });
           console.log(`Seeded ${sampleJobs.length} jobs for existing company`);
+
+          // Generate embeddings for seeded jobs
+          const jobs = await prisma.jobs.findMany({
+            where: { companyId: existingCompany.id },
+            select: { id: true, title: true, description: true, requirements: true, responsibilities: true },
+          });
+
+          console.log(`Generating embeddings for ${jobs.length} jobs...`);
+          for (const job of jobs) {
+            const textToEmbed = [
+              job.title,
+              job.title,
+              job.title,
+              job.description || '',
+              job.requirements || '',
+              job.responsibilities || '',
+            ].join(' ').trim();
+
+            if (textToEmbed) {
+              const embedding = await embed(textToEmbed);
+              await prisma.jobs.update({
+                where: { id: job.id },
+                data: { embedding } as any,
+              });
+              console.log(`✓ Generated embedding for: ${job.title}`);
+            }
+          }
         }
       }
     }

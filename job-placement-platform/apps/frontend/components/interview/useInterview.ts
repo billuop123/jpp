@@ -106,18 +106,14 @@ export function useInterview({
     
     const history = formatConversationHistory();
     
-    if (history.trim()) {
-      try {
-        await saveConversationMutation.mutateAsync(history);
-        await analyzeInterviewMutation.mutateAsync();
-        router.push(`/interview/analysis/${applicationId}`);
-      } catch (error) {
-        console.error('Error ending interview:', error);
-        alert('Failed to submit interview. Please try again.');
-        isEndingRef.current = false;
-      }
-    } else {
-      router.push(`/applications`);
+    try {
+      await saveConversationMutation.mutateAsync(history);
+      await analyzeInterviewMutation.mutateAsync();
+      router.push(`/interview/analysis/${applicationId}`);
+    } catch (error) {
+      console.error('Error ending interview:', error);
+      alert('Failed to submit interview. Please try again.');
+      isEndingRef.current = false;
     }
   }, [formatConversationHistory, saveConversationMutation, analyzeInterviewMutation, router, applicationId]);
 

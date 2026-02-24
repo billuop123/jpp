@@ -75,6 +75,8 @@ export class JobsService {
         await this.companyService.decrementPostlimit(companyId);
         const textToEmbed = [
           newJob.title,
+          newJob.title,
+          newJob.title,
           newJob.description || '',
           newJob.requirements || '',
           newJob.responsibilities || '',
@@ -101,6 +103,18 @@ export class JobsService {
             }
         })
         return jobtypes;
+    }
+    private extractRoleKeywords(resumeText: string): string {
+        const rolePatterns = [
+            /(?:aspiring|seeking|experienced|senior|junior|mid-level)?\s*(full[- ]?stack|backend|frontend|software|web|mobile|devops|data|ml|ai|cloud|qa|test|security)\s*(?:developer|engineer|architect|designer|analyst|scientist|specialist)/gi,
+            /(?:developer|engineer|architect|designer|analyst|scientist|specialist)\s*(?:intern|internship)/gi,
+        ];
+        const matches: string[] = [];
+        for (const pattern of rolePatterns) {
+            const found = resumeText.match(pattern);
+            if (found) matches.push(...found);
+        }
+        return matches.slice(0, 3).join(' ');
     }
     async search(query: string) {
         if (!query) {
@@ -131,7 +145,11 @@ export class JobsService {
         if (!query) {
             throw new BadRequestException('Search query is required');
         }
-        const queryEmbedding = await this.embedService.embed(query);
+        const roleKeywords = this.extractRoleKeywords(query);
+        const enhancedQuery = roleKeywords ? `${roleKeywords} ${roleKeywords} ${roleKeywords} ${query}` : query;
+        console.log('Enhanced query:', enhancedQuery.substring(0, 200));
+        const queryEmbedding = await this.embedService.embed(enhancedQuery);
+        console.log('Query embedding length:', queryEmbedding.length, 'First 5 values:', queryEmbedding.slice(0, 5));
         const jobsWithEmbedding = await (this.databaseService.jobs as any).findMany({
           where: {
             deadline: {
@@ -157,6 +175,12 @@ export class JobsService {
             embedding: true,
           },
         });
+        console.log('Total jobs fetched:', jobsWithEmbedding.length);
+        console.log('Jobs with embeddings:', jobsWithEmbedding.filter((j: any) => Array.isArray(j.embedding) && j.embedding.length > 0).length);
+        if (jobsWithEmbedding.length > 0) {
+          const firstJob = jobsWithEmbedding[0];
+          console.log('First job:', firstJob.title, 'Embedding length:', firstJob.embedding?.length, 'First 5:', firstJob.embedding?.slice(0, 5));
+        }
 
         const cosine = (a: number[], b: number[]): number => {
           let dot = 0;
@@ -180,11 +204,22 @@ export class JobsService {
             ...job,
             score: cosine(queryEmbedding, job.embedding as number[]),
           }))
-          .sort((a: any, b: any) => b.score - a.score);
+          .sort((a: any, b: any) => {
+            const scoreDiff = b.score - a.score;
+            if (Math.abs(scoreDiff) < 0.0001) {
+              const dateDiff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+              if (dateDiff === 0) {
+                return a.id.localeCompare(b.id);
+              }
+              return dateDiff;
+            }
+            return scoreDiff;
+          });
         const jobsInOrder = scored.map(
-          ({ embedding, score, ...rest }: any) => rest,
+          ({ embedding, score, ...rest }: any) => ({ ...rest, _score: score }),
         );
-        return { jobs: jobsInOrder };
+        console.log('Top 5 jobs with scores:', jobsInOrder.slice(0, 5).map((j: any) => ({ title: j.title, score: j._score })));
+        return { jobs: jobsInOrder.map(({ _score, ...rest }: any) => rest) };
     }
     async findOneJob(jobId:string){
         const job=await this.databaseService.jobs.findUnique({
@@ -272,7 +307,55 @@ export class JobsService {
     return {
         jobs:jobs,
     }
-}   
+}
+    async regenerateEmbeddings() {
+        const jobs = await this.databaseService.jobs.findMany({
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                requirements: true,
+                responsibilities: true,
+            },
+        });
+
+        console.log(`Found ${jobs.length} jobs to process`);
+        let updated = 0;
+        let failed = 0;
+
+        for (const job of jobs) {
+            const textToEmbed = [
+                job.title,
+                job.title,
+                job.title,
+                job.description || '',
+                job.requirements || '',
+                job.responsibilities || '',
+            ].join(' ').trim();
+
+            if (textToEmbed) {
+                try {
+                    const embedding = await this.embedService.embed(textToEmbed);
+                    await this.databaseService.jobs.update({
+                        where: { id: job.id },
+                        data: { embedding } as any,
+                    });
+                    console.log(`✓ Updated embedding for: ${job.title}`);
+                    updated++;
+                } catch (e) {
+                    console.error(`✗ Failed to embed job ${job.id}:`, e);
+                    failed++;
+                }
+            }
+        }
+
+        return {
+            total: jobs.length,
+            updated,
+            failed,
+            message: `Regenerated embeddings for ${updated} jobs, ${failed} failed`,
+        };
+    }   
     async getPendingRequests(jobId:string){
         const job=await this.databaseService.jobs.findUnique({
             where:{

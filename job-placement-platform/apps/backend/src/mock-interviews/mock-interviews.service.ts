@@ -119,6 +119,14 @@ export class MockInterviewsService {
       throw new BadRequestException('No conversation history found for this mock interview');
     }
 
+    // Check if conversation is substantial enough
+    const conversationLines = mockInterview.conversationHistory.split('\n').filter(line => line.trim());
+    const candidateResponses = conversationLines.filter(line => line.toLowerCase().includes('candidate:')).length;
+    
+    if (candidateResponses < 3) {
+      throw new BadRequestException('Insufficient conversation data for analysis. Please conduct a longer interview.');
+    }
+
     const resumeText = await this.userDetailsService.getResumeText(userId);
     if (!resumeText) {
       throw new BadRequestException('Resume text not found');
@@ -127,6 +135,11 @@ export class MockInterviewsService {
     const job = mockInterview.job;
 
     const prompt = `You are an expert recruiter analyzing a MOCK interview transcript and resume text.
+
+IMPORTANT: Be strict in your evaluation. Short interviews or brief responses should receive lower scores. Each score category (0-2) should reflect:
+- 0: Poor/Inadequate - Lacks depth, unclear responses, or insufficient demonstration of skills
+- 1: Satisfactory - Shows basic understanding but lacks depth or has some gaps
+- 2: Excellent - Demonstrates strong skills, clear communication, and thorough knowledge
 
 Job Details:
 - Title: ${job.title}
@@ -139,8 +152,9 @@ Mock Interview Transcript:
 ${mockInterview.conversationHistory}
 
 Your tasks:
-1. Analyze the candidate's performance.
-2. For each distinct question-answer pair, provide brief, specific feedback for the candidate.
+1. Analyze the candidate's performance strictly based on depth and quality of responses.
+2. Penalize brief or superficial answers.
+3. For each distinct question-answer pair, provide brief, specific feedback for the candidate.
 
 Return your response as JSON in this exact format:
 {

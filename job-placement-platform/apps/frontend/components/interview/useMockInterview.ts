@@ -107,18 +107,14 @@ export function useMockInterview({
 
     const history = formatConversationHistory();
 
-    if (history.trim()) {
-      try {
-        await saveConversationMutation.mutateAsync(history);
-        await analyzeInterviewMutation.mutateAsync();
-        router.push(`/mock/analysis/${mockInterviewId}`);
-      } catch (error) {
-        console.error("Error ending mock interview:", error);
-        alert("Failed to submit mock interview. Please try again.");
-        isEndingRef.current = false;
-      }
-    } else {
-      router.push(`/jobs`);
+    try {
+      await saveConversationMutation.mutateAsync(history);
+      await analyzeInterviewMutation.mutateAsync();
+      router.push(`/mock/analysis/${mockInterviewId}`);
+    } catch (error) {
+      console.error("Error ending mock interview:", error);
+      alert("Failed to submit mock interview. Please try again.");
+      isEndingRef.current = false;
     }
   }, [
     formatConversationHistory,
