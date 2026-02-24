@@ -3,16 +3,19 @@ import { ApplicationsService } from './applications.service';
 import { ApplicationDto } from './dto/application.dto';
 import { IsCandidate } from 'src/roles/roles.middleware';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/role.decorator';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('applications')
 export class ApplicationsController {
     constructor(private readonly applicationsService:ApplicationsService){
         console.log("called")
     }
+    @Roles('CANDIDATE')
     @Post()
     async create(@Body() application:ApplicationDto,@Req() req: Request) {
         return await this.applicationsService.create(application,req as any);

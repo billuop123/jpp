@@ -11,7 +11,7 @@ import { UsersModule } from './users/users.module';
 import { LoggerModule } from './logger/logger.module';
 import { ConfigModule } from './config/config.module';
 import { UserDetailsModule } from './user-details/user-details.module';
-import { AuthMiddleware } from './auth/auth.middleware';
+
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { RolesModule } from './roles/roles.module';
 import { CompanyModule } from './company/company.module';
@@ -52,7 +52,7 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AuthMiddleware],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   constructor() {}
@@ -98,13 +98,13 @@ export class AppModule implements NestModule {
 
     //   );
       
-  consumer
-      .apply(IsCandidate)
-      .forRoutes(
-        // { path: 'applications', method: RequestMethod.ALL },
-        {path:'applications/',method:RequestMethod.POST},
-        { path: 'resume-tailoring/:jobId', method: RequestMethod.GET },
-      );    
+  // consumer
+  //     .apply(IsCandidate)
+  //     .forRoutes(
+  //       // { path: 'applications', method: RequestMethod.ALL },
+  //       {path:'applications/',method:RequestMethod.POST},
+  //       { path: 'resume-tailoring/:jobId', method: RequestMethod.GET },
+  //     );    
   }
 
 }

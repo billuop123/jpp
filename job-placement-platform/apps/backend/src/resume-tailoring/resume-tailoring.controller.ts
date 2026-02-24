@@ -1,13 +1,16 @@
 import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import { ResumeTailoringService } from './resume-tailoring.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/role.decorator';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('resume-tailoring')
 export class ResumeTailoringController {
   constructor(private readonly resumeTailoringService: ResumeTailoringService) {}
 
   @Get(':jobId')
+  @Roles('CANDIDATE')
   async tailorResume(
     @Param('jobId') jobId: string,
     @Req() req: any,
