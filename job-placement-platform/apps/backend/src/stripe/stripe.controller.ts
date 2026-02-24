@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { StripeService } from './stripe.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('stripe')
 export class StripeController {
@@ -25,6 +26,7 @@ export class StripeController {
         body.customer_email,
       );
     }
+    @UseGuards(JwtAuthGuard)
     @Post('check-session')
     async checkSession(@Query('session_id') session_id:string,@Body() body: { customer_email: string }){
       return await this.stripeService.checkSession(session_id,body.customer_email);

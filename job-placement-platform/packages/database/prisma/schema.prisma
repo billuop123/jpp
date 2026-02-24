@@ -192,6 +192,8 @@ model applications{
   jobId String 
   userId String 
   applicationstatusId String
+  rejectionEmailSent Boolean @default(false)
+  acceptanceEmailSent Boolean @default(false)
   coverletter String?
   relevanceScore Int?
   relevancecomment String?

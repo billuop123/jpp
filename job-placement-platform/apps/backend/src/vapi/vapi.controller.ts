@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post, Param, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, Req, UseGuards } from '@nestjs/common';
 import { VapiService } from './vapi.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('vapi')
 export class VapiController {
     constructor(private readonly vapiService: VapiService) {}

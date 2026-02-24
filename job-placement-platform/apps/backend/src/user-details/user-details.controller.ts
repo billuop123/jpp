@@ -1,8 +1,11 @@
-import { Body, Controller, Get, Param, Post, Put, Req, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, UsePipes, ValidationPipe, UseGuards } from '@nestjs/common';
 
 import { UserDetailsDto } from './dto/user-details.dto';
 import { UserDetailsService } from './user-details.service';
 import type {  Request } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+
+@UseGuards(JwtAuthGuard)
 @Controller('user-details')
 export class UserDetailsController {
     constructor(private readonly userDetailsService: UserDetailsService) {}

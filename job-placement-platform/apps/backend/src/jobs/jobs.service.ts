@@ -237,8 +237,8 @@ export class JobsService {
         return job;
     }
     async applicationExists(jobId: {jobId:string},req:Request){
-        const jobIdData=jobId.jobId
-        const userId=(req as any).userId
+        const jobIdData=jobId?.jobId
+        const userId= (req as any).userId
         const user=await this.databaseService.users.findUnique({
             where:{
                 id:userId,

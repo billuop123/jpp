@@ -1,7 +1,8 @@
-import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { LoggerService } from 'src/logger/logger.service';
 import { UserDto } from './Dto/create-user.dto';
 import { UsersService } from './users.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -36,6 +37,7 @@ export class UsersController {
         }
         return await this.usersService.githubAuth(accessToken);
     }
+    @UseGuards(JwtAuthGuard)
     @Get('is-premium')
     @HttpCode(200)
     async isPremium(@Req() req: Request) {

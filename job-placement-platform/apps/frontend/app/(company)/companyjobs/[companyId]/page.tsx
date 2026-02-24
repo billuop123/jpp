@@ -69,6 +69,9 @@ async function getCompanyJobs(
     jobIds.map(async ({ id }) => {
       const res = await fetch(`${BACKEND_URL}/jobs/${id}`, {
         cache: "no-store",
+        headers:{
+          Authorization:token
+        }
       });
       const job = await res.json();
       if (!res.ok) {

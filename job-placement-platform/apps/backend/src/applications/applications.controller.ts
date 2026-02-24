@@ -1,11 +1,18 @@
-import { Body, Controller, Post, Req, Param, Patch, Get } from '@nestjs/common';
+import { Body, Controller, Post, Req, Param, Patch, Get, UseGuards, SetMetadata } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { ApplicationDto } from './dto/application.dto';
 import { IsCandidate } from 'src/roles/roles.middleware';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+
+@UseGuards(JwtAuthGuard)
 @Controller('applications')
 export class ApplicationsController {
-    constructor(private readonly applicationsService:ApplicationsService){}
+    constructor(private readonly applicationsService:ApplicationsService){
+        console.log("called")
+    }
     @Post()
     async create(@Body() application:ApplicationDto,@Req() req: Request) {
         return await this.applicationsService.create(application,req as any);
@@ -44,6 +51,7 @@ export class ApplicationsController {
         return await this.applicationsService.getMyApplicationStatus(jobId, (req as any).userId as string);
     }
     @Get(':applicationId')
+
     async getApplication(@Param('applicationId') applicationId: string, @Req() req: Request) {
         return await this.applicationsService.getApplicationWithJob(applicationId, (req as any).userId as string);
     }

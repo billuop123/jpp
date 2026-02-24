@@ -133,24 +133,61 @@ STRICT RULES:
     Requirements: ${job.requirements ?? ''}
     Responsibilities: ${job.responsibilities ?? ''}
     
-    Write a tailored resume for the "${job.title}" position following this order: personalInfo, introduction, projects, technicalSkills, keyHighlights, experiences, education, closingNotes. 
+    Write a tailored resume for the "${job.title}" position following this order: introduction, projects, technicalSkills, experiences, education. 
     
-    IMPORTANT: Only reframe the candidate's role if it's within the same technical domain. For example:
-    - Full Stack Developer → Frontend/Backend Developer (SAME DOMAIN - reframe)
-    - DevOps Engineer → Site Reliability Engineer (SAME DOMAIN - reframe)
-    - AI Engineer → Web Developer (DIFFERENT DOMAINS - DO NOT reframe, keep as AI Engineer)
-    - Data Scientist → Frontend Developer (DIFFERENT DOMAINS - DO NOT reframe, keep as Data Scientist)
+    CRITICAL RULES:
+    1. NEVER mention the company name (${job.company?.name ?? ''}) anywhere in the resume
+    2. NO weak words: "aspiring", "learning", "trying", "hoping", "passionate", "motivated"
+    3. NO generic phrases: "team player", "hard worker", "fast learner"
+    4. DO NOT include "Personal Info", "Availability", or "Key Highlights" sections
+    5. Every sentence must be ACTION-DRIVEN with MEASURABLE IMPACT
+    6. NO repetition - each bullet must add unique technical value
     
-    CRITICAL: Completely omit any skills, technologies, projects, or experiences that are NOT relevant to "${job.title}". Examples:
-    - Applying for Frontend Developer: OMIT machine learning, data science, backend-only technologies
-    - Applying for Backend Developer: OMIT UI/UX design, frontend frameworks (unless full-stack context)
-    - Applying for DevOps: OMIT mobile development, game development
+    INTRODUCTION (2-3 sentences max):
+    - Lead with years of experience and core expertise
+    - Mention specific technologies/domains
+    - State quantifiable achievements (e.g., "Built systems serving 100K+ users")
+    - Example: "Software engineer with 3 years building scalable web applications using React and Node.js. Architected microservices handling 50K requests/day with 99.9% uptime."
     
-    Only include information that directly supports the "${job.title}" role. Be selective and ruthless in filtering. If a project or experience has no relevance, leave it out entirely.
+    PROJECTS (4-6 bullets, each must include):
+    - Action verb + what you built + scale/impact
+    - Architecture decisions and technical depth
+    - Technologies used (in parentheses)
+    - Measurable outcome: performance, users, efficiency gain
+    - Example: "Architected microservices-based e-commerce platform handling 50K daily transactions (Node.js, PostgreSQL, Redis). Implemented event-driven architecture reducing order processing time by 65%."
+    - NOT: "Created a chat app for users to communicate" (too vague)
+    - Focus on: system design, scalability, performance optimization, technical challenges solved
     
-    If roles are in the same domain, emphasize the relevant subset of skills. If roles are in different domains, keep the original role title and highlight any transferable skills without changing their core identity.
+    TECHNICAL SKILLS (categorize clearly):
+    Languages: [list]
+    Frameworks & Libraries: [list]
+    Tools & Platforms: [list]
+    Databases: [list]
+    Cloud & DevOps: [list]
+    - Only include skills relevant to "${job.title}"
+    - Use consistent formatting (no mixing styles)
     
-    Do NOT use headings, labels, bullet characters, quotes, or third-person references—only first-person sentences that drop directly into a resume. After describing the candidate, immediately explain why they fit the role. Projects must match the ones provided in the resume data/text (leave the array empty if none are provided). Populate all arrays with concise, impactful sentences. Pack "technicalSkills" with ONLY the skills relevant to "${job.title}". Closing notes must reference the target job/company and highlight alignment with key experience or projects.
+    EXPERIENCE (4-5 bullets per role):
+    - Job title, duration (if available from resume)
+    - Each bullet: action verb + technical responsibility + architecture/design decision + measurable impact
+    - Show real engineering work: "Designed and implemented...", "Architected...", "Optimized..."
+    - Include technical depth: algorithms used, system design choices, performance improvements
+    - Example: "Redesigned authentication system using JWT and Redis session store, reducing login latency from 800ms to 120ms and supporting 10K concurrent users"
+    - NOT: "Worked on authentication feature" (too vague)
+    
+    EDUCATION:
+    - Degree, Institution (if available)
+    - Keep brief, no descriptions
+    
+    ROLE REFRAMING:
+    - Only reframe if same technical domain (Full Stack → Frontend/Backend, DevOps → SRE)
+    - Different domains: keep original role (AI Engineer stays AI Engineer)
+    
+    FILTERING:
+    - Completely OMIT irrelevant skills, technologies, projects, or experiences
+    - Be ruthless: if it doesn't support "${job.title}", remove it
+    
+    Do NOT use headings, labels, bullet characters, quotes, or third-person references—only first-person sentences. Write like a senior engineer with proven impact. Focus on technical depth and architecture decisions, not generic descriptions.
     `;
 
     const result = await model.generateContent(

@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post, Put, UseInterceptors, Req, BadRequestException, UploadedFile, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseInterceptors, Req, BadRequestException, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CompanyDto } from './dto/create-company.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+
 const pdfFileFilter = (req, file, cb) => {
     if (!file.mimetype || !file.mimetype.includes('pdf')) {
       cb(new BadRequestException('Only PDF files are allowed'), false);
@@ -11,6 +13,8 @@ const pdfFileFilter = (req, file, cb) => {
       cb(null, true);
     }
   };
+
+@UseGuards(JwtAuthGuard)
 @Controller('company')
 export class CompanyController {
     constructor(private readonly companyService: CompanyService, private readonly cloudinaryService: CloudinaryService) {}

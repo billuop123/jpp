@@ -1,6 +1,8 @@
-import { Controller, Get, Param, Req, Res } from '@nestjs/common';
+import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import { ResumeTailoringService } from './resume-tailoring.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('resume-tailoring')
 export class ResumeTailoringController {
   constructor(private readonly resumeTailoringService: ResumeTailoringService) {}

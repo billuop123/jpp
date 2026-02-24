@@ -12,12 +12,15 @@ interface PageProps {
   }>;
 }
 
-async function checkInterviewExists(applicationId: string): Promise<boolean> {
+async function checkInterviewExists(applicationId: string, token: string): Promise<boolean> {
   const response = await fetch(
     `${BACKEND_URL}/applications/${applicationId}/interview-exists`,
     {
       method: "GET",
       cache: "no-store",
+      headers: {
+        Authorization: token,
+      },
     }
   );
 
@@ -64,8 +67,12 @@ export default async function InterviewPage({ params }: PageProps) {
   const session = await getServerSession(authOptions);
   const token = session?.token ?? null;
 
+  if (!token) {
+    redirect('/signin');
+  }
+
   // If interview already exists, redirect to analysis
-  const exists = await checkInterviewExists(applicationId);
+  const exists = await checkInterviewExists(applicationId, token);
   if (exists) {
     redirect(`/interview/analysis/${applicationId}`);
   }

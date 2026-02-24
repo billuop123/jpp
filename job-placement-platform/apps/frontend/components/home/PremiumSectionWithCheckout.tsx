@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { BACKEND_URL } from "@/scripts/lib/config";
@@ -25,7 +25,7 @@ export default function PremiumSectionWithCheckout({
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [loadingPremium, setLoadingPremium] = useState(false);
   const router = useRouter();
-
+  
   const hasFull =
     !!premiumAccess?.isPremium ||
     (!!premiumAccess?.isTailoringPremium &&
@@ -46,11 +46,14 @@ export default function PremiumSectionWithCheckout({
 
     setLoadingPremium(true);
     setStatusMessage(null);
-
+    if(!session?.token){
+      redirect("/")
+      return
+    }
     try {
       const checkoutRes = await fetch(`${BACKEND_URL}/stripe/create-checkout-session`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json",Authorization:session?.token },
         body: JSON.stringify({
           success_url: `${window.location.origin}/premium/success`,
           cancel_url: `${window.location.origin}/premium/canceled`,

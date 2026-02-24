@@ -119,14 +119,6 @@ export class MockInterviewsService {
       throw new BadRequestException('No conversation history found for this mock interview');
     }
 
-    // Check if conversation is substantial enough
-    const conversationLines = mockInterview.conversationHistory.split('\n').filter(line => line.trim());
-    const candidateResponses = conversationLines.filter(line => line.toLowerCase().includes('candidate:')).length;
-    
-    if (candidateResponses < 3) {
-      throw new BadRequestException('Insufficient conversation data for analysis. Please conduct a longer interview.');
-    }
-
     const resumeText = await this.userDetailsService.getResumeText(userId);
     if (!resumeText) {
       throw new BadRequestException('Resume text not found');

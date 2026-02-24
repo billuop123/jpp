@@ -62,6 +62,7 @@ export default function RecruiterJobApplicationsPageClient({
 
     try {
       setIsSending(true);
+      console.log('Sending email with applicationId:', selectedApplication.app.id);
       const response = await fetch(`${BACKEND_URL}/email/send-application-status`, {
         method: 'POST',
         headers: {
@@ -69,6 +70,7 @@ export default function RecruiterJobApplicationsPageClient({
           Authorization: token,
         },
         body: JSON.stringify({
+          applicationId: selectedApplication.app.id,
           to: selectedApplication.app.user?.email,
           candidateName: selectedApplication.app.user?.name,
           status: selectedApplication.status,
@@ -78,14 +80,16 @@ export default function RecruiterJobApplicationsPageClient({
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send email');
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to send email');
       }
 
       toast.success(`${selectedApplication.status === 'approved' ? 'Approval' : 'Rejection'} email sent successfully`);
       setSelectedApplication(null);
       setEmailMessage('');
-    } catch (error) {
-      toast.error('Failed to send email');
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send email');
     } finally {
       setIsSending(false);
     }
@@ -164,22 +168,30 @@ export default function RecruiterJobApplicationsPageClient({
                           >
                             View details
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleOpenDialog(application, 'approved')}
-                            disabled={!application.user?.email}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleOpenDialog(application, 'rejected')}
-                            disabled={!application.user?.email}
-                          >
-                            <X className="h-4 w-4 text-white" />
-                          </Button>
+                          {application.acceptanceEmailSent ? (
+                            <span className="text-sm text-green-600 font-medium">Accepted</span>
+                          ) : application.rejectionEmailSent ? (
+                            <span className="text-sm text-red-600 font-medium">Rejected</span>
+                          ) : (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => handleOpenDialog(application, 'approved')}
+                                disabled={!application.user?.email}
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleOpenDialog(application, 'rejected')}
+                                disabled={!application.user?.email}
+                              >
+                                <X className="h-4 w-4 text-white" />
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

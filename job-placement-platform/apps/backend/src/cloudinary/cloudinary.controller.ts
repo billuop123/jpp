@@ -6,11 +6,13 @@ import {
   Req,
   UploadedFile,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { CloudinaryService } from './cloudinary.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import type { Request } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 const pdfFileFilter = (req, file, cb) => {
   if (!file.mimetype || !file.mimetype.includes('pdf')) {
@@ -20,6 +22,7 @@ const pdfFileFilter = (req, file, cb) => {
   }
 };
 
+@UseGuards(JwtAuthGuard)
 @Controller()
 export class CloudinaryController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}

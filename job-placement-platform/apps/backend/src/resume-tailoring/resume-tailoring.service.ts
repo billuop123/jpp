@@ -217,19 +217,11 @@ export class ResumeTailoringService {
     }
 
     private writeTailoredContent(doc: PDFDocument, content: TailoredResumeContent) {
-        const personalInfo = this.filterPersonalInfo(content.personalInfo);
-        if (personalInfo.length) {
-            this.writeStructuredSection(doc, 'PERSONAL INFO', personalInfo);
-        }
         this.writeFreeformSection(doc, content.introduction);
         this.writeStructuredSection(doc, 'PROJECTS', content.projects);
         this.writeStructuredSection(doc, 'TECHNICAL SKILLS', content.technicalSkills);
-        this.writeStructuredSection(doc, 'KEY HIGHLIGHTS', content.keyHighlights);
         this.writeStructuredSection(doc, 'EXPERIENCE', content.experiences);
         this.writeStructuredSection(doc, 'EDUCATION', content.education);
-        if (content.closingNotes?.length) {
-            this.writeStructuredSection(doc, 'CLOSING NOTES', content.closingNotes);
-        }
     }
     private parseStructuredResume(payload: string): TailoredResumeContent | null {
         if (!payload?.trim()) {

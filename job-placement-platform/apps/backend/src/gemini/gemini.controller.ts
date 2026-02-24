@@ -1,7 +1,9 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { ResumeTextExtractionDto } from 'src/openai/dto/resume.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('gemini')
 export class GeminiController {
     constructor(private readonly geminiService: GeminiService) {}

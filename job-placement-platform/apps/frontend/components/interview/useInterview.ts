@@ -55,6 +55,8 @@ export function useInterview({
         body: JSON.stringify({ conversationHistory: history }),
       });
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Save conversation error:', response.status, errorText);
         throw new Error('Failed to save conversation');
       }
       return response.json();
@@ -70,6 +72,8 @@ export function useInterview({
         },
       });
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Analyze interview error:', response.status, errorText);
         throw new Error('Failed to analyze interview');
       }
       return response.json();

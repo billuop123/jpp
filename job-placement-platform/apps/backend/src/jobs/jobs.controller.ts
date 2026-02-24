@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Post, Req, Query, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Query, Param, Patch, UseGuards } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { JobDto, SearchDto } from './dto/jobs.dto';
 import { Prisma } from '@repo/db';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+
 @Controller('jobs')
 export class JobsController {
     constructor(private readonly jobsService: JobsService) {}
@@ -12,6 +14,7 @@ export class JobsController {
     //         offset ? parseInt(offset, 10) : undefined
     //     );
     // }
+    @UseGuards(JwtAuthGuard)
     @Post('application-exists')
     async applicationExists(@Body()jobId: {jobId:string},@Req() req:Request){
         return await this.jobsService.applicationExists(jobId,req as any);
@@ -38,10 +41,12 @@ export class JobsController {
     async regenerateEmbeddings() {
         return await this.jobsService.regenerateEmbeddings();
     }
+    @UseGuards(JwtAuthGuard)
     @Get('pending-requests/:jobId')
     async getPendingRequests(@Param('jobId') jobId: string) {
         return await this.jobsService.getPendingRequests(jobId);
     }
+    @UseGuards(JwtAuthGuard)
     @Patch('update-request-status/:applicationId')
     async updateRequestStatus(@Param('applicationId') applicationId: string) {
         return await this.jobsService.updateRequestStatus(applicationId);
@@ -54,6 +59,7 @@ export class JobsController {
     async findOneJob(@Param('jobId') jobId: string) {
         return await this.jobsService.findOneJob(jobId);
     }
+    @UseGuards(JwtAuthGuard)
     @Post(':companyId')
     async create(@Body() job:JobDto, @Req() req: Request,@Param('companyId') companyId: string): Promise<Prisma.jobsGetPayload<{}>> {
         return await this.jobsService.create(job,req as any,companyId as string);

@@ -35,7 +35,7 @@ export default async function CandidatePage({ searchParams }: PageProps) {
   const limit = Number(searchParams?.limit) || 5;
 
       const response = await fetch(
-        `${BACKEND_URL}/admin/candidates?page=${page}&limit=${limit}`,
+        ` admin/candidates?page=${page}&limit=${limit}`,
         {
           headers: {
         "Content-Type": "application/json",

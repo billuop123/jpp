@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { MockInterviewsService } from './mock-interviews.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('mock-interviews')
 export class MockInterviewsController {
   constructor(private readonly mockInterviewsService: MockInterviewsService) {}

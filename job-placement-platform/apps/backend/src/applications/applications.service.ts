@@ -125,14 +125,6 @@ export class ApplicationsService {
             throw new BadRequestException('No conversation history found');
         }
 
-        // Check if conversation is substantial enough
-        const conversationLines = application.conversationHistory.split('\n').filter(line => line.trim());
-        const candidateResponses = conversationLines.filter(line => line.toLowerCase().includes('candidate:')).length;
-        
-        if (candidateResponses < 3) {
-            throw new BadRequestException('Insufficient conversation data for analysis. Please conduct a longer interview.');
-        }
-
         const job = application.job;
         const prompt = `You are an expert recruiter analyzing an interview transcript and resume text matching the job requirements. 
 
@@ -281,7 +273,10 @@ ${resumeText || 'No resume provided'}
                 jobId
             },
             select:{
+                id:true,
                 relevanceScore:true,
+                acceptanceEmailSent:true,
+                rejectionEmailSent:true,
                 user:{
                     select:{
                         id:true,

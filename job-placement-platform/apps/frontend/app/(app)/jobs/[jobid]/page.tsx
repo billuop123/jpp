@@ -3,6 +3,9 @@ import type { Job } from "@/components/jobs/types";
 import { JobDetailsClient } from "@/components/jobs/JobDetailsClient";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/scripts/authOptions";
+import { redirect } from "next/navigation";
 
 interface JobDetailsPageProps {
   params: Promise<{
@@ -11,7 +14,12 @@ interface JobDetailsPageProps {
 }
 
 async function getJob(jobid: string): Promise<Job> {
+  const session = await getServerSession(authOptions);
   const response = await fetch(`${BACKEND_URL}/jobs/${jobid}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(session?.token && { Authorization: session.token }),
+    },
     cache: "no-store",
   });
 
