@@ -12,15 +12,15 @@ export class UsersController {
     async findAll() {
         return await this.usersService.findAll();
     }
-    @Post()
-    async create(@Body() user:UserDto) {
-        return await this.usersService.create(user);
-    }
-    @Post('signin')
-    @HttpCode(200)
-    async signin(@Body() user:UserDto) {
-        return await this.usersService.signin(user);
-    }
+    // @Post()
+    // async create(@Body() user:UserDto) {
+    //     return await this.usersService.create(user);
+    // }
+    // @Post('signin')
+    // @HttpCode(200)
+    // async signin(@Body() user:UserDto) {
+    //     return await this.usersService.signin(user);
+    // }
     @Post('google-auth')
     @HttpCode(200)
     async googleAuth(@Body('idToken') idToken?: string) {

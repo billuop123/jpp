@@ -28,7 +28,7 @@ model Users {
   id    String     @id @default(uuid())
   email String  @unique
   name  String? 
-  password String
+  password String?
   deletedAt DateTime?
   company Companies[]
   userDetails UserDetails?

@@ -105,7 +105,6 @@ export class UsersService {
                     role: existingUser.role?.code,
                 };
             }
-            const randomPassword = Math.random().toString(36).slice(-12) + Date.now().toString(36);
             const candidateRole=await this.databaseService.roles.findUnique({
                 where:{
                     code:"CANDIDATE"
@@ -115,7 +114,6 @@ export class UsersService {
                 data: {
                     email,
                     name,
-                    password: randomPassword,
                     role:{
                         connect:{
                             id: candidateRole?.id,
@@ -223,7 +221,6 @@ export class UsersService {
                 role: existingUser.role?.code,
             };
         }
-        const randomPassword = Math.random().toString(36).slice(-12) + Date.now().toString(36);
         const candidateRole=await this.databaseService.roles.findUnique({
             where:{
                 code:"CANDIDATE"
@@ -233,7 +230,6 @@ export class UsersService {
             data: {
                 email: email,
                 name: name,
-                password: randomPassword,
                 role:{
                     connect:{
                         id: candidateRole?.id,
