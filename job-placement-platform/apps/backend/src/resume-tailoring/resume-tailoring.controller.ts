@@ -16,7 +16,7 @@ export class ResumeTailoringController {
     @Req() req: any,
 @Res() res: any
   ) {
-    const userId = (req as any).userId;
+    const userId = req.userId;
     await this.resumeTailoringService.resumeTailoring(userId, jobId, res);
   }
 }

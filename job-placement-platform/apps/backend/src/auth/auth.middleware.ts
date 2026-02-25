@@ -25,9 +25,9 @@
 //       throw new UnauthorizedException('User ID not found in token');
 //     }
 //     const userId = decodedToken.id;
-//     (req as any).userId = userId;
+//     req.userId = userId;
 //     const role = decodedToken.role;
-//     (req as any).role = role;
+//     req.role = role;
 //     next();
 //     }catch(error){
 //       if(error instanceof UnauthorizedException){

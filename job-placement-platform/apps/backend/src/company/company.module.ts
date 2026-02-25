@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { CompanyService } from './company.service';
 import { CompanyController } from './company.controller';
-import { DatabaseService } from 'src/database/database.service';
-import { UsersService } from 'src/users/users.service';
-import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
+import { DatabaseModule } from 'src/database/database.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  providers: [CompanyService,DatabaseService,UsersService],
+  imports: [CloudinaryModule, DatabaseModule, UsersModule],
   controllers: [CompanyController],
-  imports: [CloudinaryModule]
+  providers: [CompanyService],
+  exports: [CompanyService]
 })
 export class CompanyModule {}

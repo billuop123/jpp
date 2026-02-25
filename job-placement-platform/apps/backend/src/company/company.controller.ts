@@ -5,6 +5,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import type { Request } from 'express';
 
 const pdfFileFilter = (req, file, cb) => {
     if (!file.mimetype || !file.mimetype.includes('pdf')) {
@@ -34,7 +35,7 @@ export class CompanyController {
     
     @Post()
     async create(@Body() company:CompanyDto, @Req() req: Request) {
-        return await this.companyService.create(company,req as any);
+        return await this.companyService.create(company,req);
     }
       @Get('types')
       async getCompanyTypes() {
@@ -42,7 +43,7 @@ export class CompanyController {
       }
     @Get('my-companies')
     async getMyCompanies(@Req() req: Request) {
-        return await this.companyService.getMyCompanies(req as any);
+        return await this.companyService.getMyCompanies(req);
     }
     @Get('company-jobs/:companyId')
     async getCompanyJobs(@Param('companyId') companyId: string, @Req() req: Request) {
@@ -50,16 +51,25 @@ export class CompanyController {
     }
   @Get()
   async getCompanyByQuery(@Query('companyId') companyId: string, @Req() req: Request) {
-      return await this.companyService.getCompany(companyId, (req as any).userId);
+      if(!req.userId){
+        throw new BadRequestException("User Id not found")
+      }
+      return await this.companyService.getCompany(companyId, req.userId);
   }
     @Get(':companyId')
   async getCompany(@Param('companyId') companyId: string, @Req() req: Request) {
-      const params = (req as any).params || {};
+      const params = req.params || {};
       const effectiveCompanyId = companyId || params.companyId;
-      return await this.companyService.getCompany(effectiveCompanyId, (req as any).userId);
+      if(!req.userId){
+        throw new BadRequestException("User Id not found")
+      }
+      return await this.companyService.getCompany(effectiveCompanyId, req.userId);
     }
     @Get('is-recruiter/:companyId')
     async isRecruiter(@Param('companyId') companyId: string, @Req() req: Request) {
-        return await this.companyService.isRecruiter(companyId, (req as any).userId);
+      if(!req.userId){
+        throw new BadRequestException("User Id not found")
+      }
+        return await this.companyService.isRecruiter(companyId, req.userId);
     }
 }

@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { GeminiProvider } from './gemini.provider';
-import { UsersService } from 'src/users/users.service';
-import { DatabaseService } from 'src/database/database.service';
 import { GeminiController } from './gemini.controller';
+import { UsersModule } from 'src/users/users.module';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
-  providers: [GeminiService, GeminiProvider, UsersService, DatabaseService],
+  imports:[UsersModule,DatabaseModule],
+  providers: [GeminiService, GeminiProvider],
   exports: [GeminiService, GeminiProvider],
   controllers: [GeminiController],
 })

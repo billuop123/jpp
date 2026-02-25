@@ -18,7 +18,7 @@ export class ApplicationsService {
     ){}
     
     async create(application:ApplicationDto,req:Request){
-        const userId = (req as any).userId;
+        const userId = req.userId;
         
         if(!userId){
             this.logger.error('User ID not found in request');

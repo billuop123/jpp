@@ -9,8 +9,11 @@ import { UsersService } from 'src/users/users.service';
 export class CompanyService {
     constructor(private readonly databaseService: DatabaseService,private readonly usersService: UsersService) {}
     async create(company:CompanyDto,req:Request){
-        const userId=(req as any).userId;
+        const userId=req.userId;
         const companytype=company.companyType;
+        if(!userId){
+            throw new BadRequestException("User Id not found")
+        }
         await this.usersService.userExistsById(userId);
         const companyId=await this.databaseService.companyTypes.findFirst({
             where: {
@@ -62,8 +65,11 @@ export class CompanyService {
         })
         return companyTypes;
     }
-    async getMyCompanies(req:Request){
-        const userId=(req as any).userId;
+    async getMyCompanies(req: Request){
+        const userId = req.userId;
+        if(!userId){
+            throw new BadRequestException("User Id not found")
+        }
         await this.usersService.userExistsById(userId);
         const companies=await this.databaseService.companies.findMany({
             where: {
@@ -84,7 +90,7 @@ export class CompanyService {
         if(!company){
             throw new NotFoundException('Company not found');
         }
-        if(company.userId!==(req as any).userId){
+        if(company.userId!==req.userId){
             throw new UnauthorizedException('You are not authorized to get this company jobs');
         }
         const jobs=await this.databaseService.jobs.findMany({

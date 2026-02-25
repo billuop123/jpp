@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { JobsController } from './jobs.controller';
 import { JobsService } from './jobs.service';
 import { DatabaseModule } from 'src/database/database.module';
-import { UsersService } from 'src/users/users.service';
-import { CompanyService } from 'src/company/company.service';
-import { EmbedService } from 'src/embed/embed.service';
+import { UsersModule } from 'src/users/users.module';
+import { CompanyModule } from 'src/company/company.module';
+import { EmbedModule } from 'src/embed/embed.module';
 
 @Module({
-  imports:[DatabaseModule],
+  imports: [DatabaseModule, UsersModule, CompanyModule, EmbedModule],
   controllers: [JobsController],
-  providers: [JobsService,UsersService,CompanyService,EmbedService],
+  providers: [JobsService],
   exports: [JobsService]
 })
 export class JobsModule {}

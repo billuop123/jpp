@@ -15,8 +15,11 @@ export class JobsService {
       private readonly embedService: EmbedService,
     ){}
     async create(job:JobDto,req:Request,companyId:string): Promise<Prisma.jobsGetPayload<{}>>{
-        const userId=(req as any).userId;
+        const userId=req.userId;
         const date=new Date()
+        if(!userId){
+            throw new BadRequestException("User id not found")
+        }
         await this.usersService.userExistsById(userId);
         if(job.deadline < date){
             throw new BadRequestException('Deadline must be in the future');
@@ -238,7 +241,7 @@ export class JobsService {
     }
     async applicationExists(jobId: {jobId:string},req:Request){
         const jobIdData=jobId?.jobId
-        const userId= (req as any).userId
+        const userId= req.userId
         const user=await this.databaseService.users.findUnique({
             where:{
                 id:userId,

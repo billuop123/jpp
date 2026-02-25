@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { MockInterviewsService } from './mock-interviews.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import  type { Request } from 'express';
 
 @UseGuards(JwtAuthGuard)
 @Controller('mock-interviews')
@@ -12,7 +13,7 @@ export class MockInterviewsController {
     @Body() body: { jobId: string },
     @Req() req: Request,
   ) {
-    const userId = (req as any).userId as string;
+    const userId = req.userId as string;
     return await this.mockInterviewsService.startMockInterview(body.jobId, userId);
   }
 
@@ -22,7 +23,7 @@ export class MockInterviewsController {
     @Body() body: { conversationHistory: string },
     @Req() req: Request,
   ) {
-    const userId = (req as any).userId as string;
+    const userId = req.userId as string;
     return await this.mockInterviewsService.saveConversation(
       mockInterviewId,
       userId,
@@ -35,7 +36,7 @@ export class MockInterviewsController {
     @Param('mockInterviewId') mockInterviewId: string,
     @Req() req: Request,
   ) {
-    const userId = (req as any).userId as string;
+    const userId = req.userId as string;
     return await this.mockInterviewsService.analyzeMockInterview(
       mockInterviewId,
       userId,
@@ -47,7 +48,7 @@ export class MockInterviewsController {
     @Param('mockInterviewId') mockInterviewId: string,
     @Req() req: Request,
   ) {
-    const userId = (req as any).userId as string;
+    const userId = req.userId as string;
     return await this.mockInterviewsService.getMockInterview(
       mockInterviewId,
       userId,
@@ -56,7 +57,7 @@ export class MockInterviewsController {
 
   @Get()
   async listMyMockInterviews(@Req() req: Request) {
-    const userId = (req as any).userId as string;
+    const userId = req.userId as string;
     return await this.mockInterviewsService.listMyMockInterviews(userId);
   }
 }

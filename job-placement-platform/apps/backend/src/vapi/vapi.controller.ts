@@ -1,9 +1,9 @@
-  import { Body, Controller, Get, Post, Param, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, Req, UseGuards } from '@nestjs/common';
 import { VapiService } from './vapi.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CallAssistantDto } from './Dto/call-assistant-dto';
 import { AssistantJobDto } from './Dto/call-assistantbyid-dto';
-
+import type { Request } from 'express';
 @UseGuards(JwtAuthGuard)
 @Controller('vapi')
 export class VapiController {
@@ -17,13 +17,13 @@ export class VapiController {
     return await this.vapiService.callAssistant(
       body.assistant,
       body.jobId,
-      (req as any).userId as string,
+      req.userId as string,
       body.mode ?? 'real',
     );
     }
     @Get('client-key')
     async getClientKey(@Req() req:Request) {
-        return await this.vapiService.getClientKey((req as any).userId as string);
+        return await this.vapiService.getClientKey(req.userId as string);
     }
     @Post('call-assistant/:applicationId')
   async callAssistantByApplicationId(
@@ -34,12 +34,12 @@ export class VapiController {
     return await this.vapiService.callAssistantByApplicationId(
       applicationId,
       body.assistant,
-      (req as any).userId as string,
+      req.userId as string,
       body.mode ?? 'real',
     );
     }
     @Post('save-conversation/:applicationId')
     async saveConversation(@Param('applicationId') applicationId: string, @Body() body: { conversationHistory: string }, @Req() req:Request) {
-        return await this.vapiService.saveConversationHistory(applicationId, body.conversationHistory, (req as any).userId as string);
+        return await this.vapiService.saveConversationHistory(applicationId, body.conversationHistory, req.userId as string);
     }
 }

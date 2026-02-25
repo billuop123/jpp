@@ -4,6 +4,7 @@ import { ApplicationDto } from './dto/application.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/role.decorator';
+import type  { Request } from 'express';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
@@ -23,13 +24,13 @@ export class ApplicationsController {
     @Get('my-interviews')
     async listMyInterviews(@Req() req: Request) {
         return await this.applicationsService.listMyInterviews(
-            (req as any).userId as string,
+            req.userId as string,
         );
     }
     @Get('my-applications')
     async listMyApplications(@Req() req: Request) {
         return await this.applicationsService.listMyApplications(
-            (req as any).userId as string,
+            req.userId as string,
         );
     }
     @Get('recruiter/:jobId')
@@ -50,16 +51,16 @@ export class ApplicationsController {
     }
     @Get('my-status/:jobId')
     async getMyApplicationStatus(@Param('jobId') jobId: string, @Req() req: Request) {
-        return await this.applicationsService.getMyApplicationStatus(jobId, (req as any).userId as string);
+        return await this.applicationsService.getMyApplicationStatus(jobId, req.userId as string);
     }
     @Get(':applicationId')
 
     async getApplication(@Param('applicationId') applicationId: string, @Req() req: Request) {
-        return await this.applicationsService.getApplicationWithJob(applicationId, (req as any).userId as string);
+        return await this.applicationsService.getApplicationWithJob(applicationId, req.userId as string);
     }
     @Patch(':applicationId/analyze')
     async analyzeInterview(@Param('applicationId') applicationId: string, @Req() req: Request) {
-        return await this.applicationsService.analyzeInterview(applicationId, (req as any).userId as string);
+        return await this.applicationsService.analyzeInterview(applicationId, req.userId as string);
     }
     @Get(':applicationId/interview-exists')
     async interviewExists(@Param('applicationId') applicationId: string) {

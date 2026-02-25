@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
+import { DatabaseModule } from 'src/database/database.module';
+import { UsersModule } from 'src/users/users.module';
 import { OpenaiController } from './openai.controller';
-import { OpenaiService } from './openai.service';
 import { OpenaiProvider } from './openai.provider';
-import { UsersService } from 'src/users/users.service';
-import { DatabaseService } from 'src/database/database.service';
+import { OpenaiService } from './openai.service';
 
 @Module({
+  imports:[UsersModule,DatabaseModule],
   controllers: [OpenaiController],
-  providers: [OpenaiService, OpenaiProvider,UsersService,DatabaseService],
+  providers: [OpenaiService, OpenaiProvider],
   exports: [OpenaiService, OpenaiProvider],
 })
 export class OpenaiModule {}

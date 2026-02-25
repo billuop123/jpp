@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, Req,
 import { UserDto } from './Dto/create-user.dto';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import type { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -40,6 +41,6 @@ export class UsersController {
     @Get('is-premium')
     @HttpCode(200)
     async isPremium(@Req() req: Request) {
-        return await this.usersService.isPremium((req as any).userId as string);
+        return await this.usersService.isPremium(req.userId as string);
     }
 }

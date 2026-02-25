@@ -55,6 +55,6 @@ export class CloudinaryController {
 
   @Delete('upload-pdf')
   async removeUploadedPdf(@Req() req: Request) {
-    return this.cloudinaryService.removeUploadedResume(req as any);
+    return this.cloudinaryService.removeUploadedResume(req);
   }
 }

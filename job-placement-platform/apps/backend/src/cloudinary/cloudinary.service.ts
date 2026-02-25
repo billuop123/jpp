@@ -17,7 +17,7 @@ export class CloudinaryService {
     req: Request,
     { allowExisting }: { allowExisting: boolean },
   ) {
-    const userId = (req as any).userId;
+    const userId = req.userId;
     if (!userId) {
       throw new BadRequestException('Authenticated user context not found');
     }
@@ -67,7 +67,7 @@ export class CloudinaryService {
     return this.uploadOrUpdatePdf(file, req, { allowExisting: true });
   }
   async uploadCompanyIncorporationPdf(file:{buffer:Buffer},req:Request,companyId:string){
-    const userId=(req as any).userId;
+    const userId=req.userId;
     if(!userId){
       throw new BadRequestException('Authenticated user context not found');
     }
@@ -104,7 +104,7 @@ export class CloudinaryService {
     });
   }
   async removeUploadedResume(req: Request) {
-    const userId = (req as any).userId;
+    const userId = req.userId;
     if (!userId) {
       throw new BadRequestException('Authenticated user context not found');
     }

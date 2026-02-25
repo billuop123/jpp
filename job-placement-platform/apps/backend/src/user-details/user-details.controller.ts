@@ -18,11 +18,11 @@ export class UserDetailsController {
     }
     @Get()
     async getDetails(@Req() req: Request) {
-        return await this.userDetailsService.getDetails((req as any).userId as string);
+        return await this.userDetailsService.getDetails(req.userId as string);
     }
     @Get('parse-pdf')
     async parsePdf(@Req() req: Request) {
-        return await this.userDetailsService.parsePdf(req as any);
+        return await this.userDetailsService.parsePdf(req);
     }
     @Put()
     async updateDetails(@Body() userDetails: UserDetailsDto, @Req() req: Request) {
