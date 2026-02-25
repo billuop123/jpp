@@ -1,23 +1,20 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+  import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { createIntentDto } from './dto/create-intent.dto';
+import { createCheckoutSession } from './dto/create-checkout.dto';
 
 @Controller('stripe')
 export class StripeController {
     constructor(private readonly stripeService:StripeService){}
     @Post('create-intent')
-    async createIntent(@Body() body: { amount: number, currency: string, receipt_email: string }){
+    async createIntent(@Body() body:createIntentDto){
       return await this.stripeService.createIntent(body.amount, body.currency, body.receipt_email);
     }
     @Post('create-checkout-session')
     async createCheckoutSession(
       @Body()
-      body: {
-        planType: 'TAILORING' | 'MOCK' | 'FULL';
-        success_url: string;
-        cancel_url: string;
-        customer_email: string;
-      },
+      body: createCheckoutSession,
     ) {
       return await this.stripeService.createCheckoutsession(
         body.planType,

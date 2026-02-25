@@ -75,8 +75,3 @@ export class JobDto{
     @Type(() => Date)
     deadline:Date
 }
-export class SearchDto {
-    @IsString()
-    @IsNotEmpty()
-    query: string;
-}

@@ -1,7 +1,6 @@
 import { Body, Controller, Post, Req, Param, Patch, Get, UseGuards, SetMetadata } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { ApplicationDto } from './dto/application.dto';
-import { IsCandidate } from 'src/roles/roles.middleware';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/role.decorator';

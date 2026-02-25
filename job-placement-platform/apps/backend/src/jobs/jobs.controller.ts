@@ -1,8 +1,9 @@
 import { Body, Controller, Get, Post, Req, Query, Param, Patch, UseGuards } from '@nestjs/common';
 import { JobsService } from './jobs.service';
-import { JobDto, SearchDto } from './dto/jobs.dto';
+import { JobDto } from './dto/jobs.dto';
 import { Prisma } from '@repo/db';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SearchDto } from './dto/search-job.dto';
 
 @Controller('jobs')
 export class JobsController {

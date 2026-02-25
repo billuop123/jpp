@@ -48,7 +48,6 @@ export class CompanyController {
     async getCompanyJobs(@Param('companyId') companyId: string, @Req() req: Request) {
         return await this.companyService.getCompanyJobs(companyId,req as any);
     }
-  // Fallback/query-based version to avoid any path param issues
   @Get()
   async getCompanyByQuery(@Query('companyId') companyId: string, @Req() req: Request) {
       return await this.companyService.getCompany(companyId, (req as any).userId);

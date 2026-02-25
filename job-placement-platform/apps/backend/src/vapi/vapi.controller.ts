@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post, Param, Req, UseGuards } from '@nestjs/common';
+  import { Body, Controller, Get, Post, Param, Req, UseGuards } from '@nestjs/common';
 import { VapiService } from './vapi.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CallAssistantDto } from './Dto/call-assistant-dto';
+import { AssistantJobDto } from './Dto/call-assistantbyid-dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('vapi')
@@ -11,7 +13,7 @@ export class VapiController {
         return await this.vapiService.getAssistants();
     }
     @Post('call-assistant')
-  async callAssistant(@Body() body: { assistant?: any; jobId: string; mode?: 'real' | 'mock' },@Req() req:Request) {
+  async callAssistant(@Body() body: CallAssistantDto,@Req() req:Request) {
     return await this.vapiService.callAssistant(
       body.assistant,
       body.jobId,
@@ -26,7 +28,7 @@ export class VapiController {
     @Post('call-assistant/:applicationId')
   async callAssistantByApplicationId(
     @Param('applicationId') applicationId: string,
-    @Body() body: { assistant?:any; mode?: 'real' | 'mock' },
+    @Body() body: AssistantJobDto,
     @Req() req:Request
   ) {
     return await this.vapiService.callAssistantByApplicationId(

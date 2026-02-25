@@ -1,12 +1,11 @@
 import { BadRequestException, Body, Controller, Get, HttpCode, Post, Query, Req, UseGuards } from '@nestjs/common';
-import { LoggerService } from 'src/logger/logger.service';
 import { UserDto } from './Dto/create-user.dto';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
-    constructor(private readonly usersService: UsersService,private readonly loggerService: LoggerService) {}
+    constructor(private readonly usersService: UsersService) {}
 
     @Get()
     async findAll() {
