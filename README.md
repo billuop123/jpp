@@ -12,7 +12,7 @@ This is a full-stack monorepo application built with modern web technologies, of
 - **Backend**: NestJS, Prisma, PostgreSQL
 - **ML Service**: FastAPI, XGBoost
 - **AI Integration**: OpenAI, Google Gemini, Vapi AI
-- **Infrastructure**: Turborepo, Docker
+- **Infrastructure**: Turborepo
 
 ## Key Features
 
@@ -83,12 +83,13 @@ pnpm dev
 
 ## Environment Setup
 
-Create `.env` files in:
-- `apps/backend/` - API keys, database URL, JWT secret
-- `apps/frontend/` - NextAuth config, API URL
-- `packages/database/` - Database connection string
+Copy `.env.example` to `.env` in:
+- Root directory
+- `apps/backend/`
+- `apps/frontend/`
+- `packages/database/`
 
-See `env-example` files in respective directories for required variables.
+Fill in your API keys and configuration values.
 
 ## License
 
