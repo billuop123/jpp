@@ -73,11 +73,7 @@ cd ../..
 pnpm dev
 ```
 
-### Using Docker
 
-```bash
-docker-compose up -d
-```
 
 ## Development
 
