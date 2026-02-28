@@ -23,7 +23,7 @@ interface InterviewHeaderProps {
 
 export function InterviewHeader({ job }: InterviewHeaderProps) {
   const salaryRange = job.salaryMin && job.salaryMax
-    ? `${job.salaryMin} - ${job.salaryMax} ${job.salaryCurrency || 'USD'}`
+    ? `${job.salaryMin} - ${job.salaryMax} ${job.salaryCurrency || 'NPR'}`
     : 'Not specified';
 
   return (

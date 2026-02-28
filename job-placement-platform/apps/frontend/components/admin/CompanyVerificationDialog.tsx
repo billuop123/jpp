@@ -28,10 +28,7 @@ onClose,
 }: CompanyVerificationDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="max-w-4xl max-h-[90vh] overflow-y-auto"
-        showCloseButton={false}
-      >
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">
             {company?.name ?? "Company details"}
@@ -44,18 +41,18 @@ onClose,
 
         {company && (
           <div className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-xl border bg-card/40 px-4 py-3 space-y-1">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Email
                 </p>
-                <p className="text-sm">{company.email}</p>
+                <p className="text-sm break-all">{company.email}</p>
               </div>
               <div className="rounded-xl border bg-card/40 px-4 py-3 space-y-1">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Website
                 </p>
-                <p className="text-sm">
+                <p className="text-sm break-all">
                   {company.website ? (
                     <a
                       href={company.website}
@@ -107,7 +104,7 @@ onClose,
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button
             variant="outline"
             onClick={onClose}

@@ -128,10 +128,12 @@ export class ApplicationsService {
         const job = application.job;
         const prompt = `You are an expert recruiter analyzing an interview transcript and resume text matching the job requirements. 
 
-IMPORTANT: Be strict in your evaluation. Short interviews or brief responses should receive lower scores. Each score category (0-2) should reflect:
-- 0: Poor/Inadequate - Lacks depth, unclear responses, or insufficient demonstration of skills
-- 1: Satisfactory - Shows basic understanding but lacks depth or has some gaps
-- 2: Excellent - Demonstrates strong skills, clear communication, and thorough knowledge
+Evaluate this interview fairly and generously. Each score category (0-2) should reflect:
+- 0: Poor - Completely off-topic, no response, or extremely brief/inadequate
+- 1: Good - Shows reasonable understanding, effort, and relevant responses (DEFAULT for most answers)
+- 2: Excellent - Demonstrates exceptional skills, thorough knowledge, and outstanding communication
+
+IMPORTANT: Most candidates who provide relevant answers should receive 1s. Reserve 0s only for completely inadequate responses or no response at all
 
 Job Details:
 - Title: ${job.title}
@@ -145,8 +147,8 @@ ${application.conversationHistory}
 
 Analyze this interview and provide:
 1. A detailed relevance comment explaining the score, highlighting strengths and areas for improvement
-2. Consider the depth and quality of responses, not just their presence
-3. Penalize brief or superficial answers
+2. Focus on what the candidate demonstrates well, giving credit for relevant responses
+3. Be encouraging and recognize effort
 
 Return your response as JSON in this exact format:
 {
@@ -180,12 +182,15 @@ ${resumeText || 'No resume provided'}
             const text = response.text();
 
             const analysis = JSON.parse(text || '{}');
+            
+            console.log('AI Analysis Response:', analysis);
+            
             const relevancecomment = analysis.relevancecomment || 'No analysis available';
-            const technicalScore = Math.max(0, Math.min(2, parseInt(analysis.technicalScore) || 0));
-            const communicationScore = Math.max(0, Math.min(2, parseInt(analysis.communicationScore) || 0));
-            const problemSolvingScore = Math.max(0, Math.min(2, parseInt(analysis.problemSolvingScore) || 0));
-            const jobRelevanceScore = Math.max(0, Math.min(2, parseInt(analysis.jobRelevanceScore) || 0));
-            const depthOfKnowledgeScore = Math.max(0, Math.min(2, parseInt(analysis.depthOfKnowledgeScore) || 0));
+            const technicalScore = Math.max(0, Math.min(2, Number(analysis.technicalScore) || 1));
+            const communicationScore = Math.max(0, Math.min(2, Number(analysis.communicationScore) || 1));
+            const problemSolvingScore = Math.max(0, Math.min(2, Number(analysis.problemSolvingScore) || 1));
+            const jobRelevanceScore = Math.max(0, Math.min(2, Number(analysis.jobRelevanceScore) || 1));
+            const depthOfKnowledgeScore = Math.max(0, Math.min(2, Number(analysis.depthOfKnowledgeScore) || 1));
             const strengths = analysis.strengths || 'No strengths available';
             const weaknesses = analysis.weaknesses || 'No weaknesses available';
             const updatedApplication = await this.databaseService.applications.update({

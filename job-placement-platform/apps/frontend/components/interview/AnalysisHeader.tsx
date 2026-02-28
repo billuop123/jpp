@@ -26,7 +26,7 @@ interface AnalysisHeaderProps {
 
 export function AnalysisHeader({ job }: AnalysisHeaderProps) {
   const salaryRange = job.salaryMin && job.salaryMax
-    ? `${job.salaryMin} - ${job.salaryMax} ${job.salaryCurrency || 'USD'}`
+    ? `${job.salaryMin} - ${job.salaryMax} ${job.salaryCurrency || 'NPR'}`
     : 'Not specified';
 
   return (
