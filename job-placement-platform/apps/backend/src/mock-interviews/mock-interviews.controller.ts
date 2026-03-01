@@ -2,6 +2,8 @@ import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nest
 import { MockInterviewsService } from './mock-interviews.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import  type { Request } from 'express';
+import { JobIdDto } from './dto/jobId.dto';
+import { ConversationHistoryDto } from './dto/coversationHistory.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('mock-interviews')
@@ -10,7 +12,7 @@ export class MockInterviewsController {
 
   @Post('start')
   async startMockInterview(
-    @Body() body: { jobId: string },
+    @Body() body: JobIdDto,
     @Req() req: Request,
   ) {
     const userId = req.userId as string;
@@ -20,7 +22,7 @@ export class MockInterviewsController {
   @Post(':mockInterviewId/conversation')
   async saveConversation(
     @Param('mockInterviewId') mockInterviewId: string,
-    @Body() body: { conversationHistory: string },
+    @Body() body: ConversationHistoryDto,
     @Req() req: Request,
   ) {
     const userId = req.userId as string;

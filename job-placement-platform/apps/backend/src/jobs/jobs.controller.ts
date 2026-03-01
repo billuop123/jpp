@@ -4,6 +4,7 @@ import { JobDto } from './dto/jobs.dto';
 import { Prisma } from '@repo/db';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { SearchDto } from './dto/search-job.dto';
+import { jobIdDto } from './dto/jobId.dto';
 
 @Controller('jobs')
 export class JobsController {
@@ -17,8 +18,9 @@ export class JobsController {
     // }
     @UseGuards(JwtAuthGuard)
     @Post('application-exists')
-    async applicationExists(@Body()jobId: {jobId:string},@Req() req:Request){
-        return await this.jobsService.applicationExists(jobId,req as any);
+    async applicationExists(@Body()body: jobIdDto,@Req() req:Request){
+        const {jobId}=body;
+        return await this.jobsService.applicationExists({jobId},req as any);
     }
 
 

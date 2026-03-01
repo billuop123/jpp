@@ -2,6 +2,7 @@ import { Controller, Get, Patch, Param, Query, Post, Body, UseGuards } from '@ne
 import { AdminService } from './admin.service';
 import { PaginationQueryDto } from './dto/paginationQueryDto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { roleCodeQueryDto } from './dto/roleCodeQueryDto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('admin')
@@ -34,8 +35,9 @@ export class AdminController {
     @Patch('users/:id/role')
     async updateUserRole(
       @Param('id') id: string,
-      @Body('roleCode') roleCode: string,
+      @Body() body:roleCodeQueryDto,
     ) {
+        const {roleCode}=body;
         return await this.adminService.updateUserRole(id,roleCode);
     }
 }

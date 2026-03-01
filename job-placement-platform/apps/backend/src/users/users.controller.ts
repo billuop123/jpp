@@ -3,6 +3,8 @@ import { UserDto } from './Dto/create-user.dto';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import type { Request } from 'express';
+import { IdTokenDto } from './Dto/idToken.dto';
+import { AccessTokenDto } from './Dto/accessToken.dto';
 
 @Controller('users')
 export class UsersController {
@@ -23,7 +25,8 @@ export class UsersController {
     // }
     @Post('google-auth')
     @HttpCode(200)
-    async googleAuth(@Body('idToken') idToken?: string) {
+    async googleAuth(@Body() body: IdTokenDto) {
+        const {idToken}=body;
         if(!idToken){
             throw new BadRequestException('ID token is required');
         }
@@ -31,7 +34,8 @@ export class UsersController {
     }
     @Post('github-auth')
     @HttpCode(200)
-    async githubAuth(@Body('accessToken') accessToken?: string) {
+    async githubAuth(@Body() body: AccessTokenDto) {
+        const {accessToken}=body;
         if(!accessToken){
             throw new BadRequestException('Access token is required');
         }
