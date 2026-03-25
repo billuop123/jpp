@@ -137,7 +137,7 @@ export class UsersService {
                 user: newUser,
                 role: newUser.role?.code,
             };
-        }catch(error){
+        }catch(error:any){
             console.log(error.message);
             if(error instanceof HttpException){
                 throw error;

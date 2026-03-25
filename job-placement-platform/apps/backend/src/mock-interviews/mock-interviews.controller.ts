@@ -4,8 +4,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import  type { Request } from 'express';
 import { JobIdDto } from './dto/jobId.dto';
 import { ConversationHistoryDto } from './dto/coversationHistory.dto';
+import { Roles } from 'src/auth/role.decorator';
 
 @UseGuards(JwtAuthGuard)
+@Roles('CANDIDATE')
 @Controller('mock-interviews')
 export class MockInterviewsController {
   constructor(private readonly mockInterviewsService: MockInterviewsService) {}

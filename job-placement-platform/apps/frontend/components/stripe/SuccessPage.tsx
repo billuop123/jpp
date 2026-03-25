@@ -34,7 +34,7 @@ export default function SuccessPageClient() {
 
             },
             method: "POST",
-            body: JSON.stringify({ customer_email: email }),
+            body: JSON.stringify({ email }),
           }
         );
 

@@ -4,8 +4,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { createIntentDto } from './dto/create-intent.dto';
 import { createCheckoutSession } from './dto/create-checkout.dto';
 import { CustomerEmailDto } from './dto/customer-email.dto';
+import { Roles } from 'src/auth/role.decorator';
 
 @Controller('stripe')
+@Roles('CANDIDATE')
 export class StripeController {
     constructor(private readonly stripeService:StripeService){}
     @Post('create-intent')

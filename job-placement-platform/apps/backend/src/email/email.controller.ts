@@ -2,8 +2,10 @@ import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { DatabaseService } from 'src/database/database.service';
 import { emailDto } from './dto/email-dto';
+import { Roles } from 'src/auth/role.decorator';
 
 @Controller('email')
+@Roles('RECRUITER')
 export class EmailController {
   constructor(
     private readonly emailService: EmailService,
